@@ -3,6 +3,12 @@ package ch.epfl.javelo.projection;
 public final class Ch1903 {
     private Ch1903() {}
 
+    /**
+     * Calculates the east coordinate of a point in the WGS84 system
+     * @param lon longitude
+     * @param lat latitude
+     * @return the east coordinate of a point
+     */
     public static double e(double lon, double lat){
         double lon1 = Math.pow(10,-4)*(3600*Math.toDegrees(lon) - 26782.5);
         double lat1 = Math.pow(10,-4)*(3600*Math.toDegrees(lat) - 169028.66);
@@ -10,6 +16,13 @@ public final class Ch1903 {
                 - 44.54*Math.pow(lon1,3);
         return Math.toRadians(e);
     }
+
+    /**
+     * Calculates the north coordinate of a point in the WGS84 system
+     * @param lon longitude
+     * @param lat latitude
+     * @return the north coordinate of a point
+     */
     public static double n(double lon, double lat){
         double lon1 = Math.pow(10,-4)*(3600*Math.toDegrees(lon) - 26782.5);
         double lat1 = Math.pow(10,-4)*(3600*Math.toDegrees(lat) - 169028.66);
@@ -17,6 +30,13 @@ public final class Ch1903 {
                 - 194.56*lat1*lon1*lon1 + 119.79*Math.pow(lat1, 3);
         return Math.toRadians(n);
     }
+
+    /**
+     * Calculates the longitude of a point in the swiss system
+     * @param e east coordinate
+     * @param n north coordinate
+     * @return the longitude of a point
+     */
     public static double lon(double e, double n){
         double x = Math.pow(10,-6)*(e - 2600000);
         double y = Math.pow(10,-6)*(n - 1200000);
@@ -24,6 +44,13 @@ public final class Ch1903 {
         double lon = lon0*100/36;
       return Math.toRadians(lon);
     }
+
+    /**
+     * Calculates the latitude of a point in the swiss system
+     * @param e east coordinate
+     * @param n north coordinate
+     * @return the latitude of a point
+     */
     public static double lat(double e, double n){
         double x = Math.pow(10,-6)*(e - 2600000);
         double y = Math.pow(10,-6)*(n - 1200000);
