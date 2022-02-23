@@ -23,11 +23,11 @@ public final class SwissBounds {
     /**
      * width of Switzerland in meters
      */
-    final double WIDTH = MAX_E - MIN_E;
+    final static double WIDTH = MAX_E - MIN_E;
     /**
      * height of Switzerland in meters
      */
-    final double HEIGHT = MAX_N - MIN_N;
+    final static double HEIGHT = MAX_N - MIN_N;
 
     /**
      * Verifies if a point is in the limits of Switzerland
