@@ -15,7 +15,8 @@ public final class Ch1903 {
         double lat1 = Math.pow(10,-4)*(3600*Math.toDegrees(lat) - 169028.66);
         double e = 2600072.37 + 211455.93*lon1 - 10938.51*lon1*lat1 - 0.36*lon1*lat1*lat1
                 - 44.54*Math.pow(lon1,3);
-        return Math.toRadians(e);
+        return e;
+
     }
 
     /**
@@ -29,7 +30,7 @@ public final class Ch1903 {
         double lat1 = Math.pow(10,-4)*(3600*Math.toDegrees(lat) - 169028.66);
         double n = 1200147.07 + 308807.95*lat1 + 3745.25*lon1*lon1 + 76.63*lat1*lat1
                 - 194.56*lat1*lon1*lon1 + 119.79*Math.pow(lat1, 3);
-        return Math.toRadians(n);
+        return n;
     }
 
     /**
