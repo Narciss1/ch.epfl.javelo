@@ -1,5 +1,7 @@
 package ch.epfl.javelo.projection;
 
+import ch.epfl.javelo.Math2;
+
 public final class WebMercator {
 
     private WebMercator(){}
@@ -8,7 +10,7 @@ public final class WebMercator {
         return (1/(2*Math.PI))*(lon + Math.PI);
     }
     public static double y(double lat){
-        return (1/(2*Math.PI))*(Math.PI - Math.tan(lat));//ADD UN arcsinh
+        return (1/(2*Math.PI))*(Math.PI - Math2.asinh(Math.tan(lat)));
     }
 
     public static double lon(double x){
