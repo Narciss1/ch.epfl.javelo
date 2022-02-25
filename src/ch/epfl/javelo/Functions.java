@@ -21,10 +21,6 @@ public final class Functions
     private static record Constant(double constantValue) implements DoubleUnaryOperator {
 
 
-        public Constant (double constantValue){
-            this.constantValue = constantValue;  //Comment éviter cette ligne ?
-        }
-
         @Override
         public double applyAsDouble(double x){
             return constantValue;

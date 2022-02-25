@@ -8,7 +8,7 @@ public final class Math2
      *
      * @param x
      * @param y
-     * @return the whole part by excess of the division of x by y.
+     * @return the ceiling of the division of x by y.
      */
     public static int ceilDiv(int x, int y){
         Preconditions.checkArgument(x >= 0 && y > 0);
@@ -51,14 +51,6 @@ public final class Math2
     }
 
 
-    //Pour cette surcharge, n'y a-t-il pas moyen de la connecter avec l'autre ?
-    // Idée : coder celle de double puis appeler dans celle de int celle de double ou un truc.
-    //Un peu comme ceci :
-
-//    public static int clamp2(int min, int v, int max){
-//        return int(clamp(double(min), double(v), double (max)));
-//    }
-
 
     /**
      *
@@ -66,8 +58,7 @@ public final class Math2
      * @return the inverse hyperbolic sine of x
      */
     public static double asinh(double x){
-        return Math.log(x + Math.sqrt(1 + Math.pow(x,2)));  //Est-ce que vaut mieux créer
-                                                            //une variable et la return, ou comme ça ?
+        return Math.log(x + Math.sqrt(1 + Math.pow(x,2)));
     }
 
     /**
