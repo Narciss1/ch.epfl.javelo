@@ -11,6 +11,6 @@ public final class Q28_4 {
 
     }
     public float asFloat(int q28_4){
-        
+
     }
 }
