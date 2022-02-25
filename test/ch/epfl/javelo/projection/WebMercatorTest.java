@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class WebMercatorTest {
     public static final double DELTA = 1e-7;
     public static final double DELTA1 = 1e-4;
+    public static final double DELTA2 = 1e-3;
 
     @Test
     void webMercatorXWorksOnKnownValues() {
@@ -34,53 +35,53 @@ public class WebMercatorTest {
         assertEquals(expected1, actual1, DELTA);
 
         var actual2 = WebMercator.y(26000100);
-        var expected2 = 0.570067498;
+        var expected2 = 0.5659245401;
         assertEquals(expected2, actual2, DELTA);
 
         var actual3 = WebMercator.y(2698145);
-        var expected3 = 0.3321478035;
+        var expected3 = 0.3748732921;
         assertEquals(expected3, actual3, DELTA);
 
         var actual4 = WebMercator.y(2340000);
-        var expected4 = 0.4263356991;
+        var expected4 = 0.4311093046;
         assertEquals(expected4, actual4, DELTA);
     }
-
-    /*@Test
-    void webMercatorLatWorksOnKnownValues() {
-        var actual1 = WebMercator.lat(23746);
-        var expected1 = 0.0;
+    
+    @Test
+    void webMercatorLonWorksOnKnownValues() {
+        var actual1 = WebMercator.lon(23746);
+        var expected1 = 47491*Math.PI;
         assertEquals(expected1, actual1, DELTA);
 
-        var actual2 = WebMercator.lat(23);
-        var expected2 = 10000.0;
+        var actual2 = WebMercator.lon(23);
+        var expected2 = 45*Math.PI;
         assertEquals(expected2, actual2, DELTA);
 
-        var actual3 = WebMercator.lat(346610);
-        var expected3 = 10000.0;
-        assertEquals(expected3, actual3, DELTA);
+        var actual3 = WebMercator.lon(346610);
+        var expected3 = 2177811.718;
+        assertEquals(expected3, actual3, DELTA2);
 
-        var actual4 = WebMercator.lat(2786);
-        var expected4 = 3045512.0;
+        var actual4 = WebMercator.lon(2786);
+        var expected4 = 5571*Math.PI;
         assertEquals(expected4, actual4, DELTA);
     }
 
     @Test
-    void webMercatorLonWorksOnKnownValues() {
-        var actual1 = WebMercator.lon(23746);
-        var expected1 = 0.0;
+    void webMercatorLatWorksOnKnownValues() {
+        var actual1 = WebMercator.lat(1);
+        var expected1 = Math.toRadians(-85.05112878);
         assertEquals(expected1, actual1, DELTA);
 
-        var actual2 = WebMercator.lon(23);
-        var expected2 = 10000.0;
+        var actual2 = WebMercator.lat(0.5);
+        var expected2 = 0;
         assertEquals(expected2, actual2, DELTA);
 
-        var actual3 = WebMercator.lon(346610);
-        var expected3 = 10000.0;
+        var actual3 = WebMercator.lat(0.2198);
+        var expected3 = Math.toRadians(70.48674468);
         assertEquals(expected3, actual3, DELTA);
 
-        var actual4 = WebMercator.lon(2786);
-        var expected4 = 3045512.0;
+        var actual4 = WebMercator.lat(0.543);
+        var expected4 = Math.toRadians(-15.29503692);
         assertEquals(expected4, actual4, DELTA);
-    }*/
+    }
 }

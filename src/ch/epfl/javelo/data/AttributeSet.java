@@ -8,7 +8,7 @@ public record AttributeSet (long bits) {
     //Extraction avec modulo
     public AttributeSet {
         int modulo = 10;
-        Preconditions.checkArgument();
+        //Preconditions.checkArgument();
     }
 
     public boolean contains(Attribute attribute){
