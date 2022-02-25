@@ -3,12 +3,16 @@ package ch.epfl.javelo.data;
 
 import ch.epfl.javelo.Preconditions;
 
+
+import static ch.epfl.javelo.data.Attribute.ALL;
+import static ch.epfl.javelo.data.Attribute.COUNT;
+
 public record AttributeSet (long bits) {
 
-    //Extraction avec modulo
+
     public AttributeSet {
-        int modulo = 10;
-        Preconditions.checkArgument();
+        long testBits = bits >>> COUNT;
+        Preconditions.checkArgument(testBits == 0L);
     }
 
     public boolean contains(Attribute attribute){
@@ -16,6 +20,25 @@ public record AttributeSet (long bits) {
         long testMask = attributeMask & bits;
         return (testMask != 0L);
     }
+
+    public boolean intersects(AttributeSet that){
+        return ((bits & that.bits) != 0L);
+    }
+
+    @Override
+    public String toString(){
+        String toReturn = "{";
+        for (int i = 0; i < ALL.toArray().length - 1; ++i){
+            if (contains(ALL.get(i))){
+                toReturn = toReturn + ALL.get(i).toString() + ",";
+            }
+        }
+        if (contains(ALL.get(COUNT-1))){
+            toReturn = toReturn + ALL.get(COUNT-1).toString();
+        }
+        return toReturn;
+    }
+
 
     public static AttributeSet of (Attribute... attributes){
         long bitsIncremented = 0L;

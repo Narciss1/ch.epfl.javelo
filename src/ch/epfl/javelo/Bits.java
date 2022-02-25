@@ -16,7 +16,7 @@ public final class Bits {
         }
     }
     public int extractUnsigned(int value, int start, int length){
-        if(start>=0 && start<=31 && length>=0 && length<32){
+        if(start>= 0 && start<=31 && length>=0 && length<32){
             int newValue = (value << (32-start-length)) >>> (32-length);
             return newValue;
         }else{
