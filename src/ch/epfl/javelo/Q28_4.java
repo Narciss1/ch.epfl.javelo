@@ -4,13 +4,30 @@ public final class Q28_4 {
 
     private Q28_4(){}
 
+    /**
+     * Calculates the Q28.4 value corresponding to a given integer
+     * @param i a given integer
+     * @return the corresponding Q28.4 value
+     */
     public int ofInt(int i){
-
+        return i >> 4;
     }
+
+    /**
+     * Calculates  the value of type double corresponding to a given Q28.4 value
+     * @param q28_4 a given Q28.4 value
+     * @return the corresponding value of type double
+     */
     public double asDouble(int q28_4){
-
+        return Math.scalb(q28_4,4);
     }
-    public float asFloat(int q28_4){
 
+    /**
+     * Calculates  the value of type float corresponding to a given Q28.4 value
+     * @param q28_4 a given Q28.4 value
+     * @return the corresponding value of type float
+     */
+    public float asFloat(int q28_4){
+        return Math.scalb(q28_4,4);
     }
 }
