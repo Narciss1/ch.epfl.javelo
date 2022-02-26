@@ -7,11 +7,11 @@ public final class Functions
 
     private Functions (){ }
 
-    public DoubleUnaryOperator constant(double y){
+    public static DoubleUnaryOperator constant(double y){
         return new Constant(y);
     }
 
-    public DoubleUnaryOperator sampled(float[] samples, double xMax){
+    public static DoubleUnaryOperator sampled(float[] samples, double xMax){
         Preconditions.checkArgument(samples.length >= 2);
         Preconditions.checkArgument(xMax > 0);
         return new Sampled(samples, xMax);
@@ -40,14 +40,16 @@ public final class Functions
 
         @Override
         public double applyAsDouble(double x){
-            double distance = xMax / samples.length;
+            double distance = xMax / (samples.length - 1);
             if (x > 0 && x < xMax) {
-                return Math2.interpolate(samples[(int)(Math.ceil(x/distance))],
-                        samples[(int)Math.ceil(x/distance)]+1 , x);
+                return Math2.interpolate(samples[(int)(Math.floor(x/distance))],
+                        samples[(int)(Math.floor(x/distance))+1] ,
+                        (x -Math.floor(x/distance)) / distance );
             }
             else if (x <= 0){
                 return samples[0];
             }
+            //return 2;
             return samples[samples.length-1];
         }
 
