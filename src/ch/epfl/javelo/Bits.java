@@ -1,5 +1,7 @@
 package ch.epfl.javelo;
 
+import static ch.epfl.javelo.Preconditions.checkArgument;
+
 public final class Bits {
 
     private Bits(){}
@@ -14,15 +16,12 @@ public final class Bits {
      * @return the extracted range of bits
      */
     //USE CONSTANTE JAVA POUR 32
-    //add variable 32 - length
-    //Preconditions à add
-    public int extractSigned(int value, int start, int length){
-        if(start>=0 && start<=31 && length>=0 && length<=32){
-            int newValue = (value << (32-start-length)) >> (32-length) ;
-            return newValue;
-        }else{
-            throw new IllegalArgumentException();
-        }
+    public static int extractSigned(int value, int start, int length){
+        //Est ce que length devrait plutot commencer à 1?
+        int x = 32 - length;
+        checkArgument(start>=0 && start<=31 && length>=0 && 0<=x);
+        int newValue = (value << (x-start)) >> (x) ;
+        return newValue;
     }
 
     /**
@@ -34,12 +33,10 @@ public final class Bits {
      * @param length of the range of bits to extract
      * @return the extracted range of bits
      */
-    public int extractUnsigned(int value, int start, int length){
-        if(start>= 0 && start<=31 && length>=0 && length<32){
-            int newValue = (value << (32-start-length)) >>> (32-length);
-            return newValue;
-        }else{
-            throw new IllegalArgumentException();
-        }
+    public static int extractUnsigned(int value, int start, int length){
+        int x = 32 - length;
+        checkArgument(start>= 0 && start<=31 && length>=0 && 0<x);
+        int newValue = (value << (x-start)) >>> (x);
+        return newValue;
     }
 }

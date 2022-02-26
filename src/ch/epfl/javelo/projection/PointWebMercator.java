@@ -1,5 +1,6 @@
 package ch.epfl.javelo.projection;
 
+import static ch.epfl.javelo.Preconditions.checkArgument;
 import static ch.epfl.javelo.projection.Ch1903.e;
 import static ch.epfl.javelo.projection.Ch1903.n;
 import static ch.epfl.javelo.projection.SwissBounds.containsEN;
@@ -13,9 +14,7 @@ public record PointWebMercator(double x, double y) {
      * @param y a coordinate of the point
      */
     public PointWebMercator {
-        if (x < 0 || x > 1 || y < 0 || y > 1) {
-            throw new IllegalArgumentException();
-        }
+        checkArgument(x >= 0 && x <= 1 && y >= 0 && y <= 1 );
     }
 
     /**
