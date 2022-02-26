@@ -56,7 +56,7 @@ public class BitsTest {
 
         var actual4 = Bits.extractSigned(19270,4,11);
         var expected4 = 0b11111111111111111111110010110100;
-        assertEquals(expected1, actual1);
+        assertEquals(expected4, actual4);
     }
 
    @Test
@@ -89,8 +89,9 @@ public class BitsTest {
     void bitsExtractUnsignedWorksOnKnownValues() {
 
         //Question: Pourquoi mes calculs à la main ne correspondent pas aux résultats de la machine?
+        //(pour la 1 et la 3)
         var actual1 = Bits.extractUnsigned(291820,6,8);
-        var expected1 = (291820 << 18) >>> 24;
+        var expected1 = 199;
         assertEquals(expected1, actual1);
 
         var actual2 = Bits.extractUnsigned(27822,3,10);
