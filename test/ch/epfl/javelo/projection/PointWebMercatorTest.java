@@ -126,7 +126,7 @@ public class PointWebMercatorTest {
     void pointWebMercatorToPointChWorksOnKnownValues() {
 
         //Question: Pourquoi les valeurs sont légèrement différentes?
-        /*var actual1 = new PointWebMercator(x(lon(2500000,1175000)),y(lat(2500000,1175000)))
+        var actual1 = new PointWebMercator(x(lon(2500000,1175000)),y(lat(2500000,1175000)))
                 .toPointCh();
         var expected1 = new PointCh(2500000,1175000);
         assertEquals(expected1, actual1);
@@ -134,7 +134,7 @@ public class PointWebMercatorTest {
         var actual2 = new PointWebMercator(x(lon(2524000,1175001)),y(lat(2524000,1175001)))
                 .toPointCh();
         var expected2 = new PointCh(2524000,1175001);
-        assertEquals(expected2, actual2);*/
+        assertEquals(expected2, actual2);
 
         var actual3 = new PointWebMercator(x(lon(2234,948474)),y(lat(2234,948474)))
                 .toPointCh();

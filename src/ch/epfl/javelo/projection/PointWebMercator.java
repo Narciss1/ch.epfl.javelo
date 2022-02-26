@@ -25,7 +25,7 @@ public record PointWebMercator(double x, double y) {
      * @return the original point
      */
     public static PointWebMercator of(int zoomLevel, double x, double y) {
-        return new PointWebMercator(Math.scalb(x,-zoomLevel), Math.scalb(y, -zoomLevel));
+        return new PointWebMercator(Math.scalb(x, -zoomLevel), Math.scalb(y, -zoomLevel));
     }
 
     /**
@@ -85,7 +85,7 @@ public record PointWebMercator(double x, double y) {
         double e = e(WebMercator.lon(this.x), WebMercator.lat(this.y));
         double n = n(WebMercator.lon(this.x), WebMercator.lat(this.y));
         if (containsEN(e, n)) {
-            return new PointCh(e,n);
+            return new PointCh(e, n);
         } else {
             return null;
         }

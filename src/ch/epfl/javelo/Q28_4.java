@@ -19,7 +19,7 @@ public final class Q28_4 {
      * @return the corresponding value of type double
      */
     public static double asDouble(int q28_4){
-        return Math.scalb(q28_4,4);
+        return Math.scalb(q28_4, 4);
     }
 
     /**
@@ -28,6 +28,6 @@ public final class Q28_4 {
      * @return the corresponding value of type float
      */
     public static float asFloat(int q28_4){
-        return Math.scalb(q28_4,4);
+        return Math.scalb(q28_4, 4);
     }
 }

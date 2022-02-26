@@ -15,12 +15,12 @@ public final class Bits {
      * @param length of the range of bits to extract
      * @return the extracted range of bits
      */
-    //USE CONSTANTE JAVA POUR 32
     public static int extractSigned(int value, int start, int length){
+        //USE CONSTANTE JAVA POUR 32
         //Est ce que length devrait plutot commencer à 1?
         int x = 32 - length;
-        checkArgument(start>=0 && start<=31 && length>=0 && 0<=x);
-        int newValue = (value << (x-start)) >> (x) ;
+        checkArgument(start >= 0 && start <= 31 && length >= 0 && 0 <= x);
+        int newValue = (value << (x - start)) >> (x);
         return newValue;
     }
 
@@ -35,8 +35,8 @@ public final class Bits {
      */
     public static int extractUnsigned(int value, int start, int length){
         int x = 32 - length;
-        checkArgument(start>= 0 && start<=31 && length>=0 && 0<x);
-        int newValue = (value << (x-start)) >>> (x);
+        checkArgument(start >= 0 && start <= 31 && length >= 0 && 0  <x);
+        int newValue = (value << (x - start)) >>> (x);
         return newValue;
     }
 }
