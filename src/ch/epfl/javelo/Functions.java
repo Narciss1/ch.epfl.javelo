@@ -30,27 +30,26 @@ public final class Functions
 
     private final static class Sampled implements DoubleUnaryOperator{
 
-        private float[] samples;
-        private double xMax;
+        private final float[] samples;
+        private final double xMax;
 
         public Sampled (float[] samples, double xMax){
-            this.samples = samples;
+            this.samples = samples.clone();
             this.xMax = xMax;
         }
 
         @Override
         public double applyAsDouble(double x){
-            double x0 = 0;
-            double x1 = 0;
-            for (int i = 0; i < samples.length - 1; ++i){
-                if (Math2.clamp(samples[i], x, samples[i+1]) == x){
-                    x0 = samples[i];
-                    x1 = samples[i+1];
-                }
+            double distance = xMax / samples.length;
+            if (x > 0 && x < xMax) {
+                return Math2.interpolate(samples[(int)(Math.ceil(x/distance))],
+                        samples[(int)Math.ceil(x/distance)]+1 , x);
             }
-            return Math2.interpolate(x0, x1,x);
+            else if (x <= 0){
+                return samples[0];
+            }
+            return samples[samples.length-1];
         }
-
 
     }
 
