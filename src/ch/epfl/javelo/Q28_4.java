@@ -9,7 +9,7 @@ public final class Q28_4 {
      * @param i a given integer
      * @return the corresponding Q28.4 value
      */
-    public int ofInt(int i){
+    public static int ofInt(int i){
         return i >> 4;
     }
 
@@ -18,8 +18,8 @@ public final class Q28_4 {
      * @param q28_4 a given Q28.4 value
      * @return the corresponding value of type double
      */
-    public double asDouble(int q28_4){
-        return Math.scalb(q28_4,4);
+    public static double asDouble(int q28_4){
+        return Math.scalb(q28_4, 4);
     }
 
     /**
@@ -27,7 +27,7 @@ public final class Q28_4 {
      * @param q28_4 a given Q28.4 value
      * @return the corresponding value of type float
      */
-    public float asFloat(int q28_4){
-        return Math.scalb(q28_4,4);
+    public static float asFloat(int q28_4){
+        return Math.scalb(q28_4, 4);
     }
 }

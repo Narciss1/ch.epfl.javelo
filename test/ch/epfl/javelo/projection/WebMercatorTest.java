@@ -46,7 +46,7 @@ public class WebMercatorTest {
         var expected4 = 0.4311093046;
         assertEquals(expected4, actual4, DELTA);
     }
-    
+
     @Test
     void webMercatorLonWorksOnKnownValues() {
         var actual1 = WebMercator.lon(23746);

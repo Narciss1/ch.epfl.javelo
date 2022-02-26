@@ -35,12 +35,12 @@ public record PointCh(double e, double n) {
     /**
      * @return the longitude in radians of a point in the WGS84 system
      */
-    public double lon() { return Ch1903.lon(e,n); }
+    public double lon() { return Ch1903.lon(e, n); }
 
     /**
      * @return the latitude in radians of a point in the WGS84 system
      */
-    public double lat(){ return Ch1903.lat(e,n); }
+    public double lat(){ return Ch1903.lat(e, n); }
 
     /**
      * @return the east coordinate of a point

@@ -1,5 +1,6 @@
 package ch.epfl.javelo.projection;
 
+import static ch.epfl.javelo.Preconditions.checkArgument;
 import static ch.epfl.javelo.projection.Ch1903.e;
 import static ch.epfl.javelo.projection.Ch1903.n;
 import static ch.epfl.javelo.projection.SwissBounds.containsEN;
@@ -13,17 +14,14 @@ public record PointWebMercator(double x, double y) {
      * @param y a coordinate of the point
      */
     public PointWebMercator {
-        if (x < 0 || x > 1 || y < 0 || y > 0) {
-            throw new IllegalArgumentException();
-        }
+        checkArgument(x >= 0 && x <= 1 && y >= 0 && y <= 1 );
     }
 
     /**
      * Finds the original point that has x and y as coordinates in the zoom level given
-     *
      * @param zoomLevel level of zooming of the map
-     * @param x         a coordinate of the point in the zoom level given
-     * @param y         a coordinate of the point in the zoom level given
+     * @param x a coordinate of the point in the zoom level given
+     * @param y a coordinate of the point in the zoom level given
      * @return the original point
      */
     public static PointWebMercator of(int zoomLevel, double x, double y) {
@@ -32,7 +30,6 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Finds the Webmercator point corresponding to the point given in the swiss system
-     *
      * @param pointCh a point in the swiss system
      * @return a WebMercator point
      */
@@ -88,7 +85,7 @@ public record PointWebMercator(double x, double y) {
         double e = e(WebMercator.lon(this.x), WebMercator.lat(this.y));
         double n = n(WebMercator.lon(this.x), WebMercator.lat(this.y));
         if (containsEN(e, n)) {
-            return new PointCh(e,n);
+            return new PointCh(e, n);
         } else {
             return null;
         }
