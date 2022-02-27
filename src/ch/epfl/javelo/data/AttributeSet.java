@@ -28,14 +28,19 @@ public record AttributeSet (long bits) {
     @Override
     public String toString(){
         String toReturn = "{";
-        for (int i = 0; i < ALL.toArray().length - 1; ++i){
+        boolean starting = true;
+        for (int i = 0; i < ALL.toArray().length; ++i){
             if (contains(ALL.get(i))){
-                toReturn = toReturn + ALL.get(i).toString() + ",";
+                if (!starting)
+                    toReturn = toReturn + ", " + ALL.get(i).toString();
+                if (starting){
+                    toReturn = toReturn + ALL.get(i).toString();
+                    starting = false;
+                }
             }
         }
-        if (contains(ALL.get(COUNT-1))){
-            toReturn = toReturn + ALL.get(COUNT-1).toString();
-        }
+        toReturn = toReturn + "}";
+
         return toReturn;
     }
 
