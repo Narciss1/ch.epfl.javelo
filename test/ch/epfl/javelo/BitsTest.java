@@ -15,6 +15,7 @@ public class BitsTest {
 
     @Test
     void bitsExtractSignedThrowsOnInvalidRange() {
+
         assertThrows(IllegalArgumentException.class, () -> {
             Bits.extractSigned(2038,-1,28);
         });
@@ -31,6 +32,7 @@ public class BitsTest {
 
     @Test
     void bitsExtractSignedWorksOnValidRange() {
+
         var rng = newRandom();
         for (int i = 0; i < RANDOM_ITERATIONS; i++) {
             var x = rng.nextInt(-1927368293, 1937362718);
@@ -42,6 +44,7 @@ public class BitsTest {
 
     @Test
     void bitsExtractSignedWorksOnKnownValues() {
+
         var actual1 = Bits.extractSigned(20,6,8);
         var expected1 = 0;
         assertEquals(expected1, actual1);
@@ -61,6 +64,7 @@ public class BitsTest {
 
    @Test
     void bitsExtractUnsignedThrowsOnInvalidRange() {
+
         assertThrows(IllegalArgumentException.class, () -> {
             Bits.extractUnsigned(2038,-1,28);
         });
@@ -76,6 +80,7 @@ public class BitsTest {
 
     @Test
     void bitsExtractUnsignedWorksOnValidRange() {
+
         var rng = newRandom();
         for (int i = 0; i < RANDOM_ITERATIONS; i++) {
             var x = rng.nextInt(-1927368293, 1937362718);
