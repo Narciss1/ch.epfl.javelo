@@ -81,9 +81,16 @@ public class FunctionsTest {
         float[] samples = {12,100,6,8};
         double xMax = 12;
         DoubleUnaryOperator test = Functions.sampled(samples, xMax);
-        //assertEquals(Math2.interpolate(100,6, 0.25) ,test.applyAsDouble(5));
+        assertEquals(Math2.interpolate(100,6, 0.25) ,test.applyAsDouble(5));
         assertEquals(12,test.applyAsDouble(-67));
         assertEquals(8,test.applyAsDouble(78));
+    }
+
+    @Test
+    void sampled() {
+
+        assertEquals(8.55,
+                Functions.sampled(new float[]{10, 8 ,6, 9, 11, 12}, 10).applyAsDouble(5.7));
     }
 
 }
