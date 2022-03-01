@@ -32,7 +32,7 @@ public record AttributeSet (long bits) {
         for (int i = 0; i < ALL.toArray().length; ++i){
             if (contains(ALL.get(i))){
                 if (!starting)
-                    toReturn = toReturn + ", " + ALL.get(i).toString();
+                    toReturn = toReturn + "," + ALL.get(i).toString();
                 if (starting){
                     toReturn = toReturn + ALL.get(i).toString();
                     starting = false;
