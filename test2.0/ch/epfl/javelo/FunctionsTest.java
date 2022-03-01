@@ -13,6 +13,6 @@ class FunctionsTestRayan {
 
     @Test
     void sampled() {
-        assertEquals(8.55, Functions.sampled(new float[]{10, 8 ,6, 9, 11}, 10).applyAsDouble(5.7));
+        assertEquals(8.55, Functions.sampled(new float[]{10, 8 ,6, 9, 11, 12}, 10).applyAsDouble(5.7));
     }
 }
