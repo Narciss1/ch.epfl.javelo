@@ -15,6 +15,7 @@ public class BitsTest {
 
     @Test
     void bitsExtractSignedThrowsOnInvalidRange() {
+
         assertThrows(IllegalArgumentException.class, () -> {
             Bits.extractSigned(2038,-1,28);
         });
@@ -31,17 +32,19 @@ public class BitsTest {
 
     @Test
     void bitsExtractSignedWorksOnValidRange() {
+
         var rng = newRandom();
         for (int i = 0; i < RANDOM_ITERATIONS; i++) {
             var x = rng.nextInt(-1927368293, 1937362718);
             var y = rng.nextInt(0, 31);
-            var z = rng.nextInt(0,32);
+            var z = rng.nextInt(1,32);
             Bits.extractSigned(x,y,z);
         }
     }
 
     @Test
     void bitsExtractSignedWorksOnKnownValues() {
+
         var actual1 = Bits.extractSigned(20,6,8);
         var expected1 = 0;
         assertEquals(expected1, actual1);
@@ -61,6 +64,7 @@ public class BitsTest {
 
    @Test
     void bitsExtractUnsignedThrowsOnInvalidRange() {
+
         assertThrows(IllegalArgumentException.class, () -> {
             Bits.extractUnsigned(2038,-1,28);
         });
@@ -76,11 +80,12 @@ public class BitsTest {
 
     @Test
     void bitsExtractUnsignedWorksOnValidRange() {
+
         var rng = newRandom();
         for (int i = 0; i < RANDOM_ITERATIONS; i++) {
             var x = rng.nextInt(-1927368293, 1937362718);
             var y = rng.nextInt(0, 31);
-            var z = rng.nextInt(0,31);
+            var z = rng.nextInt(1,31);
             Bits.extractUnsigned(x,y,z);
         }
     }
@@ -88,10 +93,8 @@ public class BitsTest {
     @Test
     void bitsExtractUnsignedWorksOnKnownValues() {
 
-        //Question: Pourquoi mes calculs à la main ne correspondent pas aux résultats de la machine?
-        //(pour la 1 et la 3)
         var actual1 = Bits.extractUnsigned(291820,6,8);
-        var expected1 = 199;
+        var expected1 = 207;
         assertEquals(expected1, actual1);
 
         var actual2 = Bits.extractUnsigned(27822,3,10);
@@ -99,7 +102,7 @@ public class BitsTest {
         assertEquals(expected2, actual2);
 
         var actual3 = Bits.extractUnsigned(385392,0,5);
-        var expected3 =11;
+        var expected3 = 16;
         assertEquals(expected3, actual3);
 
         var actual4 = Bits.extractUnsigned(19000,4,11);
