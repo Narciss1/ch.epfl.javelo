@@ -1,9 +1,9 @@
 import ch.epfl.javelo.Math2;
-import ch.epfl.test.TestRandomizer2;
-import org.junit.Test;
+import ch.epfl.test.TestRandomizer;
+import org.junit.jupiter.api.Test;
 
-import static ch.epfl.test.TestRandomizer2.RANDOM_ITERATIONS;
-import static ch.epfl.test.TestRandomizer2.newRandom;
+import static ch.epfl.test.TestRandomizer.RANDOM_ITERATIONS;
+import static ch.epfl.test.TestRandomizer.newRandom;
 import static org.junit.jupiter.api.Assertions.*;
 
 class Math2Test {
@@ -26,7 +26,7 @@ class Math2Test {
     @Test
     void ceilDivWorksOnPositiveValues() {
         var rng = newRandom();
-        for (var i = 0; i < TestRandomizer2.RANDOM_ITERATIONS; i += 1) {
+        for (var i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i += 1) {
             var x = rng.nextInt(1000);
             var y = rng.nextInt(1, 1000);
             var expected = (int) Math.ceil((double) x / (double) y);

@@ -1,8 +1,8 @@
 import ch.epfl.javelo.projection.PointCh;
 import org.junit.jupiter.api.Test;
 
-import static ch.epfl.test.TestRandomizer2.RANDOM_ITERATIONS;
-import static ch.epfl.test.TestRandomizer2.newRandom;
+import static ch.epfl.test.TestRandomizer.RANDOM_ITERATIONS;
+import static ch.epfl.test.TestRandomizer.newRandom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
