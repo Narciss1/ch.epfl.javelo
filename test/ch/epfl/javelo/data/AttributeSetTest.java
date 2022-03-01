@@ -13,7 +13,7 @@ public class AttributeSetTest
     @Test
     void toStringWorks(){
         AttributeSet set = AttributeSet.of(Attribute.TRACKTYPE_GRADE1, Attribute.HIGHWAY_TRACK);
-        assertEquals("{highway=track, tracktype=grade1}", set.toString());
+        assertEquals("{highway=track,tracktype=grade1}", set.toString());
     }
 
     @Test
