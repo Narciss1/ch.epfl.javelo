@@ -40,16 +40,16 @@ public final class Functions
 
         @Override
         public double applyAsDouble(double x){
-            double distance = xMax / (samples.length - 1);
+            double gap = xMax / (samples.length - 1);
+            double floorValue = Math.floor(x / gap);
             if (x > 0 && x < xMax) {
-                return Math2.interpolate(samples[(int)(Math.floor(x/distance))],
-                        samples[(int)(Math.floor(x/distance))+1] ,
-                        (x -Math.floor(x/distance)) / distance );
+                return Math2.interpolate(samples[(int)(floorValue)],
+                        samples[(int)(floorValue)+1] ,
+                        (x - floorValue* gap) / gap );
             }
             else if (x <= 0){
                 return samples[0];
             }
-            //return 2;
             return samples[samples.length-1];
         }
 

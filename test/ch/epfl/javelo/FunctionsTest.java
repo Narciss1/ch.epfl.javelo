@@ -65,4 +65,25 @@ public class FunctionsTest {
         DoubleUnaryOperator fct = Functions.sampled(samples, 6);
         assertEquals(3.85,fct.applyAsDouble(1.77));
     }
+
+    @Test
+    public void sampledWorksOnKnownSamplesRAY() {
+        float[] samples = new float[] {1.0f, 0.5f, 3.0f};
+        double xMax = 2.0;
+        DoubleUnaryOperator f = Functions.sampled(samples, xMax);
+        assertEquals(1.0, f.applyAsDouble(-1));
+        assertEquals(3.0, f.applyAsDouble(3));
+        assertEquals(1.75, f.applyAsDouble(1.5));
+    }
+
+    @Test
+    void sampledTestRAY2(){
+        float[] samples = {12,100,6,8};
+        double xMax = 12;
+        DoubleUnaryOperator test = Functions.sampled(samples, xMax);
+        //assertEquals(Math2.interpolate(100,6, 0.25) ,test.applyAsDouble(5));
+        assertEquals(12,test.applyAsDouble(-67));
+        assertEquals(8,test.applyAsDouble(78));
+    }
+
 }
