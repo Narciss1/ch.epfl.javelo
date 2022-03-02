@@ -3,11 +3,10 @@ package ch.epfl.javelo.projection;
 import org.junit.jupiter.api.Test;
 
 import static ch.epfl.javelo.projection.Ch1903.*;
-import static ch.epfl.javelo.projection.Ch1903.n;
 import static ch.epfl.javelo.projection.WebMercator.x;
 import static ch.epfl.javelo.projection.WebMercator.y;
-import static ch.epfl.test.TestRandomizer.RANDOM_ITERATIONS;
-import static ch.epfl.test.TestRandomizer.newRandom;
+import static ch.epfl.test.TestRandomizerRayan.RANDOM_ITERATIONS;
+import static ch.epfl.test.TestRandomizerRayan.newRandom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

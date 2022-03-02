@@ -7,9 +7,9 @@ import static ch.epfl.test.TestRandomizerRayan.RANDOM_ITERATIONS;
 import static ch.epfl.test.TestRandomizerRayan.newRandom;
 import static org.junit.jupiter.api.Assertions.*;
 
-class Math2Test {
-    private static final double DELTA = 1e-7;
 
+class Math2TestRayan {
+    private static final double DELTA = 1e-7;
 
     @Test
     void ceilDivThrowsOnNegativeX() {

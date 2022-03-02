@@ -7,7 +7,7 @@ import static ch.epfl.test.TestRandomizerRayan.newRandom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class PointChTest {
+class PointChTestRayan {
     public static final double DELTA = 1e-7;
 
     @Test
