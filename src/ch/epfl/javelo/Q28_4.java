@@ -12,20 +12,19 @@ public final class Q28_4 {
      * @param i a given integer
      * @return the corresponding Q28.4 value
      */
-    public static int ofInt(int i){ return i << 4; } //NEW //return i >> 4; //OLD
+    public static int ofInt(int i){ return i << 4; }
 
     /**
      * Calculates  the value of type double corresponding to a given Q28.4 value
      * @param q28_4 a given Q28.4 value
      * @return the corresponding value of type double
      */
-    public static double asDouble(int q28_4){ return Math.scalb(q28_4, -4); } //Diviser avec -4(new)
-    // avant ct 4
+    public static double asDouble(int q28_4){ return Math.scalb(q28_4, -4); }
 
     /**
      * Calculates  the value of type float corresponding to a given Q28.4 value
      * @param q28_4 a given Q28.4 value
      * @return the corresponding value of type float
      */
-    public static float asFloat(int q28_4){ return Math.scalb(q28_4, -4); } //Diviser avec -4
+    public static float asFloat(int q28_4){ return Math.scalb(q28_4, -4); }
 }

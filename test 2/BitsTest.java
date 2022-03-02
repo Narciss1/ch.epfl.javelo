@@ -9,9 +9,9 @@ class BitsTest {
     @Test
     void testRangeUnsignedFunction() {
         //out of range as start+length > 31
-       /* assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             Bits.extractUnsigned(0b11001010111111101011101010111110, 31, 4);
-        });*/
+        });
 
         //start is < 0
         assertThrows(IllegalArgumentException.class, () -> {

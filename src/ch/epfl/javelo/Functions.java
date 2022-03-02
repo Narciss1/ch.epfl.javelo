@@ -75,7 +75,6 @@ public final class Functions
             }
             return samples[samples.length - 1];
         }
-
     }
 
 }

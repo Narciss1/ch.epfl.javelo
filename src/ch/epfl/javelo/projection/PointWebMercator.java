@@ -25,7 +25,7 @@ public record PointWebMercator(double x, double y) {
      * @return the original point
      */
     public static PointWebMercator of(int zoomLevel, double x, double y) {
-        return new PointWebMercator(Math.scalb(x, -zoomLevel), Math.scalb(y, -zoomLevel));
+        return new PointWebMercator(Math.scalb(x, -(zoomLevel + 8)), Math.scalb(y, -(zoomLevel + 8)));
     }
 
     /**
@@ -46,7 +46,7 @@ public record PointWebMercator(double x, double y) {
      * @return the new coordiante x
      */
     public double xAtZoomLevel(int zoomLevel) {
-        return Math.scalb(x, zoomLevel);
+        return Math.scalb(x, 8 + zoomLevel);
     }
 
     /**
@@ -56,7 +56,7 @@ public record PointWebMercator(double x, double y) {
      * @return the new coordiante y
      */
     public double yAtZoomLevel(int zoomLevel) {
-        return Math.scalb(y, zoomLevel);
+        return Math.scalb(y, 8 + zoomLevel);
     }
 
     /**

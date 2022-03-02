@@ -48,21 +48,24 @@ public class PointWebMercatorTest {
     void pointWebMercatorOfWorksOnKnownValues() {
 
         var actual1 = PointWebMercator.of(3,0,0.2);
-        var expected1 = new PointWebMercator(0,0.025);
-        assertEquals(expected1, actual1);
+        var expected1 = new PointWebMercator(0,0.00009765625);
+        assertEquals(expected1.x(), actual1.x(), DELTA );
+        assertEquals(expected1.y(), actual1.y(), DELTA);
 
         var actual2 = PointWebMercator.of(10,0.8,1);
-        var expected2 = new PointWebMercator(0.00078125,0.0009765625);
-        assertEquals(expected2, actual2);
+        var expected2 = new PointWebMercator(0.00000305175,0.00000381469);
+        assertEquals(expected2.x(), actual2.x(), DELTA );
+        assertEquals(expected2.y(), actual2.y(), DELTA);
 
         var actual3 = PointWebMercator.of(19,1,1);
-        var expected3 = new PointWebMercator(0.00000190734,0.00000190734);
+        var expected3 = new PointWebMercator(0.00000000745,0.00000000745);
         assertEquals(expected3.x(), actual3.x(), DELTA );
         assertEquals(expected3.y(), actual3.y(), DELTA);
 
         var actual4 = PointWebMercator.of(0,0.9,0.6);
-        var expected4 = new PointWebMercator(0.9,0.6);
-        assertEquals(expected4, actual4);
+        var expected4 = new PointWebMercator(0.003515625,0.00234375);
+        assertEquals(expected4.x(), actual4.x(), DELTA );
+        assertEquals(expected4.y(), actual4.y(), DELTA);
     }
 
     @Test
@@ -93,19 +96,19 @@ public class PointWebMercatorTest {
     void pointWebMercatorXAtZoomLevelWorksOnKnownValues() {
 
         var actual1 = new PointWebMercator(0.5,1).xAtZoomLevel(17);
-        var expected1 = 0.5*Math.pow(2,17);
+        var expected1 = 0.5*Math.pow(2, 17 + 8);
         assertEquals(expected1, actual1, DELTA);
 
         var actual2 = new PointWebMercator(0.5,0).xAtZoomLevel(13);
-        var expected2 = 0.5*Math.pow(2,13);
+        var expected2 = 0.5*Math.pow(2, 13 + 8);
         assertEquals(expected2, actual2, DELTA);
 
         var actual3 = new PointWebMercator(1,1).xAtZoomLevel(17);
-        var expected3 = Math.pow(2,17);
+        var expected3 = Math.pow(2, 17 + 8);
         assertEquals(expected3, actual3, DELTA);
 
         var actual4 = new PointWebMercator(0.5,0.9).xAtZoomLevel(5);
-        var expected4 = 0.5*Math.pow(2,5);
+        var expected4 = 0.5*Math.pow(2, 5 + 8);
         assertEquals(expected4, actual4, DELTA);
     }
 
@@ -113,7 +116,7 @@ public class PointWebMercatorTest {
     void pointWebMercatorYAtZoomLevelWorksOnKnownValues() {
 
         var actual1 = new PointWebMercator(0.5,1).yAtZoomLevel(1);
-        var expected1 = Math.pow(2,1);
+        var expected1 = Math.pow(2, 1 + 8);
         assertEquals(expected1, actual1, DELTA);
 
         var actual2 = new PointWebMercator(0.5,0).yAtZoomLevel(15);
@@ -121,11 +124,11 @@ public class PointWebMercatorTest {
         assertEquals(expected2, actual2, DELTA);
 
         var actual3 = new PointWebMercator(1,0.274).yAtZoomLevel(11);
-        var expected3 = 0.274*Math.pow(2,11);
+        var expected3 = 0.274*Math.pow(2, 11 + 8);
         assertEquals(expected3, actual3, DELTA);
 
         var actual4 = new PointWebMercator(0.5,0.9).yAtZoomLevel(17);
-        var expected4 = 0.9*Math.pow(2,17);
+        var expected4 = 0.9*Math.pow(2, 17 + 8);
         assertEquals(expected4, actual4, DELTA);
     }
 
