@@ -68,6 +68,7 @@ public class WebMercatorTest {
 
     @Test
     void webMercatorLatWorksOnKnownValues() {
+        assertEquals(0, WebMercator.lat(WebMercator.y(Math.PI)));
         var actual1 = WebMercator.lat(1);
         var expected1 = Math.toRadians(-85.05112878);
         assertEquals(expected1, actual1, DELTA);
