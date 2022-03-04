@@ -4,8 +4,7 @@ import java.nio.IntBuffer;
 
 import static ch.epfl.javelo.Bits.extractUnsigned;
 
-public record GraphNodes(IntBuffer buffer)
-{
+public record GraphNodes(IntBuffer buffer) {
 
     private static final int OFFSET_E = 0;
     private static final int OFFSET_N = OFFSET_E + 1;
@@ -34,5 +33,4 @@ public record GraphNodes(IntBuffer buffer)
                 + edgeIndex;
         //Les parenthèses sont-elles utiles ?
     }
-
 }

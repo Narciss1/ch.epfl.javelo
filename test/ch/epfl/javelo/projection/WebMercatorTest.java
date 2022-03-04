@@ -68,6 +68,7 @@ public class WebMercatorTest {
 
     @Test
     void webMercatorLatWorksOnKnownValues() {
+        assertEquals(0, WebMercator.lat(WebMercator.y(Math.PI)));
         var actual1 = WebMercator.lat(1);
         var expected1 = Math.toRadians(-85.05112878);
         assertEquals(expected1, actual1, DELTA);
@@ -84,4 +85,37 @@ public class WebMercatorTest {
         var expected4 = Math.toRadians(-15.29503692);
         assertEquals(expected4, actual4, DELTA);
     }
+
+    @Test
+    void TestReverseTestingX() {
+        assertEquals(WebMercator.x(WebMercator.lon(0.5)), 0.5);
+        assertEquals(WebMercator.x(WebMercator.lon(1)), 1);
+        assertEquals(WebMercator.x(WebMercator.lon(0)), 0);
+        assertEquals(WebMercator.x(WebMercator.lon(0.333)), 0.333);
+    }
+
+    @Test
+    void TestReverseTestingY() {
+        assertEquals(WebMercator.y(WebMercator.lat(0.5)), 0.5);
+        assertEquals(WebMercator.y(WebMercator.lat(1)), 1, DELTA);
+        assertEquals(WebMercator.y(WebMercator.lat(0)), 0, DELTA);
+        assertEquals(WebMercator.y(WebMercator.lat(0.333)), 0.333);
+    }
+
+    @Test
+    void TestReverseTestingLon() {
+        assertEquals(WebMercator.lon(WebMercator.x(Math.PI / 2)), Math.PI / 2);
+        assertEquals(WebMercator.lon(WebMercator.x(Math.PI)), Math.PI);
+        assertEquals(WebMercator.lon(WebMercator.x(Math.PI / 4)), Math.PI / 4);
+        assertEquals(WebMercator.lon(WebMercator.x(0)), 0);
+    }
+
+    @Test
+    void TestReverseTestingLat() {
+        assertEquals(Math.PI / 2, WebMercator.lat(WebMercator.y(Math.PI / 2)), DELTA);
+        assertEquals(0, WebMercator.lat(WebMercator.y(Math.PI)));
+        assertEquals(WebMercator.lat(WebMercator.y(Math.PI / 4)), Math.PI / 4, DELTA);
+        assertEquals(WebMercator.lat(WebMercator.y(0)), 0);
+    }
+
 }
