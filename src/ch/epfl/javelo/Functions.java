@@ -7,7 +7,7 @@ public final class Functions
 
     private Functions (){ }
 
-    /**
+    /** creates a DoubleUnaryOperator of type Constant using y which is the image of all the antecedents
      *
      * @param y the image we want the constant function to give
      * @return a new Object of type Constant
@@ -17,11 +17,12 @@ public final class Functions
     }
 
 
-    /**
+    /** creates a DoubleUnaryOperator of type Sampled using an array samples containing some images
+     * and the maximum value x for which the image figures in samples
      *
      * @param samples an array that contains the images of some values
      * @param xMax the last antecedent for which we have the image in samples
-     * @return
+     * @return an new Object of type Sampled
      */
     public static DoubleUnaryOperator sampled(float[] samples, double xMax){
         Preconditions.checkArgument(samples.length >= 2);
@@ -33,7 +34,7 @@ public final class Functions
     private static record Constant(double constantValue) implements DoubleUnaryOperator {
 
 
-        /**
+        /** applies the constant function on x and returns its image
          *
          * @param x the antecedent
          * @return the image of x
@@ -55,7 +56,8 @@ public final class Functions
             this.xMax = xMax;
         }
 
-        /**
+        /** gives the image of x from the array samples if its image is there or calculate its
+         * image using interpolation
          *
          * @param x the antecedent
          * @return the image of x
