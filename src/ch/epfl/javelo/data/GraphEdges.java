@@ -13,6 +13,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     private static final int OFFSET_ELEVATION = OFFSET_LENGTH + 2;
     private static final int OFFSET_ATTRIBUTES = OFFSET_ELEVATION + 2;
     private static final int EDGES_INTS = OFFSET_ATTRIBUTES + 2;
+    //private static final int
 
     public boolean isInverted(int edgeId){
         return edgesBuffer.getInt(EDGES_INTS * edgeId + OFFSET_NODE) < 0;
@@ -34,6 +35,10 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
     public double elevationGain(int edgeId){
         return edgesBuffer.getShort(EDGES_INTS * edgeId + OFFSET_ELEVATION);
+    }
+
+    public boolean hasProfile(int edgeId){
+
     }
 
 }
