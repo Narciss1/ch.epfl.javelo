@@ -1,12 +1,12 @@
 package ch.epfl.javelo;
 
 
-import ch.epfl.test.TestRandomizerRayan;
+import ch.epfl.test.TestRandomizer;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.DoubleUnaryOperator;
 
-import static ch.epfl.test.TestRandomizerRayan.newRandom;
+import static ch.epfl.test.TestRandomizer.newRandom;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FunctionsTest {
@@ -15,7 +15,7 @@ public class FunctionsTest {
     void constantWorksCorrectly() {
         DoubleUnaryOperator cst = Functions.constant(37.98);
         var rng = newRandom();
-        for (var i = 0; i < TestRandomizerRayan.RANDOM_ITERATIONS; i += 1) {
+        for (var i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i += 1) {
             var x = rng.nextInt(1000);
             assertEquals(37.98, cst.applyAsDouble(x));
         }
@@ -34,7 +34,7 @@ public class FunctionsTest {
     void sampledThrowsExceptionForMax(){
         float[] samples = {1,2,3};
         var rng = newRandom();
-        for (var i = 0; i < TestRandomizerRayan.RANDOM_ITERATIONS; i += 1) {
+        for (var i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i += 1) {
 //            var xMax = rng.nextInt(1000);
 //            xMax = xMax - 1000;
             assertThrows(IllegalArgumentException.class, () ->{
