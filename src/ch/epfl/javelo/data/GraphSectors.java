@@ -48,7 +48,7 @@ public record GraphSectors(ByteBuffer buffer) {
         return sectorInArea;
     }
 
-    record Sector(int startNodeId, int endNodeId) {
+    public record Sector(int startNodeId, int endNodeId) {
 
     }
 }

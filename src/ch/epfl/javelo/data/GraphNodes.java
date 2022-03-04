@@ -3,6 +3,7 @@ package ch.epfl.javelo.data;
 import java.nio.IntBuffer;
 
 import static ch.epfl.javelo.Bits.extractUnsigned;
+import static ch.epfl.javelo.Q28_4.asDouble;
 
 public record GraphNodes(IntBuffer buffer) {
 
@@ -16,11 +17,10 @@ public record GraphNodes(IntBuffer buffer) {
     }
 
     public double nodeE(int nodeId){
-        return buffer.get(NODE_INTS * nodeId + OFFSET_E);   //Is it useless ?
-    }
+        return asDouble(buffer.get(NODE_INTS * nodeId + OFFSET_E));  }
 
     public double nodeN(int nodeId){
-        return buffer.get(NODE_INTS * nodeId + OFFSET_N);
+        return asDouble(buffer.get(NODE_INTS * nodeId + OFFSET_N));
     }
 
     public int outDegree(int nodeId){
@@ -31,6 +31,5 @@ public record GraphNodes(IntBuffer buffer) {
         assert 0 <= edgeIndex && edgeIndex < outDegree(nodeId);
         return extractUnsigned(buffer.get(NODE_INTS * nodeId + OFFSET_OUT_EDGES),0, 28)
                 + edgeIndex;
-        //Les parenthèses sont-elles utiles ?
     }
 }

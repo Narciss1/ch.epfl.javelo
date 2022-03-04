@@ -2,8 +2,8 @@ package ch.epfl.javelo;
 
 import org.junit.jupiter.api.Test;
 
-import static ch.epfl.test.TestRandomizerRayan.RANDOM_ITERATIONS;
-import static ch.epfl.test.TestRandomizerRayan.newRandom;
+import static ch.epfl.test.TestRandomizer.RANDOM_ITERATIONS;
+import static ch.epfl.test.TestRandomizer.newRandom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
