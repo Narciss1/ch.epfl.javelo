@@ -90,5 +90,19 @@ public record PointWebMercator(double x, double y) {
             return null;
         }
     }
+
+    /**
+     * @return the coordinate x of a point
+     */
+    public double getX(){
+        return x;
+    }
+
+    /**
+     * @return the coordinate y of a point
+     */
+    public double getY(){
+        return y;
+    }
 }
 

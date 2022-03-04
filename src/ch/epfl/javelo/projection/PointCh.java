@@ -45,14 +45,14 @@ public record PointCh(double e, double n) {
     /**
      * @return the east coordinate of a point
      */
-    public double e(){
+    public double getE(){
         return e;
     }
 
     /**
      * @return the north coordinate of a point
      */
-    public double n(){
+    public double getN(){
         return n;
     }
 }
