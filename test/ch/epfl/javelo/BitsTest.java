@@ -83,4 +83,41 @@ public class BitsTest {
         var expected4 = 1187;
         assertEquals(expected4, actual4);
     }
+
+    @Test
+    void extractSigned() {
+        assertEquals(329, Bits.extractSigned(0b10010101_01001010_01001010_01001010, 3, 10));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractSigned(1, -1, 10));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractSigned(1, 1000, 10));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractSigned(1, 33, 10));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractSigned(1, 4, -1));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractSigned(1, 4, 33));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractSigned(1, 4, 30));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractSigned(1, 15, 18));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractSigned(1, 0, 35));
+        assertEquals(-183, Bits.extractSigned(0b10010101_01001010_01001010_01001010, 3, 9));
+        assertEquals(-1, Bits.extractSigned(0b10010101_01001010_01001010_01001010, 3, 1));
+        assertEquals(4754, Bits.extractSigned(0b10010101_01001010_01001010_01001010, 10, 14));
+        assertEquals(0b10010101_01001010_01001010_01001010, Bits.extractSigned(0b10010101_01001010_01001010_01001010, 0, 32));
+        assertEquals(0, Bits.extractSigned(0b10010101_01001010_01001010_01001010, 0, 1));
+    }
+
+    @Test
+    void extractUnsigned() {
+        assertEquals(329, Bits.extractUnsigned(0b10010101_01001010_01001010_01001010, 3, 10));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractUnsigned(1, -1, 10));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractUnsigned(1, 1000, 10));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractUnsigned(1, 33, 10));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractUnsigned(1, 4, -1));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractUnsigned(1, 4, 33));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractUnsigned(1, 4, 30));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractUnsigned(1, 0, 32));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractUnsigned(1, 15, 18));
+        assertThrows(IllegalArgumentException.class, () -> Bits.extractUnsigned(1, 0, 35));
+        assertEquals(329, Bits.extractUnsigned(0b10010101_01001010_01001010_01001010, 3, 9));
+        assertEquals(1, Bits.extractUnsigned(0b10010101_01001010_01001010_01001010, 3, 1));
+        assertEquals(4754, Bits.extractUnsigned(0b10010101_01001010_01001010_01001010, 10, 14));
+        assertEquals(0b0010101_01001010_01001010_01001010, Bits.extractUnsigned(0b10010101_01001010_01001010_01001010, 0, 31));
+        assertEquals(0, Bits.extractUnsigned(0b10010101_01001010_01001010_01001010, 0, 1));
+    }
 }

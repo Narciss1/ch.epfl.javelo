@@ -164,4 +164,50 @@ public class PointWebMercatorTest {
         assertEquals(expectedE4, actual4.e(), DELTA1);
         assertEquals(expectedN4, actual4.n(), DELTA1);
     }
+
+    @Test
+    void ofTestWithZoomedValues() {
+        PointCh pointCh = new PointCh(2_700_000, 1_200_000);
+        assertEquals(pointCh.lon(), PointWebMercator.ofPointCh(pointCh).lon(), DELTA);
+        assertEquals(pointCh.lat(), PointWebMercator.ofPointCh(pointCh).lat(), DELTA);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+                    PointCh pointCh2 = new PointCh(SwissBounds.MAX_E + 1, SwissBounds.MAX_N);
+
+                }
+        );
+        assertThrows(IllegalArgumentException.class, () -> {
+                    PointCh pointCh2 = new PointCh(SwissBounds.MAX_E , SwissBounds.MAX_N + 1);
+
+                }
+        );
+
+        PointCh pointCh2 = new PointCh(SwissBounds.MAX_E, SwissBounds.MAX_N);
+        PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
+
+
+        assertEquals(pointWebMercator.x(), PointWebMercator.of(8,
+                pointWebMercator.xAtZoomLevel(8)
+                ,pointWebMercator.yAtZoomLevel(8)).x());
+        assertEquals(pointWebMercator.y(), PointWebMercator.of(8,
+                pointWebMercator.xAtZoomLevel(8)
+                ,pointWebMercator.yAtZoomLevel(8)).y());
+
+        PointWebMercator pointWebMercator2 = PointWebMercator.ofPointCh(pointCh2);
+
+
+        assertEquals(pointWebMercator2.x(), PointWebMercator.of(8,
+                pointWebMercator2.xAtZoomLevel(8)
+                ,pointWebMercator2.yAtZoomLevel(8)).x());
+        assertEquals(pointWebMercator2.y(), PointWebMercator.of(8,
+                pointWebMercator2.xAtZoomLevel(8)
+                ,pointWebMercator2.yAtZoomLevel(8)).y());
+
+        double lon = 6.5790772, lat = 46.5218976;
+        double x= 0.518275214444, y= 0.353664894749;
+        PointWebMercator pointWebMercator1 = new PointWebMercator(x, y);
+        System.out.println(pointWebMercator1.xAtZoomLevel(19));
+        System.out.println(pointWebMercator1.yAtZoomLevel(19));
+
+    }
 }

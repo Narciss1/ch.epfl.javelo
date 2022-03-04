@@ -37,6 +37,5 @@ public record GraphSectors(ByteBuffer buffer) {
     //7)Quel droit d'accès?
     //8)Laisser vide ou censés add things?
     record Sector(int startNodeId, int endNodeId) {
-
     }
 }
