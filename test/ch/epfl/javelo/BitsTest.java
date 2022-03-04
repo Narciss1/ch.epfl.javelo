@@ -120,4 +120,46 @@ public class BitsTest {
         assertEquals(0b0010101_01001010_01001010_01001010, Bits.extractUnsigned(0b10010101_01001010_01001010_01001010, 0, 31));
         assertEquals(0, Bits.extractUnsigned(0b10010101_01001010_01001010_01001010, 0, 1));
     }
+
+    @Test
+    void extractSignedToThrowOnInvalidValues(){
+        assertThrows(IllegalArgumentException.class, () ->{
+            int actual1 = Bits.extractSigned(5, -1, 4);
+        });
+        assertThrows(IllegalArgumentException.class, () ->{
+            int actual2 = Bits.extractSigned(5, 1, 33);
+        });
+        assertThrows(IllegalArgumentException.class, () ->{
+            int actual3 = Bits.extractSigned(5, 33, 33);
+        });
+        assertThrows(IllegalArgumentException.class, () ->{
+            int actual4 = Bits.extractSigned(5, 1, 0);
+        });
+    }
+
+    @Test
+    void extractUnsignedToThrowOnInvalidValues(){
+        assertThrows(IllegalArgumentException.class, () ->{
+            int actual1 = Bits.extractUnsigned(5, -1, 4);
+        });
+        assertThrows(IllegalArgumentException.class, () ->{
+            int actual2 = Bits.extractUnsigned(5, 1, 33);
+        });
+        assertThrows(IllegalArgumentException.class, () ->{
+            int actual3 = Bits.extractUnsigned(5, 33, 33);
+        });
+        assertThrows(IllegalArgumentException.class, () ->{
+            int actual4 = Bits.extractUnsigned(5, 1, -1);
+        });
+    }
+
+    @Test
+    void extractSignedToWorkOnValidValues(){
+        assertEquals(0b11111111111111111111111111111010, Bits.extractSigned(0b11001010111111101011101010111110, 8, 4));
+    }
+
+    @Test
+    void extractUnsignedToWorkOnValidValues(){
+        assertEquals(0b00000000000000000000000000001010, Bits.extractUnsigned(0b11001010111111101011101010111110, 8, 4));
+    }
 }
