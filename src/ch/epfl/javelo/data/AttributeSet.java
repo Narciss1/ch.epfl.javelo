@@ -16,7 +16,7 @@ public record AttributeSet (long bits) {
         Preconditions.checkArgument(testBits == 0L);
     }
 
-    /**
+    /** checks if the attribute given as an argument is in the set
      *
      * @param attribute we want to check if it is the set
      * @return true if attribute is in the set
@@ -27,7 +27,7 @@ public record AttributeSet (long bits) {
         return (testMask != 0L);
     }
 
-    /**
+    /** Checks if two attributes sets contain at least one same attribute.
      *
      * @param that another set of attributes
      * @return true if the two sets share at least one attribute
@@ -36,7 +36,7 @@ public record AttributeSet (long bits) {
         return ((bits & that.bits) != 0L);
     }
 
-    /**
+    /** gives a String with keys and values of all the attributes that AttributSet contains.
      *
      * @return the name of all the attributes in the set
      */
@@ -60,7 +60,8 @@ public record AttributeSet (long bits) {
     }
 
 
-    /**
+    /** creates an AttributSet which attribute bits has 1 in the positions (beginning from 0)
+     * of the given attributes in the list Attribute.
      *
      * @param attributes list of attributes we want in the set
      * @return a new set containing the attributes given

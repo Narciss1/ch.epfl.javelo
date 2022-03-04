@@ -91,4 +91,34 @@ public class FunctionsTest {
                 Functions.sampled(new float[]{10, 8 ,6, 9, 11, 12}, 10).applyAsDouble(5.7));
     }
 
+    //S
+
+    @Test
+    void sampledToThrowExceptions(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            float[] a = {1};
+            var actual1 = Functions.sampled(a, 1.0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            float[] a = {2, 4, 6};
+            var actual1 = Functions.sampled(a, -1.0);
+        });
+    }
+
+    @Test
+    void constantToWorkOnValidValues(){
+        var actual1 = Functions.constant(1);
+        var expected1 = 1;
+        assertEquals(expected1, actual1.applyAsDouble(2));
+    }
+
+    @Test
+    void sampledToWorkOnValidValues(){
+        float[] a = {0, 2, 4, 6, 8, 10};
+        var actual1 = Functions.sampled(a, 3.5);
+        var expected1 = 0;
+        assertEquals(expected1, actual1.applyAsDouble(0));
+
+    }
+
 }
