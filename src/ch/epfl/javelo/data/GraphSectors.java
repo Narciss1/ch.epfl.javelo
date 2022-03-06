@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ch.epfl.javelo.projection.PointWebMercator.ofPointCh;
+import static ch.epfl.javelo.projection.SwissBounds.MIN_E;
+import static ch.epfl.javelo.projection.SwissBounds.MIN_N;
 import static java.lang.Short.toUnsignedInt;
 import static javax.swing.UIManager.getInt;
 
@@ -20,35 +22,26 @@ public record GraphSectors(ByteBuffer buffer) {
 
         ArrayList<Sector> sectorInArea = new ArrayList<Sector>();
 
-        PointCh leftDown = new PointCh(center.getE() - distance, center.getN() - distance);
-        PointCh rightDown = new PointCh(center.getE() + distance, center.getN() - distance);
-        PointCh leftUp = new PointCh(center.getE() - distance, center.getN() + distance);
-        PointCh rightUp = new PointCh(center.getE() + distance, center.getN() + distance);
-
-        int xMin = (int) (leftDown.getE()/2730.0);
-        int xMax = (int) (rightDown.getE()/2730.0);
-        int yMin = (int) (leftDown.getN()/1730.0);
-        int yMax = (int) (rightUp.getN()/1730.0);
+        int xMin = (int) (center.getE() - distance - MIN_E)*128 / 349000;
+        int xMax = (int) (center.getE() + distance - MIN_E)*128 / 349000;
+        int yMin = (int) (center.getN() - distance - MIN_N)*128 / 221000;
+        int yMax = (int) (center.getN() + distance - MIN_N)*128 / 221000;
 
         int indexLeftDown = xMin + 128*yMin;
         int indexLeftUp = xMin + 128*yMax;
         int indexRightDown = xMax + 128*yMin;
-        int indexRightUp = xMax + 128*yMax;
-
         int largeur = indexRightDown - indexLeftDown + 1;
 
-        for(int i = indexLeftDown; i <= indexRightUp; i += 128){
-            for(int j = 0; j <= largeur - 1; ++j){
+        for(int i = indexLeftDown; i <= indexLeftUp; i += 128){
+            for(int j = 0; j < largeur; ++j){
                 int indexStartNode = buffer.getInt((i + j)*SECTOR_INTS + OFFSET_Index);
                 int numberNodes = toUnsignedInt(buffer().getShort((i + j)*SECTOR_INTS + OFFSET_Number));
-                int indexEndNode = indexStartNode + numberNodes - 1;
-                sectorInArea.add(new Sector(indexStartNode, indexEndNode));
+                sectorInArea.add(new Sector(indexStartNode, indexStartNode + numberNodes - 1));
+                //System.out.println(i+j);
             }
         }
         return sectorInArea;
     }
-
     public record Sector(int startNodeId, int endNodeId) {
-
     }
 }
