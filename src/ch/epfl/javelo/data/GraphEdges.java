@@ -7,8 +7,7 @@ import ch.epfl.javelo.Q28_4;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.Arrays;
-import java.util.Collections;
+
 
 import static java.lang.Short.toUnsignedInt;
 
@@ -51,66 +50,63 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
 
 
-    public float[] profileSamples(int edgeId){
+    public float[] profileSamples(int edgeId) {
 
-        if (!hasProfile(edgeId)){
+        if (!hasProfile(edgeId)) {
             return new float[0];
 
-        }else{
-
-            int samplesNumber = 1 + Math2.ceilDiv(Q28_4.ofInt(edgesBuffer.getShort(
-                            EDGES_INTS * edgeId + OFFSET_LENGTH)),
+        } else {
+            int samplesNumber = 1 + Math2.ceilDiv(edgesBuffer.getShort(
+                            EDGES_INTS * edgeId + OFFSET_LENGTH),
                     Q28_4.ofInt(2));
             float[] profileSamples = new float[samplesNumber];
             int firstSampleId = Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE),
                     0, 30);
             //Stockage du 1er échantillon dans le tableau.
-            profileSamples[0] = Q28_4.asFloat(Q28_4.ofInt(elevations.get(firstSampleId)));
-
+            profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));
             if (typeOfProfile(edgeId) == 1) {
-                for (int i = 1; i <= samplesNumber; ++i) {
-                    profileSamples[i] = Q28_4.asFloat(Q28_4.ofInt(elevations.get(firstSampleId + i)));
+                for (int i = 1; i < samplesNumber; ++i) {
+                    profileSamples[i] = Q28_4.asFloat(elevations.get(firstSampleId + i));
                 }
             }
 
             else if (typeOfProfile(edgeId) == 2){
-                double numberOfShorts = samplesNumber / 2;
-                for (int i = 1; i<= (int)Math.floor(numberOfShorts); ++i){
+                int numberOfShorts = (samplesNumber - 1) / 2;
+                for (int i = 1; i<= numberOfShorts; ++i){
                     profileSamples[i * 2 - 1] = profileSamples[i * 2 - 2] +
-                            Q28_4.asFloat(Q28_4.ofInt(Bits.extractSigned(elevations.get(firstSampleId + i), 8, 8)
-                            ));
+                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i), 8, 8));
                     profileSamples[i * 2] = profileSamples[i * 2 - 1] +
-                            Q28_4.asFloat(Q28_4.ofInt(Bits.extractSigned(elevations.get(firstSampleId + i),
-                                    0,8 )));
+                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i),
+                                    0,8 ));
                 }
-                if (numberOfShorts % 2 != 0){
-                    profileSamples[samplesNumber - 1] =
-                            Q28_4.asFloat(Q28_4.ofInt(Bits.extractSigned(elevations.get(firstSampleId +
-                                    (int)numberOfShorts + 1), 7, 8)));
+                if ((samplesNumber - 1) % 2 != 0){
+                    profileSamples[samplesNumber - 1] = profileSamples [samplesNumber - 2] +
+                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId +
+                                    numberOfShorts + 1), 8, 8));
                 }
 
             } else {
-                int numberOfShorts = samplesNumber / 4;
+                int numberOfShorts = (samplesNumber - 1) / 4;
                 for (int i = 1; i <= numberOfShorts; ++i){
                     profileSamples[i * 4 - 3] = profileSamples[i * 4 - 4] +
-                            Q28_4.asFloat(Q28_4.ofInt(Bits.extractSigned(elevations.get(firstSampleId + i),
-                                    12,4)));
+                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i),
+                                    12,4));
                     profileSamples[i * 4 - 2] = profileSamples[i * 4 - 3] +
-                            Q28_4.asFloat(Q28_4.ofInt(Bits.extractSigned(elevations.get(firstSampleId + i),
-                                    8,4)));
+                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i),
+                                    8,4));
                     profileSamples[i * 4 - 1] = profileSamples[i * 4 - 2] +
-                            Q28_4.asFloat(Q28_4.ofInt(Bits.extractSigned(elevations.get(firstSampleId + i),
-                                    4,4)));
+                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i),
+                                    4,4));
                     profileSamples[i * 4] = profileSamples[i * 4 - 1] +
-                            Q28_4.asFloat(Q28_4.ofInt(Bits.extractSigned(elevations.get(firstSampleId + i),
-                                    0,4)));
+                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i),
+                                    0,4));
                 }
-                int samplesLeft = samplesNumber % 4;
+                int samplesLeft = (samplesNumber-1) % 4;
                 int counting = 0;
-                while (samplesNumber != 0){
+                while (samplesLeft != 0){
                     profileSamples[samplesNumber - samplesLeft] = profileSamples[samplesNumber - samplesLeft - 1] +
-                            Q28_4.asFloat(Q28_4.ofInt(Bits.extractSigned(elevations.get
-                                            (firstSampleId + Math2.ceilDiv(samplesNumber, 4)), 12 - counting,4)));
+                            Q28_4.asFloat(Bits.extractSigned(elevations.get
+                                    (firstSampleId + Math2.ceilDiv(samplesNumber, 4)), 12 - counting,4));
                     samplesLeft = samplesLeft - 1;
                     counting = counting + 4;
                 }
@@ -123,20 +119,22 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         }
     }
 
-    //created method
-    private float[] inverse(float[] toInverse){
+    //created method _ public and static for tests
+    public static float[] inverse(float[] toInverse){
         int i = 0;
         int j = toInverse.length - 1;
         while (i < j){
             float toKeep = toInverse[i];
             toInverse[i] = toInverse[j];
             toInverse[j] = toKeep;
+            i = i + 1;
+            j = j - 1;
         }
         return toInverse;
     }
 
-    //CreatedMethod
-    private int typeOfProfile(int edgeId){
+    //CreatedMethod. Public juste le tps de la tester.
+    public int typeOfProfile(int edgeId){
         return (Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE),
                 30, 2));
     }
