@@ -29,7 +29,7 @@ public record PointWebMercator(double x, double y) {
     }
 
     /**
-     * Finds the Webmercator point corresponding to the point given in the swiss system
+     * Finds the WebMercator point corresponding to the point given in the swiss system
      * @param pointCh a point in the swiss system
      * @return a WebMercator point
      */
