@@ -17,7 +17,7 @@ public class GraphSectorsTest {
                 0,0,0,16,0,20});
         GraphSectors ns = new GraphSectors(buffer);
         int idStartNode = buffer.getInt(0);
-        int idEndNode = idStartNode + toUnsignedInt(buffer.getShort(4))- 1;
+        int idEndNode = idStartNode + toUnsignedInt(buffer.getShort(4));
         GraphSectors.Sector sector = new GraphSectors.Sector(idStartNode,idEndNode);
         List<GraphSectors.Sector> expected0 = new ArrayList<GraphSectors.Sector>();
         expected0.add(sector);
@@ -27,7 +27,7 @@ public class GraphSectorsTest {
         ByteBuffer buffer1 = ByteBuffer.wrap(new byte[]{
                 0,0,0,16,0,20,0,0,0,21,0,12});
         GraphSectors ns1 = new GraphSectors(buffer1);
-        int idEndNode1 = buffer1.getInt(6) + toUnsignedInt(buffer1.getShort(10))- 1;
+        int idEndNode1 = buffer1.getInt(6) + toUnsignedInt(buffer1.getShort(10));
         GraphSectors.Sector sector1 = new GraphSectors.Sector(buffer1.getInt(6),idEndNode1);
         List<GraphSectors.Sector> expected1 = new ArrayList<GraphSectors.Sector>();
         expected1.add(sector1);

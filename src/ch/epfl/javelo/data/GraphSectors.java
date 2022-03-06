@@ -14,10 +14,27 @@ import static javax.swing.UIManager.getInt;
 
 public record GraphSectors(ByteBuffer buffer) {
 
+    /**
+     * index corresponding to the last byte of the sector's first node
+     */
     private static final int OFFSET_Index = 0;
+    /**
+     *  index corresponding to the last byte of the number of nodes in a sector
+     */
     private static final int OFFSET_Number = OFFSET_Index + Integer.BYTES;
+    /**
+     * number of bytes representing a sector
+     */
     private static final int SECTOR_INTS = OFFSET_Number + Short.BYTES;
 
+    /**
+     * Lists all sectors having an intersection with a given square
+     * @param center of the square
+     * @param distance separating the center of the square and its sides
+     * @return the list of all sectors having an intersection with the square
+     *             centered at the given point and with a side equal
+     *                     to twice the given distance
+     */
     public List<Sector> sectorsInArea(PointCh center, double distance) {
 
         ArrayList<Sector> sectorInArea = new ArrayList<Sector>();
@@ -36,12 +53,18 @@ public record GraphSectors(ByteBuffer buffer) {
             for(int j = 0; j < largeur; ++j){
                 int indexStartNode = buffer.getInt((i + j)*SECTOR_INTS + OFFSET_Index);
                 int numberNodes = toUnsignedInt(buffer().getShort((i + j)*SECTOR_INTS + OFFSET_Number));
-                sectorInArea.add(new Sector(indexStartNode, indexStartNode + numberNodes - 1));
+                sectorInArea.add(new Sector(indexStartNode, indexStartNode + numberNodes));
                 //System.out.println(i+j);
             }
         }
         return sectorInArea;
     }
+
+    /**
+     * Represents a sector defined by the identity of its first node, which is its index
+     *   startNodeId and the identity of the node located just after the last
+     *     node in the sector, which is its index endNodeId.
+     */
     public record Sector(int startNodeId, int endNodeId) {
     }
 }
