@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GraphEdgesTest {
-
 
     IntBuffer profileIds = IntBuffer.wrap(new int[]{
             // Type : 3. Index du premier échantillon : 1.
@@ -124,7 +124,4 @@ public class GraphEdgesTest {
         };
         assertArrayEquals(expectedSamples, edges.profileSamples(0));
     }
-
-
-
 }
