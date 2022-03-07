@@ -9,8 +9,6 @@ import static ch.epfl.javelo.data.Attribute.COUNT;
 
 public record AttributeSet (long bits) {
 
-
-
     public AttributeSet {
         long testBits = bits >>> COUNT;
         Preconditions.checkArgument(testBits == 0L);

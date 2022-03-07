@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GraphNodesTest {
 
-    //Lina, je te laisse t'occuper des tests pour la méthode edgeId^^
     @Test
     void methodsGraphSectorsWorksGivenTest() {
         IntBuffer b = IntBuffer.wrap(new int[]{
