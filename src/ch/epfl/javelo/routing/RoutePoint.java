@@ -18,19 +18,35 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
      * @return a point identical to the receiver but whose position has been shifted
      *
      */
-    //PIAZZA @296
     public RoutePoint withPositionShiftedBy(double positionDifference) {
         return new RoutePoint(this.point, this.position + positionDifference,
                 this.distanceToReference);
     }
 
-    //PIAZZA @297
-    /*public RoutePoint min(RoutePoint that) {
-
+    /**
+     *
+     * @param that
+     * @return
+     */
+    public RoutePoint min(RoutePoint that) {
+        if(this.distanceToReference <= that.distanceToReference){
+            return this;
+        }
+        return that;
     }
 
+    /**
+     *
+     * @param thatPoint
+     * @param thatPosition
+     * @param thatDistanceToReference
+     * @return
+     */
     public RoutePoint min(PointCh thatPoint, double thatPosition, double thatDistanceToReference) {
-
-    }*/
+        if(this.distanceToReference <= thatDistanceToReference){
+            return this;
+        }
+        return new RoutePoint(thatPoint, thatPosition, thatDistanceToReference);
+    }
 }
 

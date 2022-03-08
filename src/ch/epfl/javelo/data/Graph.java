@@ -18,12 +18,18 @@ import static javax.swing.UIManager.get;
 
 public final class Graph {
 
-    //PIAZZA @293
     private final GraphNodes nodes;
     private final GraphSectors sectors;
     private final GraphEdges edges;
     private final List<AttributeSet> attributeSets;
 
+    /**
+     *
+     * @param nodes
+     * @param sectors
+     * @param edges
+     * @param attributeSets
+     */
     public Graph(GraphNodes nodes, GraphSectors sectors, GraphEdges edges, List<AttributeSet> attributeSets){
         this.nodes = nodes;
         this.sectors = sectors;
@@ -39,7 +45,6 @@ public final class Graph {
      * @throws IOException
      */
     public Graph loadFrom(Path basePath) throws IOException {
-
        IntBuffer nodesBuffer = fileBuffer(basePath, "nodes.bin").asIntBuffer();
        ByteBuffer sectorsBuffer = fileBuffer(basePath, "sectors.bin");
        ByteBuffer edgesBuffer = fileBuffer(basePath, "edges.bin");
@@ -67,8 +72,7 @@ public final class Graph {
      * @param nodeId identity of a certain node
      * @return the position of the given identity node
      */
-   public PointCh nodePoint(int nodeId) {
-       return new PointCh(nodes.nodeE(nodeId), nodes.nodeN(nodeId));}
+   public PointCh nodePoint(int nodeId) { return new PointCh(nodes.nodeE(nodeId), nodes.nodeN(nodeId));}
 
     /**
      * Calculates the number of edges leaving a node
@@ -126,9 +130,7 @@ public final class Graph {
      * @return returns true iff the given identity edge goes in the opposite direction
      * of the OSM channel it comes from
      */
-    public boolean edgeIsInverted(int edgeId) {
-        return edges.isInverted(edgeId);
-    }
+    public boolean edgeIsInverted(int edgeId) { return edges.isInverted(edgeId); }
 
     /**
      * Finds the set of OSM attributes attached to an edge
@@ -144,9 +146,7 @@ public final class Graph {
      * @param edgeId identity of a certain edge
      * @return the length of the given identity edge
      */
-    public double edgeLength(int edgeId) {
-        return edges.length(edgeId);
-    }
+    public double edgeLength(int edgeId) { return edges.length(edgeId); }
 
     /**
      * Calculates the total elevation gain of an edge
@@ -169,7 +169,7 @@ public final class Graph {
         }
         return Functions.constant(Double.NaN);
     }
-    
+
     /**
      * Gives a buffer of type ByteBuffer, whose content is that of a file in the directory
      * @param basePath path of the directory
