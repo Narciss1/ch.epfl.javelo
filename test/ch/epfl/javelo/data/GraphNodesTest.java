@@ -48,6 +48,8 @@ public class GraphNodesTest {
         assertEquals(1, ns.outDegree(1));
         assertEquals(0x803_0925, ns.edgeId(1, 0));
         //assertEquals(Integer.valueOf(Integer.toHexString(0x803_0925 + 1),16), ns.edgeId(1, 1));
+        //assertThrows(AssertionError.class, ns.edgeId(1,1));
+        //Piazza @259
     }
 
     @Test
