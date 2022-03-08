@@ -24,11 +24,11 @@ public final class Graph {
     private final List<AttributeSet> attributeSets;
 
     /**
-     *
-     * @param nodes
-     * @param sectors
-     * @param edges
-     * @param attributeSets
+     * Constructor
+     * @param nodes a given array of all graph nodes
+     * @param sectors a given array of all sectors
+     * @param edges a given array of all graph edges
+     * @param attributeSets a list of all attribute sets
      */
     public Graph(GraphNodes nodes, GraphSectors sectors, GraphEdges edges, List<AttributeSet> attributeSets){
         this.nodes = nodes;

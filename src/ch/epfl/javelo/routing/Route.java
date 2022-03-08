@@ -11,32 +11,32 @@ public interface Route {
      * @param position a given position
      * @return the index of a segment
      */
-    abstract int indexOfSegmentAt(double position);
+    public abstract int indexOfSegmentAt(double position);
 
     /**
      * Calculates the length of the itinerary in meters
      * @return the length of the itinerary
      */
-    abstract double length();
+    public abstract double length();
 
     /**
      * Finds all the edges of the itinerary
      * @return a list of the edges of the itinerary
      */
-    abstract List<Edge> edges();
+    public abstract List<Edge> edges();
 
     /**
      * Finds all the points located at the extremities of the edges of the itinerary
      * @return a list of the points located at the extremities of the edges
      */
-    abstract List<PointCh> points();
+    public abstract List<PointCh> points();
 
     /**
      * Finds the point at the given position along the itinerary
      * @param position a given position
      * @return the point at the given position along the itinerary
      */
-    abstract PointCh pointAt(double position);
+    public abstract PointCh pointAt(double position);
 
     /**
      * Finds the node belonging to the itinerary and located closest to
@@ -45,12 +45,12 @@ public interface Route {
      * @return the identity of the node belonging to the itinerary and located closest to
      * the given position
      */
-    abstract int nodeClosestTo(double position);
+    public abstract int nodeClosestTo(double position);
 
     /**
      * Finds the point on the route that is closest to a given point
      * @param point a reference point
      * @return the point on the route that is closest to the given reference point
      */
-    abstract RoutePoint pointClosestTo(PointCh point);
+    public abstract RoutePoint pointClosestTo(PointCh point);
 }

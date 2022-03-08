@@ -5,7 +5,7 @@ import ch.epfl.javelo.projection.PointCh;
 import static java.lang.Double.POSITIVE_INFINITY;
 
 public record RoutePoint(PointCh point, double position, double distanceToReference) {
-    //QUESTION 1: Ainsi le point est nul?
+
     /**
      * A constant representing a non-existent point
      */
@@ -24,9 +24,10 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
     }
 
     /**
-     *
-     * @param that
-     * @return
+     * Determines the point of the itinerary whose distance to the reference is the smallest
+     * @param that a given point of the itinerary
+     * @return the point of the itinerary "this" if its distance to the reference is less than
+     * or equal to the point "that"'s distance to the reference, and the point "that" otherwise
      */
     public RoutePoint min(RoutePoint that) {
         if(this.distanceToReference <= that.distanceToReference){
@@ -36,11 +37,14 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
     }
 
     /**
-     *
-     * @param thatPoint
-     * @param thatPosition
-     * @param thatDistanceToReference
-     * @return
+     * Gives the point of the itinerary "this" if its distance to the reference is less than
+     * or equal to thatDistanceToReference, and otherwise a new RoutePoint instance
+     * @param thatPoint a given point of the itinerary
+     * @param thatPosition position of the given point along the route, in meters
+     * @param thatDistanceToReference distance in meters between the point and the reference
+     * @return the point of the itinerary "this" if its distance to the reference is less than
+     * or equal to thatDistanceToReference, and otherwise a new RoutePoint instance whose attributes
+     * are the arguments passed to the method min
      */
     public RoutePoint min(PointCh thatPoint, double thatPosition, double thatDistanceToReference) {
         if(this.distanceToReference <= thatDistanceToReference){
