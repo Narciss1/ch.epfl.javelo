@@ -1,5 +1,6 @@
 package ch.epfl.javelo.data;
 
+import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.projection.PointCh;
 
 import java.io.IOException;
@@ -9,12 +10,15 @@ import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
+import static javax.swing.UIManager.get;
+
 public final class Graph {
 
-    //QUESTION 1: suffisant de mettre final pour la classe et ses attributs quand elle est immuable ?
+    //QUESTION: ADD METHODE AUXILIAIRE CAUSE THIS IS DU CODE DUPLIQUE ?
     private final GraphNodes nodes;
     private final GraphSectors sectors;
     private final GraphEdges edges;
@@ -27,27 +31,23 @@ public final class Graph {
         this.attributeSets = attributeSets;
     }
 
-    //QUESTION 2: ADD METHODE AUXILIAIRE CAUSE THIS IS DU CODE DUPLIQUE ?
-    //QUESTION 3: Shouldnt add: Path filePath = Path.of("lausanne/nodes_osmid.bin"); ?
-    //QUESTION 4: Est-ce qu'il lève bien l'exception seul ?
-    // PIAZZA @264
    public Graph loadFrom(Path basePath) throws IOException {
 
-        Path nodesPath = basePath.resolve("nodes.bin");
-        IntBuffer nodesBuffer;
-        try (FileChannel channel = FileChannel.open(nodesPath)) {
-            nodesBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size()).asIntBuffer();
-        }
-        Path sectorsPath = basePath.resolve("sectors.bin");
-        ByteBuffer sectorsBuffer;
-        try (FileChannel channel = FileChannel.open(sectorsPath)) {
-            sectorsBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-        }
-        Path edgesPath = basePath.resolve("edges.bin");
-        ByteBuffer edgesBuffer;
-        try (FileChannel channel = FileChannel.open(edgesPath)) {
-            edgesBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-        }
+       Path nodesPath = basePath.resolve("nodes.bin");
+       IntBuffer nodesBuffer;
+       try(FileChannel channel = FileChannel.open(nodesPath)){
+           nodesBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size()).asIntBuffer();
+       }
+       Path sectorsPath = basePath.resolve("sectors.bin");
+       ByteBuffer sectorsBuffer;
+       try (FileChannel channel = FileChannel.open(sectorsPath)) {
+           sectorsBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+       }
+       Path edgesPath = basePath.resolve("edges.bin");
+       ByteBuffer edgesBuffer;
+       try (FileChannel channel = FileChannel.open(edgesPath)) {
+           edgesBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+       }
        Path profileIdsPath = basePath.resolve("profile_ids.bin");
        IntBuffer profileIdsBuffer;
        try (FileChannel channel = FileChannel.open(profileIdsPath)) {
@@ -58,13 +58,17 @@ public final class Graph {
        try (FileChannel channel = FileChannel.open(elevationsPath)) {
            elevationsBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size()).asShortBuffer();
        }
-        Path attributesPath = basePath.resolve("attributes.bin");
-        ByteBuffer attributesBuffer;
-        try (FileChannel channel = FileChannel.open(attributesPath)) {
-            attributesBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-        }
-        return new Graph(new GraphNodes(nodesBuffer), new GraphSectors(sectorsBuffer),
-                new GraphEdges(edgesBuffer, profileIdsBuffer, elevationsBuffer),  );
+       Path attributesPath = basePath.resolve("attributes.bin");
+       LongBuffer attributesBuffer;
+       try (FileChannel channel = FileChannel.open(attributesPath)) {
+           attributesBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size()).asLongBuffer();
+       }
+       List<AttributeSet> attributeSetsBuffer = new ArrayList<>();
+       for(int i = 0; i < attributesBuffer.capacity(); i++) {
+           attributeSetsBuffer.add(new AttributeSet(attributesBuffer.get(i)));
+       }
+       return new Graph(new GraphNodes(nodesBuffer), new GraphSectors(sectorsBuffer),
+                new GraphEdges(edgesBuffer, profileIdsBuffer, elevationsBuffer), attributeSetsBuffer);
     }
 
     /**
@@ -100,15 +104,26 @@ public final class Graph {
        return nodes.edgeId(nodeId, edgeIndex);
    }
 
-   // PIAZZA @273
-   // qui retourne l'identité du nœud se trouvant le plus proche du point donné,
-   // à la distance maximale donnée (en mètres), ou -1 si aucun nœud ne correspond à ces critères
-   /*public int nodeClosestTo(PointCh point, double searchDistance) {
+    /**
+     *
+     * @param point
+     * @param searchDistance
+     * @return
+     */
+   public int nodeClosestTo(PointCh point, double searchDistance) {
+       double minDistance = Math.pow(searchDistance, 2);
+       int closestNode = -1;
        List<GraphSectors.Sector> closeSectors = sectors.sectorsInArea(point, searchDistance);
-       for( int i = 0; i < closeSectors.size(); i++){
-          int j = point.squaredDistanceTo(closeSectors.get(i).startNodeId());
+       for(int i = 0; i < closeSectors.size(); i++){
+          for(int j = closeSectors.get(i).startNodeId(); j < closeSectors.get(i).endNodeId(); j++){
+              if(point.squaredDistanceTo(new PointCh(nodes.nodeE(j), nodes.nodeN(j))) < minDistance){
+                  minDistance = point.squaredDistanceTo(new PointCh(nodes.nodeE(j), nodes.nodeN(j)));
+                  closestNode = j;
+              }
+          }
        }
-   }*/
+       return closestNode;
+   }
 
     /**
      *
@@ -116,7 +131,7 @@ public final class Graph {
      * @return
      */
     public int edgeTargetNodeId(int edgeId){
-       return edges.targetNodeId(edgeId);
+        return edges.targetNodeId(edgeId);
     }
 
     /**
@@ -128,9 +143,14 @@ public final class Graph {
         return edges.isInverted(edgeId);
     }
 
-   // PIAZZA @268
-   // public AttributeSet edgeAttributes(int edgeId){return}
-   // qui retourne l'ensemble des attributs OSm attachés à l'arête d'identité donnée
+    /**
+     *
+     * @param edgeId
+     * @return
+     */
+   public AttributeSet edgeAttributes(int edgeId){
+       return attributeSets.get(edges.attributesIndex(edgeId));
+    }
 
     /**
      *
@@ -148,16 +168,17 @@ public final class Graph {
      */
     public double edgeElevationGain(int edgeId){
         return edges.elevationGain(edgeId);
-        //QUESTION 5: Est-ce que c'est exactement que la meme chose que la méthode de edges ?
     }
 
-    //A LINA DE FINIR CETTE METHODE!
-    /*
+    /**
+     *
+     * @param edgeId
+     * @return
+     */
     public DoubleUnaryOperator edgeProfile(int edgeId){
         if(edges.hasProfile(edgeId)){
-            Sampled(profileSamples(edgeId), xMax);
-        } else {
-           return Double.NaN();
+            return Functions.sampled(edges.profileSamples(edgeId), edges.length(edgeId));
         }
-    }*/
+        return Functions.constant(Double.NaN);
+    }
 }
