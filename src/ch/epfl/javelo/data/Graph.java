@@ -18,7 +18,7 @@ import static javax.swing.UIManager.get;
 
 public final class Graph {
 
-    //QUESTION: ADD METHODE AUXILIAIRE CAUSE THIS IS DU CODE DUPLIQUE ?
+    //PIAZZA @293
     private final GraphNodes nodes;
     private final GraphSectors sectors;
     private final GraphEdges edges;
@@ -31,44 +31,28 @@ public final class Graph {
         this.attributeSets = attributeSets;
     }
 
-   public Graph loadFrom(Path basePath) throws IOException {
+    /**
+     *
+     * @param basePath
+     * @return
+     * @throws IOException
+     */
+    public Graph loadFrom(Path basePath) throws IOException {
 
-       Path nodesPath = basePath.resolve("nodes.bin");
-       IntBuffer nodesBuffer;
-       try(FileChannel channel = FileChannel.open(nodesPath)){
-           nodesBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size()).asIntBuffer();
-       }
-       Path sectorsPath = basePath.resolve("sectors.bin");
-       ByteBuffer sectorsBuffer;
-       try (FileChannel channel = FileChannel.open(sectorsPath)) {
-           sectorsBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-       }
-       Path edgesPath = basePath.resolve("edges.bin");
-       ByteBuffer edgesBuffer;
-       try (FileChannel channel = FileChannel.open(edgesPath)) {
-           edgesBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-       }
-       Path profileIdsPath = basePath.resolve("profile_ids.bin");
-       IntBuffer profileIdsBuffer;
-       try (FileChannel channel = FileChannel.open(profileIdsPath)) {
-           profileIdsBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size()).asIntBuffer();
-       }
-       Path elevationsPath = basePath.resolve("elevations.bin");
-       ShortBuffer elevationsBuffer;
-       try (FileChannel channel = FileChannel.open(elevationsPath)) {
-           elevationsBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size()).asShortBuffer();
-       }
-       Path attributesPath = basePath.resolve("attributes.bin");
-       LongBuffer attributesBuffer;
-       try (FileChannel channel = FileChannel.open(attributesPath)) {
-           attributesBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size()).asLongBuffer();
-       }
+       IntBuffer nodesBuffer = fileBuffer(basePath, "nodes.bin").asIntBuffer();
+       ByteBuffer sectorsBuffer = fileBuffer(basePath, "sectors.bin");
+       ByteBuffer edgesBuffer = fileBuffer(basePath, "edges.bin");
+       IntBuffer profileIdsBuffer = fileBuffer(basePath, "profile_ids.bin").asIntBuffer();
+       ShortBuffer elevationsBuffer = fileBuffer(basePath, "elevations.bin").asShortBuffer();
+       LongBuffer attributesBuffer = fileBuffer(basePath, "attributes.bin").asLongBuffer();
+
        List<AttributeSet> attributeSetsBuffer = new ArrayList<>();
        for(int i = 0; i < attributesBuffer.capacity(); i++) {
            attributeSetsBuffer.add(new AttributeSet(attributesBuffer.get(i)));
        }
+
        return new Graph(new GraphNodes(nodesBuffer), new GraphSectors(sectorsBuffer),
-                new GraphEdges(edgesBuffer, profileIdsBuffer, elevationsBuffer), attributeSetsBuffer);
+               new GraphEdges(edgesBuffer, profileIdsBuffer, elevationsBuffer), attributeSetsBuffer);
     }
 
     /**
@@ -116,8 +100,9 @@ public final class Graph {
        List<GraphSectors.Sector> closeSectors = sectors.sectorsInArea(point, searchDistance);
        for(int i = 0; i < closeSectors.size(); i++){
           for(int j = closeSectors.get(i).startNodeId(); j < closeSectors.get(i).endNodeId(); j++){
-              if(point.squaredDistanceTo(new PointCh(nodes.nodeE(j), nodes.nodeN(j))) < minDistance){
-                  minDistance = point.squaredDistanceTo(new PointCh(nodes.nodeE(j), nodes.nodeN(j)));
+              double distance = point.squaredDistanceTo(new PointCh(nodes.nodeE(j), nodes.nodeN(j)));
+              if(distance < minDistance){
+                  minDistance = distance;
                   closestNode = j;
               }
           }
@@ -180,5 +165,22 @@ public final class Graph {
             return Functions.sampled(edges.profileSamples(edgeId), edges.length(edgeId));
         }
         return Functions.constant(Double.NaN);
+    }
+
+
+    /**
+     *
+     * @param basePath
+     * @param string
+     * @return
+     * @throws IOException
+     */
+    public ByteBuffer fileBuffer(Path basePath, String string) throws IOException {
+        Path stringPath = basePath.resolve(string);
+        ByteBuffer stringBuffer;
+        try(FileChannel channel = FileChannel.open(stringPath)){
+            stringBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+        }
+        return stringBuffer;
     }
 }
