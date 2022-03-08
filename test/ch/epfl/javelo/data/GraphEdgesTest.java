@@ -19,7 +19,6 @@ public class GraphEdgesTest {
 
     ShortBuffer elevations = ShortBuffer.wrap(new short[]{
             (short) 0,
-//            (short) 0x1801, (short) 0x180C, (short) 0x180E //TypeIn1
 //            (short) 0x180C, (short) 0xFEFF,
 //            (short) 0xFFFE, (short) 0xF000 //TypeIn3
             (short) 0x180C, (short) 0x1212 //Type2
@@ -125,7 +124,7 @@ public class GraphEdgesTest {
     }
 
     @Test
-    void profileSamplesWorks() {
+    void profileSamplesWorksType2NotInverted() {
         ByteBuffer edgesBuffer = ByteBuffer.allocate(10);
         // Sens : inversé. Nœud destination : 12.
         edgesBuffer.putInt(0, 12);
@@ -144,14 +143,130 @@ public class GraphEdgesTest {
                 384.4375f, 384.5f, 384.5625f, 384.6875f, 384.75f
         };
         float[] type3Array = GraphEdges.inverse(type3InvertedArray.clone());
-        float[] type0Array = new float[0];
         float[] type2Array = new float[]{
                 384.75f, 385.875f, 387f
         }; //0x0180 - 0x1212
+        assertArrayEquals(type2Array, edges.profileSamples(0));
+    }
+
+    @Test
+    void profileWorksWithType3Inverted(){
+        ByteBuffer edgesBuffer = ByteBuffer.allocate(10);
+        // Sens : inversé. Nœud destination : 12.
+        edgesBuffer.putInt(0, ~12);
+        //Longueur : 0x10.b m (= 16.6875 m)
+        edgesBuffer.putShort(4, (short) 0x10_b);
+        // Dénivelé : 0x10.0 m (= 16.0 m)
+        edgesBuffer.putShort(6, (short) 0x10_0);
+        // Identité de l'ensemble d'attributs OSM : 1
+        edgesBuffer.putShort(8, (short) 2022);
+        IntBuffer profileIds = IntBuffer.wrap(new int[]{
+                // Type : 0. Index du premier échantillon : 1.
+                (3 << 30) | 1
+        });
+
+        ShortBuffer elevations = ShortBuffer.wrap(new short[]{
+                (short) 0,
+            (short) 0x180C, (short) 0xFEFF,
+            (short) 0xFFFE, (short) 0xF000 //Type3
+        });
+        GraphEdges edges =
+                new GraphEdges(edgesBuffer, profileIds, elevations);
+        float[] type3InvertedArray = new float[]{
+                384.0625f,
+                384.125f, 384.25f, 384.3125f, 384.375f,
+                384.4375f, 384.5f, 384.5625f, 384.6875f, 384.75f
+        };
+        assertArrayEquals(type3InvertedArray, edges.profileSamples(0));
+    }
+
+    @Test
+    void profileWorksWithType3NotInverted(){
+        ByteBuffer edgesBuffer = ByteBuffer.allocate(10);
+        // Sens : inversé. Nœud destination : 12.
+        edgesBuffer.putInt(0, 12);
+        //Longueur : 0x10.b m (= 16.6875 m)
+        edgesBuffer.putShort(4, (short) 0x10_b);
+        // Dénivelé : 0x10.0 m (= 16.0 m)
+        edgesBuffer.putShort(6, (short) 0x10_0);
+        // Identité de l'ensemble d'attributs OSM : 1
+        edgesBuffer.putShort(8, (short) 2022);
+        IntBuffer profileIds = IntBuffer.wrap(new int[]{
+                // Type : 0. Index du premier échantillon : 1.
+                (3 << 30) | 1
+        });
+
+        ShortBuffer elevations = ShortBuffer.wrap(new short[]{
+                (short) 0,
+                (short) 0x180C, (short) 0xFEFF,
+                (short) 0xFFFE, (short) 0xF000 //Type3
+        });
+        GraphEdges edges =
+                new GraphEdges(edgesBuffer, profileIds, elevations);
+        float[] type3Array = new float[]{
+                384.75f, 384.6875f, 384.5625f, 384.5f, 384.4375f,
+                384.375f, 384.3125f, 384.25f, 384.125f, 384.0625f,
+        };
+
+        assertArrayEquals(type3Array, edges.profileSamples(0));
+    }
+
+    @Test
+    void profileWorksWithType0(){
+
+        ByteBuffer edgesBuffer = ByteBuffer.allocate(10);
+        // Sens : inversé. Nœud destination : 12.
+        edgesBuffer.putInt(0, ~12);
+        //Longueur : 4m
+        edgesBuffer.putShort(4, (short) 0x4_0);
+        // Dénivelé : 0x10.0 m (= 16.0 m)
+        edgesBuffer.putShort(6, (short) 0x10_0);
+        // Identité de l'ensemble d'attributs OSM : 1
+        edgesBuffer.putShort(8, (short) 2022);
+        IntBuffer profileIds = IntBuffer.wrap(new int[]{
+                (0 << 30) | 1
+        });
+
+        ShortBuffer elevations = ShortBuffer.wrap(new short[]{
+                (short) 0, (short) 0x1801, (short) 0x180C, (short) 0x180E //TypeIn0
+        });
+        GraphEdges edges =
+                new GraphEdges(edgesBuffer, profileIds, elevations);
+
+        float[] type0Array = new float[0];
+        assertArrayEquals(type0Array, edges.profileSamples(0));
+    }
+
+
+    @Test
+    void profileWorksWithType1Inverted(){
+
+        ByteBuffer edgesBuffer = ByteBuffer.allocate(10);
+        // Sens : inversé. Nœud destination : 12.
+        edgesBuffer.putInt(0, ~12);
+        //Longueur : 4m
+        edgesBuffer.putShort(4, (short) 0x4_0);
+        // Dénivelé : 0x10.0 m (= 16.0 m)
+        edgesBuffer.putShort(6, (short) 0x10_0);
+        // Identité de l'ensemble d'attributs OSM : 1
+        edgesBuffer.putShort(8, (short) 2022);
+        IntBuffer profileIds = IntBuffer.wrap(new int[]{
+                (1 << 30) | 1
+        });
+
+        ShortBuffer elevations = ShortBuffer.wrap(new short[]{
+                (short) 0, (short) 0x1801, (short) 0x180C, (short) 0x180E //TypeIn1
+        });
+        GraphEdges edges =
+                new GraphEdges(edgesBuffer, profileIds, elevations);
+
         float[] type1InvertedArray = new float[]{
                 384.875f, 384.75f, 384.0625f
-        }; //1801 - 180C - 180E.
-        assertArrayEquals(type2Array, edges.profileSamples(0));
+        };
+        for (int i = 0; i < edges.profileSamples(0).length; ++i){
+            System.out.println(edges.profileSamples(0)[i]);
+        }
+        assertArrayEquals(type1InvertedArray, edges.profileSamples(0));
     }
 
 
@@ -244,6 +359,9 @@ public class GraphEdgesTest {
         System.out.println(Arrays.toString(result));
         assertArrayEquals(expectedSamples, result);
     }
+
+    //TestsLeo
+
 
 
 }
