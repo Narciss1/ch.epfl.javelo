@@ -25,7 +25,7 @@ public class GraphSectorsPplTest {
         // Every sector's first node's value is the index of the sector in the buffer of sectors. Every sector contains exactly 0 nodes.
 
 
-        //First test: we want to get only the sector #8256, located in the middle.
+        /*//First test: we want to get only the sector #8256, located in the middle.
         //For that we use the fact that the equality between record objects was modified so that each attribute gets compared instead of the references.
         assertEquals(new GraphSectors.Sector(8256, 8256),gs.sectorsInArea(new PointCh(SwissBounds.MIN_E + 64*(2.7265625 * 1000),
                 SwissBounds.MIN_N + 64*(1.7265625 * 1000)), 0).get(0));
@@ -44,7 +44,7 @@ public class GraphSectorsPplTest {
         assertEquals(new GraphSectors.Sector(8255, 8255),gs.sectorsInArea(new PointCh(SwissBounds.MIN_E + 64*(2.7265625 * 1000),
                 SwissBounds.MIN_N + 64*(1.7265625 * 1000)), 300).get(2));
         assertEquals(new GraphSectors.Sector(8256, 8256),gs.sectorsInArea(new PointCh(SwissBounds.MIN_E + 64*(2.7265625 * 1000),
-                SwissBounds.MIN_N + 64*(1.7265625 * 1000)), 300).get(3));
+                SwissBounds.MIN_N + 64*(1.7265625 * 1000)), 300).get(3));*/
 
 
         //Fourth test: what if the drawn square gets passed the borders defined by the class Swissbound ?

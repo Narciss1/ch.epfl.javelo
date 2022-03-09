@@ -44,10 +44,10 @@ public record GraphSectors(ByteBuffer buffer) {
         int yMin = (int) (center.getN() - distance - MIN_N)*128 / 221000;
         int yMax = (int) (center.getN() + distance - MIN_N)*128 / 221000;*/
 
-        double xMinInter = clamp(MIN_E, center.getE() - distance, MAX_E); //center.e
-        double xMaxInter = clamp(MIN_E, center.getE() + distance, MAX_E);
-        double yMinInter = clamp(MIN_N, center.getN() - distance, MAX_N);
-        double yMaxInter = clamp(MIN_N, center.getN() + distance, MAX_N);
+        double xMinInter = clamp(MIN_E, center.getE() - distance, MAX_E - 1); //center.e
+        double xMaxInter = clamp(MIN_E, center.getE() + distance, MAX_E - 1);
+        double yMinInter = clamp(MIN_N, center.getN() - distance, MAX_N - 1);
+        double yMaxInter = clamp(MIN_N, center.getN() + distance, MAX_N - 1);
 
         int xMin = (int) (xMinInter - MIN_E)*128 / 349000; //CONSTANTE
         int xMax = (int) (xMaxInter - MIN_E)*128 / 349000;
@@ -61,12 +61,10 @@ public record GraphSectors(ByteBuffer buffer) {
 
         for(int i = indexLeftDown; i <= indexLeftUp; i += 128){
             for(int j = 0; j < largeur; ++j){
-               // System.out.println("index :"+(i + j)*SECTOR_INTS + OFFSET_Index);
-                //System.out.println("capacity" +buffer.capacity());
                 int indexStartNode = buffer.getInt((i + j)*SECTOR_INTS + OFFSET_Index);
                 int numberNodes = toUnsignedInt(buffer().getShort((i + j)*SECTOR_INTS + OFFSET_Number));
                 sectorInArea.add(new Sector(indexStartNode, indexStartNode + numberNodes));
-                //System.out.println(i+j);
+                System.out.println(i+j);
             }
         }
         return sectorInArea;
