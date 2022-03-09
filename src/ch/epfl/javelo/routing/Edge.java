@@ -15,15 +15,22 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
     }
 
     public double positionClosestTo(PointCh point){
-        double position = 0;
-        position = Math2.projectionLength(fromPoint.getE(), fromPoint.getN(), toPoint.getE(),
+//        double position = 0;
+//        position = Math2.projectionLength(fromPoint.getE(), fromPoint.getN(), toPoint.getE(),
+//                toPoint.getN(), point.getE(), point.getN());
+//        if (position < 0){
+//            return 0;
+//        } else if (position > length){
+//            return length;
+//        }
+//        return position;
+        return Math2.projectionLength(fromPoint.getE(), fromPoint.getN(), toPoint.getE(),
                 toPoint.getN(), point.getE(), point.getN());
-        if (position < 0){
-            return 0;
-        } else if (position > length){
-            return length;
-        }
-        return position;
+    }
+
+
+    public double atElevation(double position){
+        return profile().applyAsDouble(position);
     }
 
 

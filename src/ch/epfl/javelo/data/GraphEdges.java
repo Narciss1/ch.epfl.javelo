@@ -13,19 +13,51 @@ import static java.lang.Short.toUnsignedInt;
 
 public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuffer elevations) {
 
+    /**
+     * index corresponding to identity of the starting node of the edge
+     */
     private static final int OFFSET_NODE = 0;
+    /**
+     * index corresponding to the length of the edge
+     */
     private static final int OFFSET_LENGTH = OFFSET_NODE + 4;
+    /**
+     * index corresponding to the total elevation gain of the edge
+     */
     private static final int OFFSET_ELEVATION = OFFSET_LENGTH + 2;
+    /**
+     * index corresponding to the attributes of the edge
+     */
     private static final int OFFSET_ATTRIBUTES = OFFSET_ELEVATION + 2;
+    /**
+     * number of values representing a single edge
+     */
     private static final int EDGES_INTS = OFFSET_ATTRIBUTES + 2;
 
-    private static final int OFFSET_PROFILE = 0;
-    private static final int PROFILES_INTS = OFFSET_PROFILE + 1;
+    /**
+     * index representing the index of type of profile and identity of thr first sample for the edge
+     */
+    private static final int OFFSET_PROFILE_ID = 0;
+    /**
+     * number of values representing an edge
+     */
+    private static final int PROFILES_INTS = OFFSET_PROFILE_ID + 1;
 
+
+    /** checks if an edge is inverted compared to the OSM way
+     *
+     * @param edgeId the edge's (we want to check) identity
+     * @return true if the edge is inverted compared to the OSM way
+     */
     public boolean isInverted(int edgeId){
         return edgesBuffer.getInt(EDGES_INTS * edgeId + OFFSET_NODE) < 0;
     }
 
+    /** gives us the integer corresponding to destination node's identity
+     *
+     * @param edgeId the edge's identity
+     * @return the identity of the destination node for an edge
+     */
     public int targetNodeId(int edgeId){
         if (! isInverted(edgeId)){
             return Bits.extractUnsigned(edgesBuffer.getInt(EDGES_INTS * edgeId + OFFSET_NODE),
@@ -36,20 +68,41 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         }
     }
 
+    /** gives us the double corresponding to the edge's length in meters.
+     *
+     * @param edgeId
+     * @return the length of the edge
+     */
     public double length(int edgeId){
         return Q28_4.asDouble(toUnsignedInt(edgesBuffer.getShort(EDGES_INTS * edgeId + OFFSET_LENGTH)));
     }
 
+
+    /** gives us the double corresponding to the edge's total elevation gain.
+     *
+     * @param edgeId the edge's identity
+     * @return the total elevation gain of the edge
+     */
     public double elevationGain(int edgeId){
         return Q28_4.asDouble(toUnsignedInt(edgesBuffer.getShort(EDGES_INTS * edgeId + OFFSET_ELEVATION)));
     }
 
+    /** checks if an edge has a profile of type 1, 2 or 3, which means it has a profile.
+     *
+     * @param edgeId the edge's identity
+     * @return true if the edge has a profile
+     */
     public boolean hasProfile(int edgeId){
-        return Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId), 30, 2) != 0;
+        return Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID), 30, 2) != 0;
     }
 
 
-
+    /** Stores in an array the profile samples of an edge that can be of any type. The array
+     * is empty if the edge hasno profile.
+     *
+     * @param edgeId the edge's identity
+     * @return an array containing the profile samples of the edge.
+     */
     public float[] profileSamples(int edgeId) {
 
         if (!hasProfile(edgeId)) {
@@ -60,9 +113,9 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                             EDGES_INTS * edgeId + OFFSET_LENGTH),
                     Q28_4.ofInt(2));
             float[] profileSamples = new float[samplesNumber];
-            int firstSampleId = Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE),
+            int firstSampleId = Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID),
                     0, 30);
-            //Stockage du 1er échantillon dans le tableau.
+            //Storage of the first sample in the array
             profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));
             if (typeOfProfile(edgeId) == 1) {
                 for (int i = 1; i < samplesNumber; ++i) {
@@ -119,6 +172,11 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         }
     }
 
+    /** takes an array of float values and inverses its values
+     *
+     * @param toInverse the array we want to inverse the values for
+     * @return an array with the inversed values of the one given as an argument
+     */
     //created method _ public and static for tests
     public static float[] inverse(float[] toInverse){
         int i = 0;
@@ -133,15 +191,25 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         return toInverse;
     }
 
+    /** gives us the integer corresponding to the edge's profile.
+     *
+     * @param edgeId the edge's identity
+     * @return the profile type of the edge
+     */
     //CreatedMethod. Public juste le tps de la tester.
     public int typeOfProfile(int edgeId){
-        return (Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE),
+        return (Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID),
                 30, 2));
     }
 
 
     //Peut-être rajouter une 3e methode qui fait le asFloat et tt le calcul chiant là lourd.
 
+    /**
+     *
+     * @param edgeId the edge's identity
+     * @return
+     */
     public int attributesIndex(int edgeId){
         return edgesBuffer.getShort(EDGES_INTS * edgeId + OFFSET_ATTRIBUTES);
     }
