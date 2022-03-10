@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GraphSectorsPplTest {
 
@@ -51,8 +52,11 @@ public class GraphSectorsPplTest {
         //If no error is thrown while using an absurdly high distance value (1000000000 meters), this may indicate that you treat this case appropriately.
         gs.sectorsInArea(new PointCh(SwissBounds.MIN_E + 64*(2.7265625 * 1000), SwissBounds.MIN_N + 64*(1.7265625 * 1000)), 1000000000);
         // We draw a square from the bottom left corner of the grid. We are supposed to list the sectors 0, 1, 128 and 129 without errors.
-        assertEquals(new GraphSectors.Sector(0, 0),gs.sectorsInArea(new PointCh(SwissBounds.MIN_E + 0.1*(2.7265625 * 1000),
+
+        assertEquals(new GraphSectors.Sector(0, 0),gs.sectorsInArea(new PointCh
+                (SwissBounds.MIN_E + 0.1*(2.7265625 * 1000),
                 SwissBounds.MIN_N + 0.1*(1.7265625 * 1000)), 3000).get(0));
+
         assertEquals(new GraphSectors.Sector(1, 1),gs.sectorsInArea(new PointCh(SwissBounds.MIN_E + 0.1*(2.7265625 * 1000),
                 SwissBounds.MIN_N + 0.1*(1.7265625 * 1000)), 3000).get(1));
         assertEquals(new GraphSectors.Sector(128, 128),gs.sectorsInArea(new PointCh(SwissBounds.MIN_E + 0.1*(2.7265625 * 1000),
@@ -63,11 +67,11 @@ public class GraphSectorsPplTest {
         // Hope you found this test useful ! - Léo.
 
 
-        /* Additional test that is not based on the instructions. I wanted to verify that we could not input a negative value as a distance.
-        assertThrows(AssertionError.class, () -> {
+        // Additional test that is not based on the instructions. I wanted to verify that we could not input a negative value as a distance.
+       /* assertThrows(AssertionError.class, () -> {
             gs.sectorsInArea(new PointCh(SwissBounds.MIN_E,SwissBounds.MIN_N),-1);
-        });
-         */
+        });*/
+
     }
 
 }
