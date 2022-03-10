@@ -211,7 +211,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return
      */
     public int attributesIndex(int edgeId){
-        return edgesBuffer.getShort(EDGES_INTS * edgeId + OFFSET_ATTRIBUTES);
+        return Short.toUnsignedInt(edgesBuffer.getShort(EDGES_INTS * edgeId + OFFSET_ATTRIBUTES));
     }
 
 }

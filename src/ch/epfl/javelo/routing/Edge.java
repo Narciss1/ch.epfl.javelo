@@ -28,9 +28,14 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
                 toPoint.getN(), point.getE(), point.getN());
     }
 
+    public PointCh pointAt(double position){
+        double gap = toPoint.getN() - fromPoint.getN();
+        double y = Math2.interpolate(fromPoint.getN(), toPoint.getN(), (position - fromPoint.getE() * gap) / gap );
+        return new PointCh(position + fromPoint.getE(), y);
+    }
 
     public double atElevation(double position){
-        return profile().applyAsDouble(position);
+        return profile.applyAsDouble(position);
     }
 
 

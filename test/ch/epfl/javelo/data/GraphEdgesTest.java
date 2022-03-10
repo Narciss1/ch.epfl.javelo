@@ -269,6 +269,37 @@ public class GraphEdgesTest {
         assertArrayEquals(type1InvertedArray, edges.profileSamples(0));
     }
 
+    @Test
+    public void type1Profile(){
+        ByteBuffer edgesBuffer = ByteBuffer.allocate(10);
+        edgesBuffer.putInt(0, ~12);
+        // Longueur : 0x10.b m (= 16.6875 m)
+        edgesBuffer.putShort(4, (short) 0x10_b);
+        // Dénivelé : 0x10.0 m (= 16.0 m)
+        edgesBuffer.putShort(6, (short) 0x10_0);
+        // Identité de l'ensemble d'attributs OSM : 2022
+        edgesBuffer.putShort(8, (short) 2022);
+
+        IntBuffer profileIds = IntBuffer.wrap(new int[]{
+                // Type : 1. Index du premier échantillon : 1.
+                (1 << 30) | 0
+        });
+        ShortBuffer elevations = ShortBuffer.wrap(new short[]{
+                (short)0b0001100000000001 , (short)0b0001100000000010 ,
+                (short)0b0001100000000100 , (short)0b0001100000000101 ,
+                (short)0b0001100000000110 , (short)0b0001100000000111 ,
+                (short)0b0001100000001000 , (short)0b0001100000001001 ,
+                (short)0b0001100000001011 , (short)0b0001100000001100
+
+        });
+        float[] expectedSamples = new float[]{
+                384.0625f, 384.125f, 384.25f, 384.3125f, 384.375f,
+                384.4375f, 384.5f, 384.5625f, 384.6875f, 384.75f
+        };
+        GraphEdges edges =
+                new GraphEdges(edgesBuffer, profileIds, elevations);
+        assertArrayEquals(expectedSamples, edges.profileSamples(0));
+    }
 
     //Added
     @Test
