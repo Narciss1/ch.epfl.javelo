@@ -39,20 +39,15 @@ public record GraphSectors(ByteBuffer buffer) {
 
         ArrayList<Sector> sectorInArea = new ArrayList<Sector>();
 
-        /*int xMin = (int) (center.getE() - distance - MIN_E)*128 / 349000;
-        int xMax = (int) (center.getE() + distance - MIN_E)*128 / 349000;
-        int yMin = (int) (center.getN() - distance - MIN_N)*128 / 221000;
-        int yMax = (int) (center.getN() + distance - MIN_N)*128 / 221000;*/
+        double xMinInter = clamp(MIN_E, center.e() - distance, MAX_E - 1);
+        double xMaxInter = clamp(MIN_E, center.e() + distance, MAX_E - 1);
+        double yMinInter = clamp(MIN_N, center.n() - distance, MAX_N - 1);
+        double yMaxInter = clamp(MIN_N, center.n() + distance, MAX_N - 1);
 
-        double xMinInter = clamp(MIN_E, center.getE() - distance, MAX_E - 1); //center.e
-        double xMaxInter = clamp(MIN_E, center.getE() + distance, MAX_E - 1);
-        double yMinInter = clamp(MIN_N, center.getN() - distance, MAX_N - 1);
-        double yMaxInter = clamp(MIN_N, center.getN() + distance, MAX_N - 1);
-
-        int xMin = (int) (xMinInter - MIN_E)*128 / 349000; //CONSTANTE
-        int xMax = (int) (xMaxInter - MIN_E)*128 / 349000;
-        int yMin = (int) (yMinInter - MIN_N)*128 / 221000;
-        int yMax = (int) (yMaxInter - MIN_N)*128 / 221000;
+        int xMin = (int) ((xMinInter - MIN_E)*128 / WIDTH);
+        int xMax = (int) ((xMaxInter - MIN_E)*128 / WIDTH);
+        int yMin = (int) ((yMinInter - MIN_N)*128 / HEIGHT);
+        int yMax = (int) ((yMaxInter - MIN_N)*128 / HEIGHT);
 
         int indexLeftDown = xMin + 128*yMin;
         int indexLeftUp = xMin + 128*yMax;
@@ -64,7 +59,6 @@ public record GraphSectors(ByteBuffer buffer) {
                 int indexStartNode = buffer.getInt((i + j)*SECTOR_INTS + OFFSET_Index);
                 int numberNodes = toUnsignedInt(buffer().getShort((i + j)*SECTOR_INTS + OFFSET_Number));
                 sectorInArea.add(new Sector(indexStartNode, indexStartNode + numberNodes));
-                System.out.println(i+j);
             }
         }
         return sectorInArea;

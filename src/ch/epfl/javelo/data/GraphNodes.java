@@ -37,8 +37,7 @@ public record GraphNodes(IntBuffer buffer) {
      * @param nodeId identity of a node
      * @return the east coordinate of the node
      */
-    public double nodeE(int nodeId){
-        return asDouble(buffer.get(NODE_INTS * nodeId + OFFSET_E));  }
+    public double nodeE(int nodeId){ return asDouble(buffer.get(NODE_INTS * nodeId + OFFSET_E));  }
 
     /**
      * Calculates the north coordinate of the given identity node
