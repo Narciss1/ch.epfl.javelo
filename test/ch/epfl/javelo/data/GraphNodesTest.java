@@ -1,6 +1,7 @@
 package ch.epfl.javelo.data;
 
 import ch.epfl.javelo.projection.PointCh;
+import ch.epfl.javelo.projection.SwissBounds;
 import org.junit.jupiter.api.Test;
 
 import java.nio.IntBuffer;
@@ -47,11 +48,9 @@ public class GraphNodesTest {
         assertEquals(2_015_772, ns.nodeN(1));
         assertEquals(1, ns.outDegree(1));
         assertEquals(0x803_0925, ns.edgeId(1, 0));
-        //assertEquals(Integer.valueOf(Integer.toHexString(0x803_0925 + 1),16), ns.edgeId(1, 1));
-        //assertThrows(AssertionError.class, ns.edgeId(1,1));
-        //assertThrows(AssertionError.class,  (ns.edgeId(1, 1)) -> {
-        //    assert false;});
-        //Piazza @259
+        assertThrows(AssertionError.class, () -> {
+            ns.edgeId(1, 1);
+        });
     }
 
     @Test

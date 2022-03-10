@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GraphSectorsPplTest {
 
@@ -66,11 +67,11 @@ public class GraphSectorsPplTest {
         // Hope you found this test useful ! - Léo.
 
 
-        /* Additional test that is not based on the instructions. I wanted to verify that we could not input a negative value as a distance.
+        // Additional test that is not based on the instructions. I wanted to verify that we could not input a negative value as a distance.
         assertThrows(AssertionError.class, () -> {
             gs.sectorsInArea(new PointCh(SwissBounds.MIN_E,SwissBounds.MIN_N),-1);
         });
-         */
+
     }
 
 }
