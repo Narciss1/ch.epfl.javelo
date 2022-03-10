@@ -119,7 +119,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
             profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));
             if (typeOfProfile(edgeId) == 1) {
                 for (int i = 1; i < samplesNumber; ++i) {
-                    profileSamples[i] = Q28_4.asFloat(elevations.get(firstSampleId + i));
+                    profileSamples[i] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(firstSampleId + i)));
                 }
             }
 
