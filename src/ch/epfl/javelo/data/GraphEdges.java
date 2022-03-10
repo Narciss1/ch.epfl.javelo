@@ -109,8 +109,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
             return new float[0];
 
         } else {
-            int samplesNumber = 1 + Math2.ceilDiv(edgesBuffer.getShort(
-                            EDGES_INTS * edgeId + OFFSET_LENGTH),
+            int samplesNumber = 1 + Math2.ceilDiv(Short.toUnsignedInt(edgesBuffer.getShort(
+                            EDGES_INTS * edgeId + OFFSET_LENGTH)),
                     Q28_4.ofInt(2));
             float[] profileSamples = new float[samplesNumber];
             int firstSampleId = Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID),
@@ -177,8 +177,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @param toInverse the array we want to inverse the values for
      * @return an array with the inversed values of the one given as an argument
      */
-    //created method _ public and static for tests
-    public static float[] inverse(float[] toInverse){
+    private static float[] inverse(float[] toInverse){
         int i = 0;
         int j = toInverse.length - 1;
         while (i < j){
@@ -196,14 +195,11 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @param edgeId the edge's identity
      * @return the profile type of the edge
      */
-    //CreatedMethod. Public juste le tps de la tester.
-    public int typeOfProfile(int edgeId){
+    private int typeOfProfile(int edgeId){
         return (Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID),
                 30, 2));
     }
 
-
-    //Peut-être rajouter une 3e methode qui fait le asFloat et tt le calcul chiant là lourd.
 
     /**
      *
