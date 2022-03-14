@@ -44,7 +44,7 @@ public final class Graph {
      * @return the JaVelo graph obtained from the files located in the directory
      * @throws IOException
      */
-    public Graph loadFrom(Path basePath) throws IOException {
+    public static Graph loadFrom(Path basePath) throws IOException {
        IntBuffer nodesBuffer = fileBuffer(basePath, "nodes.bin").asIntBuffer();
        ByteBuffer sectorsBuffer = fileBuffer(basePath, "sectors.bin");
        ByteBuffer edgesBuffer = fileBuffer(basePath, "edges.bin");
@@ -177,7 +177,7 @@ public final class Graph {
      * @return a buffer of type ByteBuffer
      * @throws IOException
      */
-    public ByteBuffer fileBuffer(Path basePath, String string) throws IOException {
+    private static ByteBuffer fileBuffer(Path basePath, String string) throws IOException {
         Path stringPath = basePath.resolve(string);
         ByteBuffer stringBuffer;
         try(FileChannel channel = FileChannel.open(stringPath)){
