@@ -3,6 +3,7 @@ package ch.epfl.javelo.data;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
 import ch.epfl.javelo.routing.ElevationProfile;
+import ch.epfl.javelo.routing.RoutePoint;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -82,11 +83,6 @@ public class GraphTest {
     }
 
     @Test
-    void nodePointWorksOnGivenValues(){
-
-    }
-
-    @Test
     void NodeClosedToMINUSONE() throws IOException {
         assertEquals(-1, Graph.loadFrom(Path.of("lausanne")).nodeClosestTo(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 0));
     }
@@ -145,6 +141,57 @@ public class GraphTest {
         assertEquals(5, ep.elevationAt(21));
         assertEquals(5, ep.elevationAt(-1));
         assertEquals(5, ep.elevationAt(10));
+    }
+
+    @Test
+    void withPositionShiftedBybasicTest()
+    {
+        RoutePoint rp = new RoutePoint(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 10, 100);
+        RoutePoint result = new RoutePoint(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 110, 100);
+
+        RoutePoint shifted = rp.withPositionShiftedBy(100);
+        assertEquals(result.point().e(), shifted.point().e());
+        assertEquals(result.point().n(), shifted.point().n());
+        assertEquals(result.distanceToReference(), shifted.distanceToReference());
+        assertEquals(result.position(), shifted.position());
+    }
+
+    @Test
+    void MinTests()
+    {
+        RoutePoint rp = new RoutePoint(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 10, 50);
+        RoutePoint result = new RoutePoint(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 110, 10);
+
+        RoutePoint found = rp.min(result);
+        assertEquals(result.point().e(), found.point().e());
+        assertEquals(result.point().n(), found.point().n());
+        assertEquals(result.distanceToReference(), found.distanceToReference());
+        assertEquals(result.position(), found.position());
+    }
+
+    @Test
+    void MinTestsNotCreated()
+    {
+        RoutePoint rp = new RoutePoint(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 10, 50);
+
+        RoutePoint found = rp.min(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 110, 100);
+        assertEquals(rp.point().e(), found.point().e());
+        assertEquals(rp.point().n(), found.point().n());
+        assertEquals(rp.distanceToReference(), found.distanceToReference());
+        assertEquals(rp.position(), found.position());
+    }
+
+    @Test
+    void MinTestsCreated()
+    {
+        RoutePoint rp = new RoutePoint(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 10, 50);
+        RoutePoint result = new RoutePoint(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 110, 10);
+
+        RoutePoint found = rp.min(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 110, 10);
+        assertEquals(result.point().e(), found.point().e());
+        assertEquals(result.point().n(), found.point().n());
+        assertEquals(result.distanceToReference(), found.distanceToReference());
+        assertEquals(result.position(), found.position());
     }
 
 }
