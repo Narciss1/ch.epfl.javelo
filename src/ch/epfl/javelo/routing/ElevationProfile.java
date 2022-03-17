@@ -57,8 +57,8 @@ public class ElevationProfile {
         return descent;
     }
 
-    public double ElevationAt(double position){
-        DoubleUnaryOperator graph = Functions.sampled(elevationSamples, length);
+    public double elevationAt(double position){
+        DoubleUnaryOperator graph = Functions.sampled(elevationSamples, length-1);
         return graph.applyAsDouble(position);
     }
 

@@ -29,10 +29,9 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
     }
 
     public PointCh pointAt(double position){
-        double yGap = toPoint.getN() - fromPoint.getN();
-        double y = Math2.interpolate(fromPoint.getN(), toPoint.getN(), (position - fromPoint.getN() * yGap) / yGap );
-        double xGap = toPoint.getE()  - fromPoint.getE();
-        double x = Math2.interpolate(fromPoint.getE(), toPoint.getE(), (position - fromPoint.getE() * xGap) / xGap);
+        double percentage = position / length;
+        double y = Math2.interpolate(fromPoint.getN(), toPoint.getN(), percentage);
+        double x = Math2.interpolate(fromPoint.getE(), toPoint.getE(), percentage);
         return new PointCh(x, y);
     }
 
