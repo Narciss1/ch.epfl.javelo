@@ -44,7 +44,7 @@ public class testSoSo {
     @Test
     void elevationAtWorks(){
         Edge actualEdge = Edge.of(actual1, 1000, 2345, 5436);
-        assertEquals(841.125, actualEdge.atElevation(100));
+        assertEquals(841.125, actualEdge.elevationAt(100));
     }
 
     //ElevationProfile

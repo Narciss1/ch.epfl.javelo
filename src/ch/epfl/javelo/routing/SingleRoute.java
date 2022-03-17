@@ -100,9 +100,9 @@ public final class SingleRoute implements Route {
         int nodeIndex = binarySearch(positionAllNodes, position);
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex >= 0) {
-            return edges.get(nodeIndex).atElevation(0);
+            return edges.get(nodeIndex).elevationAt(0);
         } else {
-            return edges.get(edgeIndex).atElevation(position - positionAllNodes.get(edgeIndex));
+            return edges.get(edgeIndex).elevationAt(position - positionAllNodes.get(edgeIndex));
         }
         //Vérifier si c'est la bonne logique et si la somme des length est correcte?
         //Comment peut-on savoir si l'arête contenant cette position n'a pas de profil?
