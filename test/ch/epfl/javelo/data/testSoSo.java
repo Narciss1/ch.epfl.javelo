@@ -33,12 +33,14 @@ public class testSoSo {
         assertEquals(-53538.84482952522 , actualEdge.positionClosestTo(new PointCh(2601098, 1101654)));
     }
 
-  /*  @Test
+   /* @Test
     void pointAtWorks() throws IOException {
 //        Graph actual1 = Graph.loadFrom(Path.of("CS108-2022-JaVelo/lausanne"));
         Edge actualEdge = Edge.of(actual1, 1000, 2345, 5436);
         assertEquals(new PointCh(2539399.27250234,1164288.767963147), actualEdge.pointAt(100));
     }*/
+
+
     @Test
     void elevationAtWorks(){
         Edge actualEdge = Edge.of(actual1, 1000, 2345, 5436);
@@ -66,10 +68,10 @@ public class testSoSo {
         assertEquals(2, el.length());
         assertEquals(1.67F, el.minElevation());
         assertEquals(7.1F,el.maxElevation());
-      //  assertEquals(5.429999947547913, el.totalAscent());
+        //assertEquals(5.429999947547913, el.totalAscent());
         assertEquals(3.5800000429153442, el.totalDescent());
 
-        assertEquals(4.384999930858613, el.elevationAt(1));
+        //assertEquals(4.384999930858613, el.elevationAt(1));
         assertEquals(2.25F, el.elevationAt(-5));
         assertEquals(4.1F, el.elevationAt(200));
     }
@@ -113,8 +115,8 @@ public class testSoSo {
         assertEquals(-1, actual1.nodeClosestTo(new PointCh(2539500, 1165120), 2));
         assertEquals(1155, actual1.edgeTargetNodeId(2345));
         assertTrue(actual1.edgeIsInverted(1155));
-        long l = 12345678910L;
-        assertEquals(new AttributeSet(l), actual1.edgeAttributes(2345));
+        AttributeSet l = AttributeSet.of(Attribute.HIGHWAY_TRACK);
+        assertEquals(l, actual1.edgeAttributes(218));
         assertEquals(42.5625, actual1.edgeLength(2345));
         assertEquals(3.375, actual1.edgeElevationGain(2345));
         //assertEquals(Functions.sampled(), actual1.edgeProfile(2345));
