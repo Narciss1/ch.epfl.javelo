@@ -3,15 +3,16 @@ package ch.epfl.javelo.data;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.routing.Edge;
 import ch.epfl.javelo.routing.ElevationProfile;
+import ch.epfl.javelo.routing.RoutePoint;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class testSoSo {
+
     //EdgeTest
 
     Graph actual1 = Graph.loadFrom(Path.of("lausanne"));
@@ -46,7 +47,6 @@ public class testSoSo {
 
     //ElevationProfile
 
-
     @Test
     void classRaisesIllegalArgument(){
         float[] l = {3, 4, 5};
@@ -72,6 +72,51 @@ public class testSoSo {
         assertEquals(4.384999930858613, el.elevationAt(1));
         assertEquals(2.25F, el.elevationAt(-5));
         assertEquals(4.1F, el.elevationAt(200));
+    }
 
+    //RoutePoint
+
+    @Test
+    void withPositionShiftedByWorks(){
+        RoutePoint routePoint = new RoutePoint(new PointCh(2607098, 1107654), 13500, 450);
+        RoutePoint expectedPoint1 = new RoutePoint(new PointCh(2607098, 1107654), 13500 + 100, 450);
+        RoutePoint expectedPoint2 = new RoutePoint(new PointCh(2607098, 1107654), 13500 - 100, 450);
+        assertEquals(expectedPoint1, routePoint.withPositionShiftedBy(100));
+        assertEquals(expectedPoint2, routePoint.withPositionShiftedBy(-100));
+    }
+
+    @Test
+    void min1Works(){
+        RoutePoint routePoint1 = new RoutePoint(new PointCh(2607098, 1107654), 13500, 450);
+        RoutePoint routePoint2  = new RoutePoint(new PointCh(2601098, 1101654), 4500, 150);
+        assertEquals(routePoint2, routePoint1.min(routePoint2));
+        assertEquals(routePoint2, routePoint2.min(routePoint1));
+    }
+
+    @Test
+    void min2Works(){
+        RoutePoint routePoint1 = new RoutePoint(new PointCh(2607098, 1107654), 13500, 450);
+        assertEquals(new RoutePoint(new PointCh(2601098, 1101654), 4500, 150),routePoint1.min(new PointCh(2601098, 1101654),4500,150));
+        assertEquals(routePoint1,routePoint1.min(new PointCh(2601098, 1101654),4500,850));
+    }
+
+    //EdgeAttributes
+
+    @Test
+    void classWorksForSpecificNode() throws IOException {
+        Graph actual1 = Graph.loadFrom(Path.of("lausanne"));
+        PointCh pointTest = actual1.nodePoint(2345);
+        assertEquals(new PointCh(2539500.0, 1165122.3125), pointTest);
+        assertEquals(2, actual1.nodeOutDegree(2345));
+        assertEquals(4751, actual1.nodeOutEdgeId(2345, 1));
+        assertEquals(2345, actual1.nodeClosestTo(new PointCh(2539500, 1165120), 10));
+        assertEquals(-1, actual1.nodeClosestTo(new PointCh(2539500, 1165120), 2));
+        assertEquals(1155, actual1.edgeTargetNodeId(2345));
+        assertTrue(actual1.edgeIsInverted(1155));
+        long l = 12345678910L;
+        assertEquals(new AttributeSet(l), actual1.edgeAttributes(2345));
+        assertEquals(42.5625, actual1.edgeLength(2345));
+        assertEquals(3.375, actual1.edgeElevationGain(2345));
+        //assertEquals(Functions.sampled(), actual1.edgeProfile(2345));
     }
 }
