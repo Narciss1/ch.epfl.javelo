@@ -39,7 +39,7 @@ public record GraphSectors(ByteBuffer buffer) {
 
         ArrayList<Sector> sectorInArea = new ArrayList<Sector>();
 
-        double xMinInter = clamp(MIN_E, center.e() - distance, MAX_E - 1);
+       /* double xMinInter = clamp(MIN_E, center.e() - distance, MAX_E - 1);
         double xMaxInter = clamp(MIN_E, center.e() + distance, MAX_E - 1);
         double yMinInter = clamp(MIN_N, center.n() - distance, MAX_N - 1);
         double yMaxInter = clamp(MIN_N, center.n() + distance, MAX_N - 1);
@@ -47,7 +47,17 @@ public record GraphSectors(ByteBuffer buffer) {
         int xMin = (int) ((xMinInter - MIN_E)*128 / WIDTH);
         int xMax = (int) ((xMaxInter - MIN_E)*128 / WIDTH);
         int yMin = (int) ((yMinInter - MIN_N)*128 / HEIGHT);
-        int yMax = (int) ((yMaxInter - MIN_N)*128 / HEIGHT);
+        int yMax = (int) ((yMaxInter - MIN_N)*128 / HEIGHT);*/
+
+        double xMinInter = center.e() - distance;
+        double xMaxInter = center.e() + distance;
+        double yMinInter = center.n() - distance;
+        double yMaxInter = center.n() + distance;
+
+        int xMin = clamp(0, (int) ((xMinInter - MIN_E)*128 / WIDTH), 127);
+        int xMax = clamp(0, (int) ((xMaxInter - MIN_E)*128 / WIDTH), 127);
+        int yMin = clamp(0, (int) ((yMinInter - MIN_N)*128 / HEIGHT), 127);
+        int yMax = clamp(0, (int) ((yMaxInter - MIN_N)*128 / HEIGHT), 127);
 
         int indexLeftDown = xMin + 128*yMin;
         int indexLeftUp = xMin + 128*yMax;
