@@ -90,7 +90,6 @@ public class EdgeTest {
             }
         };
         Edge edge1 = new Edge(0, 3, fromPoint, toPoint, 10, squared);
-        PointCh pointToTest = new PointCh(2600000, 1085000);
 
         assertEquals(0,edge1.positionClosestTo(fromPoint));
         assertEquals(10, edge1.positionClosestTo(toPoint));
@@ -104,6 +103,21 @@ public class EdgeTest {
         Edge edge2 = new Edge(0, 3, fromPoint, toPoint, 10, profile);
         assertEquals(384.75f,edge2.elevationAt(0));
 
+    }
+
+    @Test
+    void AnyEdgeWorksCorrectly(){
+        PointCh fromPoint = new PointCh(2485010, 1076000);
+        PointCh toPoint = new PointCh(2485020, 1076010);
+        PointCh pointToTest = new PointCh(2485015, 1076005);
+        DoubleUnaryOperator function = new DoubleUnaryOperator() {
+            @Override
+            public double applyAsDouble(double operand) {
+                return Math.pow(operand, 2);
+            }
+        };
+        Edge edge1 = new Edge(0, 3, fromPoint, toPoint, 10, function);
+        assertEquals(pointToTest, edge1.pointAt(5));
     }
 
 

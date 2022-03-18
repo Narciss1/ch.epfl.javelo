@@ -19,7 +19,7 @@ public final class ElevationProfile {
     public ElevationProfile(double length, float[] elevationSamples){
         Preconditions.checkArgument(length > 0 && elevationSamples.length >= 2);
         this.length = length;
-        this.elevationSamples = elevationSamples.clone(); //Est-ce que  mettre ça et les finals suffit ??
+        this.elevationSamples = elevationSamples.clone();
     }
 
     /** Gives the length for the edge
@@ -38,7 +38,7 @@ public final class ElevationProfile {
     private DoubleSummaryStatistics constructStatistics(float[] elevationSamples){
         DoubleSummaryStatistics s = new DoubleSummaryStatistics();
         for (int i = 0; i < elevationSamples.length; ++i){
-            s.accept(elevationSamples[i]); //Prblm si float -> double ?
+            s.accept(elevationSamples[i]);
         }
         return s;
     }
