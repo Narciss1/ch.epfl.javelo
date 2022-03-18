@@ -93,7 +93,7 @@ public final class ElevationProfile {
      * @return a double that is the elevation at the given position
      */
     public double elevationAt(double position){
-        DoubleUnaryOperator graph = Functions.sampled(elevationSamples, length - 1);
+        DoubleUnaryOperator graph = Functions.sampled(elevationSamples, length);
         return graph.applyAsDouble(position);
     }
 

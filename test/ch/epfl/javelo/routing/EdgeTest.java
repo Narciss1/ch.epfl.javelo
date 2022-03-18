@@ -21,7 +21,7 @@ public class EdgeTest {
 
      void EdgeIsFine(){
         IntBuffer forNodes = IntBuffer.wrap(new int[]{
-                2_842_000 << 4,
+                2_495_000 << 4,
                 1_197_000 << 4,
                 0x2_800_0015,
                 2_657_112 << 4,
@@ -100,9 +100,9 @@ public class EdgeTest {
         assertEquals(toPoint, edge1.pointAt(10));
         assertEquals(new PointCh(2485015, 1076000), edge1.pointAt(5));
 
-        assertEquals(9,edge1.atElevation(3));
+        assertEquals(9,edge1.elevationAt(3));
         Edge edge2 = new Edge(0, 3, fromPoint, toPoint, 10, profile);
-        assertEquals(384.75f,edge2.atElevation(0));
+        assertEquals(384.75f,edge2.elevationAt(0));
 
     }
 
