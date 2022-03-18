@@ -5,6 +5,7 @@ import ch.epfl.javelo.projection.PointCh;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ch.epfl.javelo.Math2.clamp;
 import static java.util.Collections.binarySearch;
 
 public final class SingleRoute implements Route {
@@ -13,7 +14,6 @@ public final class SingleRoute implements Route {
 
     /**
      * Constructor
-     *
      * @param edges a given list of edges
      */
     public SingleRoute(List<Edge> edges) {
@@ -26,16 +26,16 @@ public final class SingleRoute implements Route {
 
     /**
      * @param position a given position
-     * @return
+     * @return the index of the route segment containing the given position,
+     * which is always 0 in the case of a simple route
      */
     @Override
     public int indexOfSegmentAt(double position) {
         return 0;
-        //QUESTION 1: Il faut bien laisser le 0?
     }
 
     /**
-     * @return
+     * @return the length of the itinerary in meters
      */
     @Override
     public double length() {
@@ -44,20 +44,19 @@ public final class SingleRoute implements Route {
             length += edges.get(i).length();
         }
         return length;
-        //QUESTION 2: Correspond bien à la somme des longueurs de toutes les arêtes?
     }
 
     /**
-     * @return
+     * Makes a list of the totality of the edges of the itinerary
+     * @return the totality of the edges of the itinerary
      */
     @Override
     public List<Edge> edges() {
         return edges;
-        //QUESTION 3: Faut bien return la liste de base sans modif?
     }
 
     /**
-     * @return
+     * @return all the points located at the extremities of the edges of the itinerary
      */
     @Override
     public List<PointCh> points() {
@@ -67,17 +66,16 @@ public final class SingleRoute implements Route {
         }
         points.add(edges.get(edges.size() - 1).toPoint());
         return points;
-        //QUESTION 4: Est-ce le bon ordre dans la liste?
     }
 
     /**
      * @param position a given position
-     * @return
+     * @return the point at the given position along the itinerary
      */
     @Override
     public PointCh pointAt(double position) {
         rightPosition(position);
-        List<Double> positionAllNodes = positionAllNodes(position);
+        List<Double> positionAllNodes = positionAllNodes();
         int nodeIndex = binarySearch(positionAllNodes, position);
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex >= 0) {
@@ -85,18 +83,17 @@ public final class SingleRoute implements Route {
         } else {
             return edges.get(edgeIndex).pointAt(position - positionAllNodes.get(edgeIndex));
         }
-        //Vérifier si c'est la bonne logique et si la somme des length est correcte?
-        //Piazza @479
     }
 
     /**
-     * @param position
-     * @return
+     * @param position a given position
+     * @return  the altitude at the given position along the itinerary,
+     * which can be NaN if the edge containing this position has no profile,
      */
     @Override
     public double elevationAt(double position) {
         rightPosition(position);
-        List<Double> positionAllNodes = positionAllNodes(position);
+        List<Double> positionAllNodes = positionAllNodes();
         int nodeIndex = binarySearch(positionAllNodes, position);
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex >= 0) {
@@ -104,63 +101,85 @@ public final class SingleRoute implements Route {
         } else {
             return edges.get(edgeIndex).elevationAt(position - positionAllNodes.get(edgeIndex));
         }
-        //Vérifier si c'est la bonne logique et si la somme des length est correcte?
-        //Comment peut-on savoir si l'arête contenant cette position n'a pas de profil?
-        //Piazza @478
     }
 
     /**
      * @param position a given position
-     * @return
+     * @return the identity of the node belonging to the itinerary and
+     * located closest to the given position
      */
     @Override
     public int nodeClosestTo(double position) {
         rightPosition(position);
-        List<Double> positionAllNodes = positionAllNodes(position);
+        List<Double> positionAllNodes = positionAllNodes();
         int nodeIndex = binarySearch(positionAllNodes, position);
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex >= 0) {
-            return edges.get(nodeIndex).toNodeId();
+            return edges.get(nodeIndex).fromNodeId();
+        } else {
+            return closestNode(position, edgeIndex, positionAllNodes);
         }
-        return 0;
-        //else {return edges.get(edgeIndex).pointAt(position - positionAllNodes.get(edgeIndex));}
-        //Should just get un des deux nodeId sur les extrémités de l'arête or get d'autres?
-        //Vérifier si c'est la bonne logique et si la somme des length est correcte?
-        //Piazza @477
     }
 
     /**
      * @param point a reference point
-     * @return
+     * @return the point on the itinerary that is closest to the given reference point
      */
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
-        return null;
-    }
-    //Piazza @476
-
-    /**
-     *
-     * @param pos
-     */
-    public void rightPosition(double pos) {
-        if (pos < 0) { pos = 0;}
-        if (pos > length()) { pos = length();}
+        RoutePoint closestPoint = RoutePoint.NONE;
+        for (int i = 0; i < edges.size(); ++i) {
+            double newPosition = clamp(edges.get(i).positionClosestTo(point), 0, edges.get(i).length());
+            PointCh newPoint = edges.get(i).pointAt(newPosition);
+            double newDistanceToReference = point.distanceTo(newPoint);
+            RoutePoint newRoutePoint = new RoutePoint(newPoint, newPosition, newDistanceToReference);
+            closestPoint = closestPoint.min(newRoutePoint);
+        }
+        return closestPoint;
     }
 
     /**
-     *
-     * @param position
-     * @return
+     * Changes the value of the position if it is a negative value or
+     * if it is greater than the length of the itinerary
+     * @param position a given position
      */
-    public List<Double> positionAllNodes(double position) {
+    public void rightPosition(double position) {
+        if (position < 0) { position = 0;}
+        if (position > length()) { position = length();}
+        System.out.println(position);
+    }
+    //Est-ce que ça change bien la valeur?
+
+    /**
+     * Makes a list of all the nodes of an itinerary
+     * the positions of all the nodes of an itinerary
+     * @return a list of the positions of all nodes
+     */
+    public List<Double> positionAllNodes() {
         List<Double> positionAllNodes = new ArrayList<>();
         double length = 0;
-        positionAllNodes.add(0.0);
+        positionAllNodes.add(length);
         for (int i = 0; i < edges.size(); ++i) {
             length += edges.get(i).length();
             positionAllNodes.add(length);
         }
         return positionAllNodes;
+    }
+
+    /**
+     * Determines which one the first and last nodes of the edge is the closest to a certain position
+     * @param position a given position
+     * @param edgeIndex the index of an edge of the itinerary
+     * @param positionAllNodes the list of the positions of all nodes
+     * @return the closest node to a given position on an edge
+     */
+    public int closestNode (double position, int edgeIndex, List<Double> positionAllNodes) {
+        double firstDistance = position - positionAllNodes.get(edgeIndex);
+        double secondDistance = positionAllNodes.get(edgeIndex + 1) - position;
+        if(firstDistance <= secondDistance) {
+            return edges.get(edgeIndex).fromNodeId();
+        } else {
+            return edges.get(edgeIndex).toNodeId();
+        }
     }
 }
