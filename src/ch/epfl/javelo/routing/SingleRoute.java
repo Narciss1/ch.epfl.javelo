@@ -5,6 +5,7 @@ import ch.epfl.javelo.projection.PointCh;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ch.epfl.javelo.Math2.clamp;
 import static java.util.Collections.binarySearch;
 
 public final class SingleRoute implements Route {
@@ -31,7 +32,6 @@ public final class SingleRoute implements Route {
     @Override
     public int indexOfSegmentAt(double position) {
         return 0;
-        //QUESTION 1: Il faut bien laisser le 0?
     }
 
     /**
@@ -44,7 +44,6 @@ public final class SingleRoute implements Route {
             length += edges.get(i).length();
         }
         return length;
-        //QUESTION 2: Correspond bien à la somme des longueurs de toutes les arêtes?
     }
 
     /**
@@ -54,7 +53,6 @@ public final class SingleRoute implements Route {
     @Override
     public List<Edge> edges() {
         return edges;
-        //QUESTION 3: Faut bien return la liste de base sans modif?
     }
 
     /**
@@ -68,7 +66,6 @@ public final class SingleRoute implements Route {
         }
         points.add(edges.get(edges.size() - 1).toPoint());
         return points;
-        //QUESTION 4: Est-ce le bon ordre dans la liste?
     }
 
     /**
@@ -86,7 +83,6 @@ public final class SingleRoute implements Route {
         } else {
             return edges.get(edgeIndex).pointAt(position - positionAllNodes.get(edgeIndex));
         }
-        //Vérifier si c'est la bonne logique?
     }
 
     /**
@@ -105,8 +101,6 @@ public final class SingleRoute implements Route {
         } else {
             return edges.get(edgeIndex).elevationAt(position - positionAllNodes.get(edgeIndex));
         }
-        //Vérifier si c'est la bonne logique?
-        //Est-ce que le fait que l'arête a un profil ou pas est déjà vérifié?
     }
 
     /**
@@ -125,7 +119,6 @@ public final class SingleRoute implements Route {
         } else {
             return closestNode(position, edgeIndex, positionAllNodes);
         }
-        //Vérifier si c'est la bonne logique?
     }
 
     /**
@@ -134,11 +127,16 @@ public final class SingleRoute implements Route {
      */
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
-        double closestPosition = edges.get(0).positionClosestTo(point);
-        PointCh closestPoint = edges.get(0).pointAt(closestPosition);
-        return new RoutePoint(closestPoint, closestPosition, point.distanceTo(closestPoint));
+        RoutePoint closestPoint = RoutePoint.NONE;
+        for (int i = 0; i < edges.size(); ++i) {
+            double newPosition = clamp(edges.get(i).positionClosestTo(point), 0, edges.get(i).length());
+            PointCh newPoint = edges.get(i).pointAt(newPosition);
+            double newDistanceToReference = point.distanceTo(newPoint);
+            RoutePoint newRoutePoint = new RoutePoint(newPoint, newPosition, newDistanceToReference);
+            closestPoint = closestPoint.min(newRoutePoint);
+        }
+        return closestPoint;
     }
-    //Piazza @476
 
     /**
      * Changes the value of the position if it is a negative value or
@@ -148,11 +146,13 @@ public final class SingleRoute implements Route {
     public void rightPosition(double position) {
         if (position < 0) { position = 0;}
         if (position > length()) { position = length();}
+        System.out.println(position);
     }
     //Est-ce que ça change bien la valeur?
 
     /**
-     * Makes a list of the positions of all the nodes of an itinerary
+     * Makes a list of all the nodes of an itinerary
+     * the positions of all the nodes of an itinerary
      * @return a list of the positions of all nodes
      */
     public List<Double> positionAllNodes() {
