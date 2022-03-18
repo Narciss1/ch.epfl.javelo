@@ -1,5 +1,6 @@
 package ch.epfl.javelo.data;
 
+import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
 import ch.epfl.javelo.routing.ElevationProfile;
@@ -494,6 +495,7 @@ public class GraphTest {
         assertEquals(5, ep.elevationAt(-1));
         assertEquals(5, ep.elevationAt(10));
     }
+
 }
 
 

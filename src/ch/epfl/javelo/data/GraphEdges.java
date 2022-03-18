@@ -115,15 +115,14 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
             float[] profileSamples = new float[samplesNumber];
             int firstSampleId = Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID),
                     0, 30);
-            //Storage of the first sample in the array
-            profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));
             if (typeOfProfile(edgeId) == 1) {
-                for (int i = 1; i < samplesNumber; ++i) {
+                for (int i = 0; i < samplesNumber; ++i) {
                     profileSamples[i] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(firstSampleId + i)));
                 }
             }
 
             else if (typeOfProfile(edgeId) == 2){
+                profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));
                 int numberOfShorts = (samplesNumber - 1) / 2;
                 for (int i = 1; i<= numberOfShorts; ++i){
                     profileSamples[i * 2 - 1] = profileSamples[i * 2 - 2] +
@@ -139,6 +138,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 }
 
             } else {
+                profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));
                 int numberOfShorts = (samplesNumber - 1) / 4;
                 for (int i = 1; i <= numberOfShorts; ++i){
                     profileSamples[i * 4 - 3] = profileSamples[i * 4 - 4] +
