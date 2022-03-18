@@ -12,9 +12,11 @@ public class RoutePointPplTest {
     @Test
     void withPositionShiftedByWorks(){
         RoutePoint rPs = rP.withPositionShiftedBy(5);
-      //  assertEquals(rPs, new RoutePoint(p, 181, 116.3));
+        //AYA : Meme erreur que les garcons
+       assertEquals(rPs, new RoutePoint(p, 181, 116.3));
 
     }
+
     @Test
     void minWorks(){
         RoutePoint routePoint = new RoutePoint(p, 176, 118);

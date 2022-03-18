@@ -64,6 +64,7 @@ public class GraphPpl2Test {
     @Test
     void edgeAttributesWorks() throws IOException{
         Graph graph = Graph.loadFrom(Path.of("lausanne"));
+        //AYA : NORMAL QUE CE SOIT FAUX
         //assertEquals(HIGHWAY_TRACK, graph.edgeAttributes(0));
     }
 
