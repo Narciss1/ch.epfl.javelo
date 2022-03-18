@@ -39,11 +39,12 @@ public interface Route {
     public abstract PointCh pointAt(double position);
 
     /**
-     *
-     * @param position
+     * Finds the altitude at the given position along the itinerary
+     * @param position a given position
      * @return the altitude at a given position along the itinerary
      */
     public abstract double elevationAt(double position);
+
     /**
      * Finds the node belonging to the itinerary and located closest to
      * a certain position
