@@ -20,21 +20,17 @@ public final class ElevationProfileComputer {
         }
         elevationSamples = fillBeginningAndEnd(elevationSamples);
 
-        //Ce truc est freaking long ms c un assistant qui m'a dit de faire comme ça
-        //alors que moi l'idée que j'avais (et qui est fausse d'après lui) fait 3 lignes.
-        //Si c vrmt ce qu'il a dit, mettre ça dans une méthode auxiliaire. A voir.
         int counting = 0;
         for (int i = 1; i < elevationSamples.length - 1; ++i){
             if (isNaN(elevationSamples[i])) {
                 ++counting;
-                for (int j = i; j < elevationSamples.length - 1; ++j) {
-                    if (isNaN(elevationSamples[j])) {
-                        ++counting;
-                    }
+                int k = i + 1;
+                while (isNaN(elevationSamples[k])){
+                    ++counting;
                 }
-                for (int j = 0; j <= counting; ++j) {
+                for (int j = 0; j < counting; ++j) {
                     elevationSamples[i + j] = (float) Math2.interpolate(elevationSamples[i - 1],
-                            elevationSamples[i + 1], 1.0 / (counting + 1));
+                            elevationSamples[i + counting], 1.0 / (counting + 1));
                 }
             }
             //ici, d'après moi, on n'a pas besoin de changer le i, mais je le fais qd mm
@@ -55,7 +51,9 @@ public final class ElevationProfileComputer {
                 keepLooking = false;
             }
         }
-        if (firstNotNan == elevationSamples.length){    //Peut être tej d'après Assistant.
+        //Peut être tej maybe, (mais remplacée).
+        //Question posée sur piazza (un peeeu) dans cette direction.
+        if (firstNotNan == elevationSamples.length){
             for (int i = 0; i < elevationSamples.length; ++i){
                 elevationSamples[i] = 0;
             }
