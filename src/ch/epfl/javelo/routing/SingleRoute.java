@@ -78,10 +78,14 @@ public final class SingleRoute implements Route {
         List<Double> positionAllNodes = positionAllNodes();
         int nodeIndex = binarySearch(positionAllNodes, position);
         int edgeIndex = -nodeIndex - 2;
-        if (nodeIndex >= 0) {
-            return edges.get(nodeIndex).fromPoint();
-        } else {
+        if(nodeIndex < 0) {
             return edges.get(edgeIndex).pointAt(position - positionAllNodes.get(edgeIndex));
+        } else {
+            if (nodeIndex >= 0 && nodeIndex < edges.size()) {
+                return edges.get(nodeIndex).fromPoint();
+            } else {
+                return edges.get(nodeIndex - 1).toPoint();
+            }
         }
     }
 
@@ -148,7 +152,6 @@ public final class SingleRoute implements Route {
         if (position > length()) { position = length();}
         System.out.println(position);
     }
-    //Est-ce que ça change bien la valeur?
 
     /**
      * Makes a list of all the nodes of an itinerary
