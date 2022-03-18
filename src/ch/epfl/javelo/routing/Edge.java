@@ -37,7 +37,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
         return new PointCh(x, y);
     }
 
-    public double atElevation(double position){
+    public double elevationAt(double position){
         return profile.applyAsDouble(position);
     }
 

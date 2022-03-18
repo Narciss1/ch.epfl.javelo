@@ -244,7 +244,6 @@ public class GraphTest {
     //A FAIRE!
     @Test
     void nodeClosestToWorksOnGivenValue() throws IOException {
-
     }
 
     @Test
