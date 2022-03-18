@@ -1,3 +1,5 @@
+package ch.epfl.javelo.data;
+
 import ch.epfl.javelo.data.Attribute;
 import ch.epfl.javelo.data.AttributeSet;
 import ch.epfl.javelo.data.Graph;
@@ -104,6 +106,7 @@ public class GraphPplTest {
 
         //should be -1 as we are searching at 12744 location but there is a bit of imprecision (or negative radius)
         assertEquals(-1, g.nodeClosestTo(new PointCh(Ch1903.e(lon, lat), Ch1903.n(lon, lat)), 0));
+        //AYA : Cas négatif non pris en compte mais le cas nul si:
         //assertEquals(-1, g.nodeClosestTo(new PointCh(Ch1903.e(lon, lat), Ch1903.n(lon, lat)), -4));
 
         //should be 12744 even if we change the radius
@@ -135,6 +138,8 @@ public class GraphPplTest {
         Graph g = Graph.loadFrom(Path.of("lausanne"));
 
         //https://www.openstreetmap.org/way/28431021
+        //AYA : Faux chez les garcons aussi
+        //Vérfier si Léo a bien lu l'énoncé
         //assertEquals(false,  g.edgeIsInverted(36234));
     }
 

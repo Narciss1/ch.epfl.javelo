@@ -62,6 +62,6 @@ public class ElevationProfilePplTest {
     void elevationAtWorks(){
         float[] tab = {5F, 6F, 3F, 7F, 8F, 2F};
         ElevationProfile l = new ElevationProfile(5, tab);
-       // assertEquals(3F,l.elevationAt(2));
+        assertEquals(3F,l.elevationAt(2));
     }
 }

@@ -39,6 +39,7 @@ class EdgePplTest {
         assertEquals(new PointCh(SwissBounds.MIN_E + 5, SwissBounds.MIN_N), edge.pointAt(0));
         assertEquals(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), edge.pointAt(5));
 
+        //AYA : Exception returned chez les garcons too:
         //assertEquals(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), edge.pointAt(10));
     }
 
