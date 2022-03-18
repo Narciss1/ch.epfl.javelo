@@ -21,23 +21,24 @@ public class testSoSo {
 
     @Test
     void ofWorks() throws IOException {
-//        Graph actual1 = Graph.loadFrom(Path.of("CS108-2022-JaVelo/lausanne"));
+        Graph actual1 = Graph.loadFrom(Path.of("lausanne"));
         Edge hay = Edge.of(actual1, 1000, 2345, 5436);
     }
 
     @Test
     void positionClosestToWorks() throws IOException {
-//        Graph actual1 = Graph.loadFrom(Path.of("CS108-2022-JaVelo/lausanne"));
+        Graph actual1 = Graph.loadFrom(Path.of("lausanne"));
         Edge actualEdge = Edge.of(actual1, 1000, 2345, 5436);
         assertEquals(-53538.84482952522 , actualEdge.positionClosestTo(new PointCh(2601098, 1101654)));
     }
 
-  /*  @Test
+  @Test
     void pointAtWorks() throws IOException {
-//        Graph actual1 = Graph.loadFrom(Path.of("CS108-2022-JaVelo/lausanne"));
+       Graph actual1 = Graph.loadFrom(Path.of("lausanne"));
         Edge actualEdge = Edge.of(actual1, 1000, 2345, 5436);
         assertEquals(new PointCh(2539399.27250234,1164288.767963147), actualEdge.pointAt(100));
-    }*/
+    }
+
     @Test
     void elevationAtWorks(){
         Edge actualEdge = Edge.of(actual1, 1000, 2345, 5436);
