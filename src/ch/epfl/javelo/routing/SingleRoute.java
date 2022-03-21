@@ -21,7 +21,7 @@ public final class SingleRoute implements Route {
         if (edges.isEmpty()) {
             throw new IllegalArgumentException();
         } else {
-            this.edges = Collections.unmodifiableList(edges);
+            this.edges = List.copyOf(edges);
         }
     }
 

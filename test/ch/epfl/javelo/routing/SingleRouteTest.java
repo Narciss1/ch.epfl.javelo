@@ -16,7 +16,7 @@ import java.util.function.DoubleUnaryOperator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SingleRouteTest {
-
+ // LES EDGES DE CES TEST NE SONT PAS COLLE!! :/
     @Test
     public void indexOfSegmentAt(){
         IntBuffer forNodes = IntBuffer.wrap(new int[]{
