@@ -78,6 +78,7 @@ public final class MultiRoute implements Route{
         }
         return null;//QUESTION 2: Que mettre ici?
     }
+
     //QUESTION 3: Est-ce possible d'ajouter une méthode auxiliaire pour ces 3 méthodes?
     //QUESTION 4: No need d'apply le right position right?
     @Override
@@ -108,6 +109,7 @@ public final class MultiRoute implements Route{
         return -1;//Que mettre ici
     }
 
+    //Revoir si l'idée est bonne?
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint closestPoint = RoutePoint.NONE;
@@ -129,5 +131,23 @@ public final class MultiRoute implements Route{
             return true;
         }
         return false;
+    }
+
+    /**
+     *
+     * @param position
+     * @return
+     */
+    private int searchRoute(double position) {
+        double previousLength = 0.0;
+        for(int i = 0; i < segments.size(); ++i) {
+            double newPosition = position - previousLength;//normal d'avoir à chaque
+            double length = segments.get(i).length();      //fois une new value?
+            if (rightRange(newPosition, length)) {
+                return i; //How can I return the newPosition as well?
+            }
+            previousLength += segments.get(i).length();
+        }
+        return -1;//Que mettre ici?
     }
 }
