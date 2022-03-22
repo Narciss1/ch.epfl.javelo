@@ -5,6 +5,7 @@ import ch.epfl.javelo.projection.PointCh;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ch.epfl.javelo.Math2.clamp;
 import static java.util.Collections.binarySearch;
 
 public final class MultiRoute implements Route{
@@ -19,8 +20,9 @@ public final class MultiRoute implements Route{
     public int indexOfSegmentAt(double position) {
         int previousIndex = 0;
         double length = 0;
+        double newPosition = position;
         for(int i = 0; i < segments.size(); ++i){
-            double newPosition = position - length;
+            newPosition -= length;
             length = segments.get(i).length();
             if(rightRange(newPosition, length)) {
                 return previousIndex + segments.get(i).indexOfSegmentAt(newPosition);
@@ -28,7 +30,7 @@ public final class MultiRoute implements Route{
             previousIndex += segments.get(i).indexOfSegmentAt(length) + 1;
 
         }
-        return previousIndex;
+        return -1;
     }
 
     @Override
@@ -65,34 +67,63 @@ public final class MultiRoute implements Route{
 
     @Override
     public PointCh pointAt(double position) {
-        double previousPosition = 0.0;
-        double length = 0;
+        double previousLength = 0.0;
         for(int i = 0; i < segments.size(); ++i){
-            double newPosition = position - length;
-            length = segments.get(i).length();
+            double newPosition = position - previousLength;//QUESTION 1: normal d'avoir à chaque
+            double length = segments.get(i).length();      //fois une new value?
             if(rightRange(newPosition, length)) {
                 return segments.get(i).pointAt(newPosition);
             }
-            //previousIndex += segments.get(i).indexOfSegmentAt(length) + 1;
+            previousLength += segments.get(i).length();
         }
-        return null;
+        return null;//QUESTION 2: Que mettre ici?
     }
-
+    //QUESTION 3: Est-ce possible d'ajouter une méthode auxiliaire pour ces 3 méthodes?
+    //QUESTION 4: No need d'apply le right position right?
     @Override
     public double elevationAt(double position) {
-        return 0;
+        double previousLength = 0.0;
+        for(int i = 0; i < segments.size(); ++i){
+            double newPosition = position - previousLength;//normal d'avoir à chaque
+            double length = segments.get(i).length();      //fois une new value
+            if(rightRange(newPosition, length)) {
+                return segments.get(i).elevationAt(newPosition);
+            }
+            previousLength += segments.get(i).length();
+        }
+        return -1;//Que mettre ici
     }
 
     @Override
     public int nodeClosestTo(double position) {
-        return 0;
+        double previousLength = 0.0;
+        for(int i = 0; i < segments.size(); ++i){
+            double newPosition = position - previousLength;//normal d'avoir à chaque
+            double length = segments.get(i).length();      //fois une new value
+            if(rightRange(newPosition, length)) {
+                return segments.get(i).nodeClosestTo(newPosition);
+            }
+            previousLength += segments.get(i).length();
+        }
+        return -1;//Que mettre ici
     }
 
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
-        return null;
+        RoutePoint closestPoint = RoutePoint.NONE;
+        for (int i = 0; i < segments.size(); ++i) {
+            RoutePoint newClosePoint = segments.get(i).pointClosestTo(point);
+            closestPoint = closestPoint.min(newClosePoint);
+        }
+        return closestPoint;
     }
 
+    /**
+     *
+     * @param position
+     * @param length
+     * @return
+     */
     private boolean rightRange(double position, double length){
         if(position >= 0 && position <= length){
             return true;
