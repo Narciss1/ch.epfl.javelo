@@ -3,6 +3,7 @@ package ch.epfl.javelo.routing;
 import ch.epfl.javelo.projection.PointCh;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static ch.epfl.javelo.Math2.clamp;
@@ -10,7 +11,7 @@ import static java.util.Collections.binarySearch;
 
 public final class SingleRoute implements Route {
 
-    private List<Edge> edges;
+    private final List<Edge> edges;
 
     /**
      * Constructor
@@ -20,13 +21,14 @@ public final class SingleRoute implements Route {
         if (edges.isEmpty()) {
             throw new IllegalArgumentException();
         } else {
-            this.edges = edges;
+            this.edges = List.copyOf(edges);
         }
     }
 
     /**
-     * @param position a given position
-     * @return the index of the route segment containing the given position,
+     * Determines the index of an itinerary segment
+     * @param position a given position on the itinerary
+     * @return the index of the itinerary segment containing the given position,
      * which is always 0 in the case of a simple route
      */
     @Override
@@ -35,6 +37,7 @@ public final class SingleRoute implements Route {
     }
 
     /**
+     * Determines the length of the itinerary
      * @return the length of the itinerary in meters
      */
     @Override
@@ -56,7 +59,8 @@ public final class SingleRoute implements Route {
     }
 
     /**
-     * @return all the points located at the extremities of the edges of the itinerary
+     * Makes a list of all the points located at the extremities of the edges of the itinerary
+     * @return the lists of the totality of those points
      */
     @Override
     public List<PointCh> points() {
@@ -69,8 +73,9 @@ public final class SingleRoute implements Route {
     }
 
     /**
-     * @param position a given position
-     * @return the point at the given position along the itinerary
+     * Determines the point PointCh at a given position along the itinerary
+     * @param position a given position along the itinerary
+     * @return the point at a given position along the itinerary
      */
     @Override
     public PointCh pointAt(double position) {
@@ -81,18 +86,15 @@ public final class SingleRoute implements Route {
         if(nodeIndex < 0) {
             return edges.get(edgeIndex).pointAt(position - positionAllNodes.get(edgeIndex));
         } else {
-            if (nodeIndex >= 0 && nodeIndex < edges.size()) {
-                return edges.get(nodeIndex).fromPoint();
-            } else {
-                return edges.get(nodeIndex - 1).toPoint();
-            }
+            return points().get(nodeIndex);
         }
     }
 
     /**
-     * @param position a given position
-     * @return  the altitude at the given position along the itinerary,
-     * which can be NaN if the edge containing this position has no profile,
+     * Determines the altitude at a given position along the itinerary
+     * @param position a given position on the itinerary
+     * @return the altitude at a given position along the itinerary,
+     * which can be NaN if the edge containing this position has no profile
      */
     @Override
     public double elevationAt(double position) {
@@ -100,17 +102,22 @@ public final class SingleRoute implements Route {
         List<Double> positionAllNodes = positionAllNodes();
         int nodeIndex = binarySearch(positionAllNodes, position);
         int edgeIndex = -nodeIndex - 2;
-        if (nodeIndex >= 0) {
-            return edges.get(nodeIndex).elevationAt(0);
-        } else {
+        if (nodeIndex < 0) {
             return edges.get(edgeIndex).elevationAt(position - positionAllNodes.get(edgeIndex));
+        } else {
+            if (nodeIndex >= 0 && nodeIndex < edges.size()) {
+                return edges.get(nodeIndex).elevationAt(0);
+            } else {
+                return edges.get(nodeIndex - 1).elevationAt(edges.get(nodeIndex - 1).length());
+            }
         }
     }
 
     /**
-     * @param position a given position
-     * @return the identity of the node belonging to the itinerary and
-     * located closest to the given position
+     * Determines the closest node to a given position on the itinerary
+     * @param position a certain position on the itinerary
+     * @return the identity of the node belonging to the itinerary and located closest
+     * to the given position
      */
     @Override
     public int nodeClosestTo(double position) {
@@ -118,14 +125,19 @@ public final class SingleRoute implements Route {
         List<Double> positionAllNodes = positionAllNodes();
         int nodeIndex = binarySearch(positionAllNodes, position);
         int edgeIndex = -nodeIndex - 2;
-        if (nodeIndex >= 0) {
-            return edges.get(nodeIndex).fromNodeId();
-        } else {
+        if (nodeIndex < 0) {
             return closestNode(position, edgeIndex, positionAllNodes);
+        } else {
+            if (nodeIndex >= 0 && nodeIndex < edges.size()) {
+                return edges.get(nodeIndex).fromNodeId();
+            } else {
+                return edges.get(nodeIndex - 1).toNodeId();
+            }
         }
     }
 
     /**
+     * Determines the closest point to a given reference point on the itinerary
      * @param point a reference point
      * @return the point on the itinerary that is closest to the given reference point
      */
@@ -143,9 +155,9 @@ public final class SingleRoute implements Route {
     }
 
     /**
-     * Changes the value of the position if it is a negative value or
-     * if it is greater than the length of the itinerary
-     * @param position a given position
+     * Changes the value of the position to 0 if it is a negative value and to
+     * the length of the itinerary if it is greater than that
+     * @param position a given position on the itinerary
      */
     public void rightPosition(double position) {
         if (position < 0) { position = 0;}
@@ -154,9 +166,8 @@ public final class SingleRoute implements Route {
     }
 
     /**
-     * Makes a list of all the nodes of an itinerary
-     * the positions of all the nodes of an itinerary
-     * @return a list of the positions of all nodes
+     * Makes a list of the positions of all the nodes of an itinerary
+     * @return a list of the positions on the itinerary of all nodes
      */
     public List<Double> positionAllNodes() {
         List<Double> positionAllNodes = new ArrayList<>();
@@ -170,10 +181,10 @@ public final class SingleRoute implements Route {
     }
 
     /**
-     * Determines which one the first and last nodes of the edge is the closest to a certain position
+     * Determines which one the first and last nodes of an edge is the closest to a certain position
      * @param position a given position
      * @param edgeIndex the index of an edge of the itinerary
-     * @param positionAllNodes the list of the positions of all nodes
+     * @param positionAllNodes the list of the positions of all the itinerary's nodes
      * @return the closest node to a given position on an edge
      */
     public int closestNode (double position, int edgeIndex, List<Double> positionAllNodes) {
