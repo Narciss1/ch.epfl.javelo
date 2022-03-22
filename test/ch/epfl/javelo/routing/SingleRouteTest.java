@@ -6,6 +6,7 @@ import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
 import org.junit.jupiter.api.Test;
 
+import java.awt.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
+import static ch.epfl.javelo.Math2.clamp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SingleRouteTest {
@@ -462,7 +464,7 @@ public class SingleRouteTest {
         assertEquals(expected3, actual3);
     }
 
-    //A FAIRE(ceci c'est qu'une humble copie)
+    //A FAIRE(ceci n'est qu'une humble copie)
     @Test
     public void pointClosestToWorks(){
         IntBuffer forNodes = IntBuffer.wrap(new int[]{
@@ -510,11 +512,14 @@ public class SingleRouteTest {
         List<Edge> edges0 = new ArrayList<>();
         edges0.add(edge0);
         SingleRoute singleRoute0 = new SingleRoute(edges0);
-        int expected0 = edge0.fromNodeId();
-        int actual0 = singleRoute0.nodeClosestTo(4);
+        PointCh point = new PointCh(2600000,1100000);
+        double newPosition = clamp(edge0.positionClosestTo(point), 0, edge0.length());
+        PointCh newPoint = edge0.pointAt(newPosition);
+        RoutePoint expected0 = new RoutePoint(newPoint, newPosition, point.distanceTo(newPoint));
+        RoutePoint actual0 = singleRoute0.pointClosestTo(point);
         //TEST 1:
         assertEquals(expected0, actual0);
-        List<Edge> edges1 = new ArrayList<>();
+        /*List<Edge> edges1 = new ArrayList<>();
         edges1.add(edge0);
         edges1.add(edge1);
         SingleRoute singleRoute1 = new SingleRoute(edges1);
@@ -529,7 +534,7 @@ public class SingleRouteTest {
         int expected3 = edge0.fromNodeId();
         int actual3 = singleRoute1.nodeClosestTo(0);
         //TEST 4:
-        assertEquals(expected3, actual3);
+        assertEquals(expected3, actual3);*/
     }
 
     @Test
