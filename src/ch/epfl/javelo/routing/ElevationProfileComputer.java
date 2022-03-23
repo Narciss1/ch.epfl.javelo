@@ -3,7 +3,7 @@ package ch.epfl.javelo.routing;
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.Preconditions;
 
-import java.sql.SQLOutput;
+
 
 import static java.lang.Float.isNaN;
 import static java.util.Arrays.fill;
@@ -14,7 +14,7 @@ public final class ElevationProfileComputer {
 
     public static ElevationProfile elevationProfile(Route route, double maxStepLength){
         Preconditions.checkArgument(maxStepLength > 0);
-        int samplesNumber = (int)Math.ceil(route.length() / maxStepLength) + 1;
+        int samplesNumber = ((int)Math.ceil(route.length() / maxStepLength)) + 1;
         double gap = route.length() / (samplesNumber - 1);
         float[] elevationSamples = new float[samplesNumber];
         for (int i = 0; i < samplesNumber; ++i ){
@@ -29,16 +29,10 @@ public final class ElevationProfileComputer {
     //Ces classes sont momentanément publiques pour se faire testées.
 
     public static float[] fillBeginningAndEnd(float[] elevationSamples){
-        int firstNotNan = elevationSamples.length;  //Pr donner un indice non atteignable
-        boolean keepLooking = true;
-        for (int i = 0; i < elevationSamples.length; ++i){
-            if (! isNaN(elevationSamples[i]) && keepLooking){
-                firstNotNan = i;
-                keepLooking = false;
-            }
+        int firstNotNan = 0;
+        while( firstNotNan < elevationSamples.length && isNaN(elevationSamples[firstNotNan])){
+            ++firstNotNan;
         }
-        //Peut être tej maybe, (mais remplacée).
-        //Question posée sur piazza (un peeeu) dans cette direction.
         if (firstNotNan == elevationSamples.length){
             for (int i = 0; i < elevationSamples.length; ++i){
                 elevationSamples[i] = 0;
@@ -46,13 +40,9 @@ public final class ElevationProfileComputer {
             return elevationSamples;
         }
         fill(elevationSamples, 0, firstNotNan, elevationSamples[firstNotNan]);
-        int lastNotNan = elevationSamples.length;
-        keepLooking = true;
-        for (int i = elevationSamples.length - 1; i >= 0; i = i - 1){
-            if (! isNaN(elevationSamples[i]) && keepLooking ){
-                lastNotNan = i;
-                keepLooking = false;
-            }
+        int lastNotNan = elevationSamples.length - 1;
+        while ( lastNotNan > 0 && isNaN(elevationSamples[lastNotNan])){
+            lastNotNan = lastNotNan - 1;
         }
         fill(elevationSamples, lastNotNan, elevationSamples.length, elevationSamples[lastNotNan]);
         return elevationSamples;
