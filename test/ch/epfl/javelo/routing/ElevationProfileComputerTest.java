@@ -253,5 +253,4 @@ public class ElevationProfileComputerTest {
         float[] expected = {5, 5.25f, 5.5f, 5.75f, 6};
         assertArrayEquals(expected, interpolateElevation(samplesExamples));
     }
-
 }
