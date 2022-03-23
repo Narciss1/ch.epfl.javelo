@@ -1,5 +1,6 @@
 package ch.epfl.javelo.routing;
 
+import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.data.Graph;
 
 public final class RouteComputer {
@@ -14,5 +15,9 @@ public final class RouteComputer {
         this.costFunction = costFunction;
     }
 
+//    public Route bestRouteBetween(int startNodeId, int endNodeId){
+//        Preconditions.checkArgument(startNodeId != endNodeId);
+//
+//    }
 
 }
