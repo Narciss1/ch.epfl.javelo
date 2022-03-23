@@ -79,12 +79,12 @@ public final class SingleRoute implements Route {
      */
     @Override
     public PointCh pointAt(double position) {
-        rightPosition(position);
+        double newPosition = clamp(0, position, length());
         List<Double> positionAllNodes = positionAllNodes();
-        int nodeIndex = binarySearch(positionAllNodes, position);
+        int nodeIndex = binarySearch(positionAllNodes, newPosition);
         int edgeIndex = -nodeIndex - 2;
         if(nodeIndex < 0) {
-            return edges.get(edgeIndex).pointAt(position - positionAllNodes.get(edgeIndex));
+            return edges.get(edgeIndex).pointAt(newPosition - positionAllNodes.get(edgeIndex));
         } else {
             return points().get(nodeIndex);
         }
@@ -98,12 +98,12 @@ public final class SingleRoute implements Route {
      */
     @Override
     public double elevationAt(double position) {
-        rightPosition(position);
+        double newPosition = clamp(0, position, length());
         List<Double> positionAllNodes = positionAllNodes();
-        int nodeIndex = binarySearch(positionAllNodes, position);
+        int nodeIndex = binarySearch(positionAllNodes, newPosition);
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex < 0) {
-            return edges.get(edgeIndex).elevationAt(position - positionAllNodes.get(edgeIndex));
+            return edges.get(edgeIndex).elevationAt(newPosition - positionAllNodes.get(edgeIndex));
         } else {
             if (nodeIndex >= 0 && nodeIndex < edges.size()) {
                 return edges.get(nodeIndex).elevationAt(0);
@@ -121,12 +121,12 @@ public final class SingleRoute implements Route {
      */
     @Override
     public int nodeClosestTo(double position) {
-        rightPosition(position);
+        double newPosition = clamp(0, position, length());
         List<Double> positionAllNodes = positionAllNodes();
-        int nodeIndex = binarySearch(positionAllNodes, position);
+        int nodeIndex = binarySearch(positionAllNodes, newPosition);
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex < 0) {
-            return closestNode(position, edgeIndex, positionAllNodes);
+            return closestNode(newPosition, edgeIndex, positionAllNodes);
         } else {
             if (nodeIndex >= 0 && nodeIndex < edges.size()) {
                 return edges.get(nodeIndex).fromNodeId();
@@ -145,7 +145,7 @@ public final class SingleRoute implements Route {
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint closestPoint = RoutePoint.NONE;
         for (int i = 0; i < edges.size(); ++i) {
-            double newPosition = clamp(edges.get(i).positionClosestTo(point), 0, edges.get(i).length());
+            double newPosition = clamp(0, edges.get(i).positionClosestTo(point) , edges.get(i).length());
             PointCh newPoint = edges.get(i).pointAt(newPosition);
             double newDistanceToReference = point.distanceTo(newPoint);
             RoutePoint newRoutePoint = new RoutePoint(newPoint, newPosition, newDistanceToReference);
