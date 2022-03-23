@@ -168,7 +168,6 @@ public class ElevationProfileComputerTest {
         var rng = newRandom();
         for (var i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i += 1) {
             var position = rng.nextDouble(0, 50);
-            System.out.println(position);
             assertEquals(5.5, elevationProfileTesting.elevationAt(position));
         }
     }
