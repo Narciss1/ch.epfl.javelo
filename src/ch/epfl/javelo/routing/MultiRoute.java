@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ch.epfl.javelo.Math2.clamp;
-import static java.util.Collections.binarySearch;
 
 public final class MultiRoute implements Route{
 
@@ -20,7 +19,7 @@ public final class MultiRoute implements Route{
     public int indexOfSegmentAt(double position) {
         int previousIndex = 0;
         double length = 0;
-        double newPosition = position;
+        double newPosition = clamp(0, position, this.length());
         for(int i = 0; i < segments.size(); ++i){
             newPosition -= length;
             length = segments.get(i).length();
@@ -28,9 +27,8 @@ public final class MultiRoute implements Route{
                 return previousIndex + segments.get(i).indexOfSegmentAt(newPosition);
             }
             previousIndex += segments.get(i).indexOfSegmentAt(length) + 1;
-
         }
-        return -1;
+        return previousIndex + segments.get(segments.size() - 1).indexOfSegmentAt(newPosition);
     }
 
     @Override
@@ -67,49 +65,46 @@ public final class MultiRoute implements Route{
 
     @Override
     public PointCh pointAt(double position) {
-        double previousLength = 0.0;
+        double newPosition = clamp(0, position, this.length());
+        double length = 0;
         for(int i = 0; i < segments.size(); ++i){
-            double newPosition = position - previousLength;//QUESTION 1: normal d'avoir à chaque
-            double length = segments.get(i).length();      //fois une new value?
+            newPosition -= length;
+            length = segments.get(i).length();
             if(rightRange(newPosition, length)) {
                 return segments.get(i).pointAt(newPosition);
             }
-            previousLength += segments.get(i).length();
         }
-        return null;//QUESTION 2: Que mettre ici?
+        return segments.get(segments.size() - 1).pointAt(newPosition);
     }
 
-    //QUESTION 3: Est-ce possible d'ajouter une méthode auxiliaire pour ces 3 méthodes?
-    //QUESTION 4: No need d'apply le right position right?
     @Override
     public double elevationAt(double position) {
-        double previousLength = 0.0;
+        double newPosition = clamp(0, position, this.length());
+        double length = 0;
         for(int i = 0; i < segments.size(); ++i){
-            double newPosition = position - previousLength;//normal d'avoir à chaque
-            double length = segments.get(i).length();      //fois une new value
+            newPosition -= length;
+            length = segments.get(i).length();
             if(rightRange(newPosition, length)) {
                 return segments.get(i).elevationAt(newPosition);
             }
-            previousLength += segments.get(i).length();
         }
-        return -1;//Que mettre ici
+        return segments.get(segments.size() - 1).elevationAt(newPosition);
     }
 
     @Override
     public int nodeClosestTo(double position) {
-        double previousLength = 0.0;
+        double newPosition = clamp(0, position, this.length());
+        double length = 0;
         for(int i = 0; i < segments.size(); ++i){
-            double newPosition = position - previousLength;//normal d'avoir à chaque
-            double length = segments.get(i).length();      //fois une new value
+            newPosition -= length;
+            length = segments.get(i).length();
             if(rightRange(newPosition, length)) {
                 return segments.get(i).nodeClosestTo(newPosition);
             }
-            previousLength += segments.get(i).length();
         }
-        return -1;//Que mettre ici
+        return segments.get(segments.size() - 1).nodeClosestTo(newPosition);
     }
 
-    //Revoir si l'idée est bonne?
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint closestPoint = RoutePoint.NONE;
@@ -131,23 +126,5 @@ public final class MultiRoute implements Route{
             return true;
         }
         return false;
-    }
-
-    /**
-     *
-     * @param position
-     * @return
-     */
-    private int searchRoute(double position) {
-        double previousLength = 0.0;
-        for(int i = 0; i < segments.size(); ++i) {
-            double newPosition = position - previousLength;//normal d'avoir à chaque
-            double length = segments.get(i).length();      //fois une new value?
-            if (rightRange(newPosition, length)) {
-                return i; //How can I return the newPosition as well?
-            }
-            previousLength += segments.get(i).length();
-        }
-        return -1;//Que mettre ici?
     }
 }
