@@ -3,7 +3,6 @@ package ch.epfl.javelo.routing;
 import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
-import jdk.swing.interop.SwingInterOpUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -19,20 +18,16 @@ public class ElevationProfileComputerTestGuiDa {
         List<Edge> edges = new ArrayList<>();
         edges.add(edge);
         SingleRoute routeTest1 = new SingleRoute(edges);
-
-        System.out.println(routeTest1.elevationAt(8));
         ElevationProfile elevationProfileTesting = elevationProfile(routeTest1, 4);
-        //Assertions.assertEquals(4, elevationProfileTesting.elevationAt(0));
-        //Assertions.assertEquals(4, elevationProfileTesting.elevationAt(2));
-
-        Assertions.assertEquals(0, elevationProfileTesting.elevationAt(8));
-        /*Assertions.assertEquals(2, elevationProfileTesting.elevationAt(6));
+        Assertions.assertEquals(4, elevationProfileTesting.elevationAt(0));
+        Assertions.assertEquals(4, elevationProfileTesting.elevationAt(2));
+        Assertions.assertEquals(2, elevationProfileTesting.elevationAt(6));
         Assertions.assertEquals(6, elevationProfileTesting.elevationAt(14));
         Assertions.assertEquals(8, elevationProfileTesting.elevationAt(16));
         Assertions.assertEquals(8, elevationProfileTesting.elevationAt(21));
         Assertions.assertEquals(8, elevationProfileTesting.elevationAt(24));
         Assertions.assertEquals(8, elevationProfileTesting.elevationAt(25));
-        Assertions.assertEquals(4, elevationProfileTesting.elevationAt(-1));*/
+        Assertions.assertEquals(4, elevationProfileTesting.elevationAt(-1));
     }
 
     @Test
