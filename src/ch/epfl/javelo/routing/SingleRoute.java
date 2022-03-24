@@ -1,6 +1,7 @@
 package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.projection.PointCh;
+import jdk.swing.interop.SwingInterOpUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
