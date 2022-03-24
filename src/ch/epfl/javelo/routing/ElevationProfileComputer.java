@@ -19,6 +19,7 @@ public final class ElevationProfileComputer {
         float[] elevationSamples = new float[samplesNumber];
         for (int i = 0; i < samplesNumber; ++i ){
             elevationSamples[i] = (float) route.elevationAt(i*gap);
+            System.out.println(elevationSamples[i]);
         }
         elevationSamples = fillBeginningAndEnd(elevationSamples);
         elevationSamples = interpolateElevation(elevationSamples);
