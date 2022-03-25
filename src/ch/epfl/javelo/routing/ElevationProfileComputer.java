@@ -12,6 +12,12 @@ public final class ElevationProfileComputer {
 
     private ElevationProfileComputer(){}
 
+    /** constructs the elevation profile for a route.
+     *
+     * @param route  the route we want to create an elevation profile for
+     * @param maxStepLength the maximum gap that could be between two samples
+     * @return a new instance of type ElevationProfile
+     */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength){
         Preconditions.checkArgument(maxStepLength > 0);
         int samplesNumber = ((int)Math.ceil(route.length() / maxStepLength)) + 1;
@@ -21,15 +27,18 @@ public final class ElevationProfileComputer {
             elevationSamples[i] = (float) route.elevationAt(i*gap);
             System.out.println(elevationSamples[i]);
         }
-        elevationSamples = fillBeginningAndEnd(elevationSamples);
-        elevationSamples = interpolateElevation(elevationSamples);
+        fillBeginningAndEnd(elevationSamples);
+        interpolateElevation(elevationSamples);
         return new ElevationProfile(route.length(), elevationSamples);
     }
 
 
-    //Ces classes sont momentanément publiques pour se faire testées.
-
-    public static float[] fillBeginningAndEnd(float[] elevationSamples){
+    /** takes an array and fill it with 0's if it only contains NaN values, or fill it in the
+     * beginning with the first not NaN value and in the end with the last not NaN value.
+     *
+     * @param elevationSamples the array we want to fill
+     */
+    private static void fillBeginningAndEnd(float[] elevationSamples){
         int firstNotNan = 0;
         while( firstNotNan < elevationSamples.length && isNaN(elevationSamples[firstNotNan])){
             ++firstNotNan;
@@ -38,18 +47,21 @@ public final class ElevationProfileComputer {
             for (int i = 0; i < elevationSamples.length; ++i){
                 elevationSamples[i] = 0;
             }
-            return elevationSamples;
+        } else {
+            fill(elevationSamples, 0, firstNotNan, elevationSamples[firstNotNan]);
+            int lastNotNan = elevationSamples.length - 1;
+            while ( lastNotNan > 0 && isNaN(elevationSamples[lastNotNan])){
+                lastNotNan = lastNotNan - 1;
+            }
+            fill(elevationSamples, lastNotNan, elevationSamples.length, elevationSamples[lastNotNan]);
         }
-        fill(elevationSamples, 0, firstNotNan, elevationSamples[firstNotNan]);
-        int lastNotNan = elevationSamples.length - 1;
-        while ( lastNotNan > 0 && isNaN(elevationSamples[lastNotNan])){
-            lastNotNan = lastNotNan - 1;
-        }
-        fill(elevationSamples, lastNotNan, elevationSamples.length, elevationSamples[lastNotNan]);
-        return elevationSamples;
     }
 
-    public static float[] interpolateElevation(float[] elevationSamples){
+    /** looks for NaN values in the array and replaces the NaN with an interpolated value
+     *
+     * @param elevationSamples the array we want to interpolate onto.
+     */
+    private static void interpolateElevation(float[] elevationSamples){
         int counting = 0;
         for (int i = 1; i < elevationSamples.length - 1; ++i){
             if (isNaN(elevationSamples[i])) {
@@ -70,7 +82,6 @@ public final class ElevationProfileComputer {
             i = i + counting;
             counting = 0;
         }
-        return elevationSamples;
     }
 
 
