@@ -507,9 +507,20 @@ public class SingleRouteTest {
         SingleRoute singleRoute = new SingleRoute(edges);
         double position = 100000000;
         //TEST 1: Should return 16.6875
-        singleRoute.rightPosition(position);
+        //singleRoute.rightPosition(position);
         double position1 = -100000000;
         //TEST 2: Should return 0.0
-        singleRoute.rightPosition(position1);
+        //singleRoute.rightPosition(position1);
     }
+
+   /* *//**
+     * Changes the value of the position to 0 if it is a negative value and to
+     * the length of the itinerary if it is greater than that
+     * @param position a given position on the itinerary
+     *//*
+    public void rightPosition(double position) {
+        if (position < 0) { position = 0;}
+        if (position > length()) { position = length();}
+        System.out.println(position);
+    }*/
 }

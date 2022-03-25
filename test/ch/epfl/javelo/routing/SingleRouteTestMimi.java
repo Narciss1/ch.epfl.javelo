@@ -471,7 +471,7 @@ class SingleRouteTestMimi {
         System.out.println(p0.distanceTo(p1));
         System.out.println(edgeBeforeRoute.length()/2d);
         assertEquals(p3, pointBeyondRoute, "oh no…our code…it's broken"); // a point right after the route
-        //assertEquals(p1, pointBeforeRoute, "oh no…our code…it's broken"); // a point right before the route
+        assertEquals(p1, pointBeforeRoute, "oh no…our code…it's broken"); // a point right before the route
     }
 
     @Test

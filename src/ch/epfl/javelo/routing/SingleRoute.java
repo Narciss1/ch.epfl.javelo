@@ -13,6 +13,7 @@ import static java.util.Collections.binarySearch;
 public final class SingleRoute implements Route {
 
     private final List<Edge> edges;
+    private List<Double> positionAllNodes;
 
     /**
      * Constructor
@@ -23,6 +24,8 @@ public final class SingleRoute implements Route {
             throw new IllegalArgumentException();
         } else {
             this.edges = List.copyOf(edges);
+            positionAllNodes = new ArrayList<>();
+            positionAllNodes = positionAllNodes();
         }
     }
 
@@ -81,7 +84,6 @@ public final class SingleRoute implements Route {
     @Override
     public PointCh pointAt(double position) {
         double newPosition = clamp(0, position, length());
-        List<Double> positionAllNodes = positionAllNodes();
         int nodeIndex = binarySearch(positionAllNodes, newPosition);
         int edgeIndex = -nodeIndex - 2;
         if(nodeIndex < 0) {
@@ -100,7 +102,6 @@ public final class SingleRoute implements Route {
     @Override
     public double elevationAt(double position) {
         double newPosition = clamp(0, position, length());
-        List<Double> positionAllNodes = positionAllNodes();
         int nodeIndex = binarySearch(positionAllNodes, newPosition);
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex < 0) {
@@ -123,7 +124,6 @@ public final class SingleRoute implements Route {
     @Override
     public int nodeClosestTo(double position) {
         double newPosition = clamp(0, position, length());
-        List<Double> positionAllNodes = positionAllNodes();
         int nodeIndex = binarySearch(positionAllNodes, newPosition);
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex < 0) {
@@ -142,24 +142,8 @@ public final class SingleRoute implements Route {
      * @param point a reference point
      * @return the point on the itinerary that is closest to the given reference point
      */
-/*    @Override
-    public RoutePoint pointClosestTo(PointCh point) {
-        RoutePoint closestPoint = RoutePoint.NONE;
-        for (int i = 0; i < edges.size(); ++i) {
-            double newPosition = clamp(0, edges.get(i).positionClosestTo(point) , edges.get(i).length());
-            PointCh newPoint = edges.get(i).pointAt(newPosition);
-            double newDistanceToReference = point.distanceTo(newPoint);
-            RoutePoint newRoutePoint = new RoutePoint(newPoint, newPosition, newDistanceToReference);
-            closestPoint = closestPoint.min(newRoutePoint);
-        }
-        return closestPoint;
-    }*/
-
-    //A VERIFIER SUR PIAZZA
-
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
-        List<Double> positionAllNodes = positionAllNodes();
         RoutePoint closestPoint = RoutePoint.NONE;
         for (Edge edge : edges) {
             double newPosition = clamp(0, edge.positionClosestTo(point), edge.length());
@@ -169,22 +153,10 @@ public final class SingleRoute implements Route {
     }
 
     /**
-     * Changes the value of the position to 0 if it is a negative value and to
-     * the length of the itinerary if it is greater than that
-     * @param position a given position on the itinerary
-     */
-    public void rightPosition(double position) {
-        if (position < 0) { position = 0;}
-        if (position > length()) { position = length();}
-        System.out.println(position);
-    }
-
-    /**
      * Makes a list of the positions of all the nodes of an itinerary
      * @return a list of the positions on the itinerary of all nodes
      */
-    public List<Double> positionAllNodes() {
-        List<Double> positionAllNodes = new ArrayList<>();
+    private List<Double> positionAllNodes() {
         double length = 0;
         positionAllNodes.add(length);
         for (int i = 0; i < edges.size(); ++i) {
@@ -201,7 +173,7 @@ public final class SingleRoute implements Route {
      * @param positionAllNodes the list of the positions of all the itinerary's nodes
      * @return the closest node to a given position on an edge
      */
-    public int closestNode (double position, int edgeIndex, List<Double> positionAllNodes) {
+    private int closestNode (double position, int edgeIndex, List<Double> positionAllNodes) {
         double firstDistance = position - positionAllNodes.get(edgeIndex);
         double secondDistance = positionAllNodes.get(edgeIndex + 1) - position;
         if(firstDistance <= secondDistance) {
