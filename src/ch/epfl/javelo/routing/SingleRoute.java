@@ -142,7 +142,7 @@ public final class SingleRoute implements Route {
      * @param point a reference point
      * @return the point on the itinerary that is closest to the given reference point
      */
-    @Override
+/*    @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint closestPoint = RoutePoint.NONE;
         for (int i = 0; i < edges.size(); ++i) {
@@ -151,6 +151,19 @@ public final class SingleRoute implements Route {
             double newDistanceToReference = point.distanceTo(newPoint);
             RoutePoint newRoutePoint = new RoutePoint(newPoint, newPosition, newDistanceToReference);
             closestPoint = closestPoint.min(newRoutePoint);
+        }
+        return closestPoint;
+    }*/
+
+    //A VERIFIER SUR PIAZZA
+
+    @Override
+    public RoutePoint pointClosestTo(PointCh point) {
+        List<Double> positionAllNodes = positionAllNodes();
+        RoutePoint closestPoint = RoutePoint.NONE;
+        for (Edge edge : edges) {
+            double newPosition = clamp(0, edge.positionClosestTo(point), edge.length());
+            closestPoint = closestPoint.min(edge.pointAt(newPosition), positionAllNodes.get(edge.fromNodeId()) + newPosition, point.distanceTo(edge.pointAt(newPosition)));
         }
         return closestPoint;
     }
