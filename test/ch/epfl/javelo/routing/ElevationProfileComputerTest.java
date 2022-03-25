@@ -195,8 +195,6 @@ public class ElevationProfileComputerTest {
         ElevationProfile elevationProfileTesting = elevationProfile(routeTest1, 1);
         assertEquals(5, elevationProfileTesting.elevationAt(0));
         assertEquals(5, elevationProfileTesting.elevationAt(2));
-        //assertEquals(5.5, elevationProfileTesting.elevationAt(2.5));
-        //J'ai l'impression je sais juste pas le tester pck l'interpolation seule marche... A revoir
         assertEquals(6,elevationProfileTesting.elevationAt(4));
     }
 
@@ -238,6 +236,11 @@ public class ElevationProfileComputerTest {
         float[] samplesExamples ={NaN, NaN, 5, NaN, NaN};
         float[] expected = {5,5,5,5,5};
         assertArrayEquals(expected, fillBeginningAndEnd(samplesExamples));
+        Integer i = 0b00001000;
+        System.out.println(i);   //affiche 8
+        System.out.println(i.toString(i,2));    //affiche 1000
+        System.out.println(Integer.parseInt("F", 16)); //affiche 15.
+
     }
 
     @Test
@@ -254,23 +257,4 @@ public class ElevationProfileComputerTest {
         assertArrayEquals(expected, interpolateElevation(samplesExamples));
     }
 
-    @Test
-    void elevationProfileOneEdgeNotNa(){
-        Edge edge = new Edge(0, 0, null, null, 24,
-                Functions.sampled(new float[]{Float.NaN, 4, 0, Float.NaN, 8, 8, Float.NaN}, 24));
-        List<Edge> edges = new ArrayList<>();
-        edges.add(edge);
-        RouteTest1 routeTest1 = new RouteTest1(edges);
-        System.out.println(routeTest1.elevationAt(8));
-        ElevationProfile elevationProfileTesting = elevationProfile(routeTest1, 4);
-        Assertions.assertEquals(4, elevationProfileTesting.elevationAt(0));
-        Assertions.assertEquals(4, elevationProfileTesting.elevationAt(2));
-        Assertions.assertEquals(2, elevationProfileTesting.elevationAt(6));
-        Assertions.assertEquals(6, elevationProfileTesting.elevationAt(14));
-        Assertions.assertEquals(8, elevationProfileTesting.elevationAt(16));
-        Assertions.assertEquals(8, elevationProfileTesting.elevationAt(21));
-        Assertions.assertEquals(8, elevationProfileTesting.elevationAt(24));
-        Assertions.assertEquals(8, elevationProfileTesting.elevationAt(25));
-        Assertions.assertEquals(4, elevationProfileTesting.elevationAt(-1));
-    }
 }

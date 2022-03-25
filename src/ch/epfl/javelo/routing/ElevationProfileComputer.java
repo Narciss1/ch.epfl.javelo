@@ -26,6 +26,7 @@ public final class ElevationProfileComputer {
     }
 
 
+
     //Ces classes sont momentanément publiques pour se faire testées.
 
     public static float[] fillBeginningAndEnd(float[] elevationSamples){
