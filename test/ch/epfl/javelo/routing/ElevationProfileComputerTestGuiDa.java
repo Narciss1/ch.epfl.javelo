@@ -14,16 +14,15 @@ import static ch.epfl.javelo.routing.ElevationProfileComputer.elevationProfile;
 public class ElevationProfileComputerTestGuiDa {
     @Test
     void elevationProfileOneEdgeNotNaNazhudhaiodjaozdjoaizdjoazdja(){
-        Edge edge = new Edge(0, 0, null, null, 24,
-                Functions.sampled(new float[]{Float.NaN, 4, 0, Float.NaN, 8, 8, Float.NaN}, 24));
+        Edge edge = new Edge(0, 0, null, null, 24, Functions.sampled(new float[]{Float.NaN, 4, 0, Float.NaN, 8, 8, Float.NaN}, 24));
         List<Edge> edges = new ArrayList<>();
         edges.add(edge);
         SingleRoute routeTest1 = new SingleRoute(edges);
         ElevationProfile elevationProfileTesting = elevationProfile(routeTest1, 4);
         Assertions.assertEquals(4, elevationProfileTesting.elevationAt(0));
         Assertions.assertEquals(4, elevationProfileTesting.elevationAt(2));
-        //Assertions.assertEquals(2, elevationProfileTesting.elevationAt(6));
-        //Assertions.assertEquals(6, elevationProfileTesting.elevationAt(14));
+        Assertions.assertEquals(2, elevationProfileTesting.elevationAt(6));
+        Assertions.assertEquals(6, elevationProfileTesting.elevationAt(14));
         Assertions.assertEquals(8, elevationProfileTesting.elevationAt(16));
         Assertions.assertEquals(8, elevationProfileTesting.elevationAt(21));
         Assertions.assertEquals(8, elevationProfileTesting.elevationAt(24));
@@ -44,7 +43,6 @@ public class ElevationProfileComputerTestGuiDa {
         Assertions.assertEquals(0, elevationProfileTesting.elevationAt(25));
         Assertions.assertEquals(0, elevationProfileTesting.elevationAt(-1));
     }
-
     @Test
     void elevationProfileOneEdgeNotNaNazhudhaiodjaozdjoaieazezdjoazdjeazea(){
         Edge edge = new Edge(0, 0, null, null, 2, Functions.sampled(new float[]{Float.NaN,Float.NaN, 10}, 2));
@@ -59,10 +57,8 @@ public class ElevationProfileComputerTestGuiDa {
         Assertions.assertEquals(10, elevationProfileTesting.elevationAt(-1));
     }
     @Test
-
     void elevationProfileOneEdgeNotNaNazhudhaiodjaozdjoaieazezezaedjoazdjeazea(){
-        Edge edge = new Edge(0, 0, null, null, 5,
-                Functions.sampled(new float[]{8,Float.NaN,Float.NaN, 10, Float.NaN, Float.NaN}, 5));
+        Edge edge = new Edge(0, 0, null, null, 5, Functions.sampled(new float[]{8,Float.NaN,Float.NaN, 10, Float.NaN, Float.NaN}, 5));
         List<Edge> edges = new ArrayList<>();
         edges.add(edge);
         SingleRoute routeTest1 = new SingleRoute(edges);

@@ -4,7 +4,6 @@ import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.data.*;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.awt.*;
@@ -508,29 +507,20 @@ public class SingleRouteTest {
         SingleRoute singleRoute = new SingleRoute(edges);
         double position = 100000000;
         //TEST 1: Should return 16.6875
-        singleRoute.rightPosition(position);
+        //singleRoute.rightPosition(position);
         double position1 = -100000000;
         //TEST 2: Should return 0.0
-        singleRoute.rightPosition(position1);
-    }
-    @Test
-    public void pointClosestToTestGuiDa() {
-        List<Edge> edgeList = new ArrayList<>(List.of(
-                new Edge(0, 0, pointCreator(0, 0), pointCreator(2, 0), 2, null),
-                new Edge(0, 0, pointCreator(2, 0), pointCreator(2, 2), Math.sqrt(2), null)
-        ));
-        SingleRoute sr = new SingleRoute(edgeList);
-
-        Assertions.assertEquals(pointCreator(1, 0).toString(), sr.pointClosestTo(pointCreator(1, 1)).point().toString());
-        Assertions.assertEquals(pointCreator(0, 0).toString(), sr.pointClosestTo(pointCreator(0, 0)).point().toString());
-        Assertions.assertEquals(pointCreator(2, 2).toString(), sr.pointClosestTo(pointCreator(2, 2)).point().toString());
-        Assertions.assertEquals(pointCreator(2, 0).toString(), sr.pointClosestTo(pointCreator(2, 0)).point().toString());
-        Assertions.assertEquals(pointCreator(2, 2).toString(), sr.pointClosestTo(pointCreator(1000, 1000)).point().toString());
-
+        //singleRoute.rightPosition(position1);
     }
 
-    private PointCh pointCreator(int e, int n)
-    {
-        return new PointCh(SwissBounds.MIN_E + e, SwissBounds.MIN_N + n);
-    }
+   /* *//**
+     * Changes the value of the position to 0 if it is a negative value and to
+     * the length of the itinerary if it is greater than that
+     * @param position a given position on the itinerary
+     *//*
+    public void rightPosition(double position) {
+        if (position < 0) { position = 0;}
+        if (position > length()) { position = length();}
+        System.out.println(position);
+    }*/
 }
