@@ -231,30 +231,30 @@ public class ElevationProfileComputerTest {
 
 
 
-    @Test
-    void fillBeginningAndEndWorks(){
-        float[] samplesExamples ={NaN, NaN, 5, NaN, NaN};
-        float[] expected = {5,5,5,5,5};
-        assertArrayEquals(expected, fillBeginningAndEnd(samplesExamples));
-        Integer i = 0b00001000;
-        System.out.println(i);   //affiche 8
-        System.out.println(i.toString(i,2));    //affiche 1000
-        System.out.println(Integer.parseInt("F", 16)); //affiche 15.
-
-    }
-
-    @Test
-    void interpolateElevationWorks(){
-        float[] samplesExamples = {5,5,NaN,6,6};
-        float[] expected = {5,5,5.5f,6,6};
-        assertArrayEquals(expected, interpolateElevation(samplesExamples));
-    }
-
-    @Test
-    void interpolateElevationWorksFor3NaNSimple(){
-        float[] samplesExamples = {5,NaN, NaN,NaN, 6};
-        float[] expected = {5, 5.25f, 5.5f, 5.75f, 6};
-        assertArrayEquals(expected, interpolateElevation(samplesExamples));
-    }
+//    @Test
+//    void fillBeginningAndEndWorks(){
+//        float[] samplesExamples ={NaN, NaN, 5, NaN, NaN};
+//        float[] expected = {5,5,5,5,5};
+//        assertArrayEquals(expected, fillBeginningAndEnd(samplesExamples));
+//        Integer i = 0b00001000;
+//        System.out.println(i);   //affiche 8
+//        System.out.println(i.toString(i,2));    //affiche 1000
+//        System.out.println(Integer.parseInt("F", 16)); //affiche 15.
+//
+//    }
+//
+//    @Test
+//    void interpolateElevationWorks(){
+//        float[] samplesExamples = {5,5,NaN,6,6};
+//        float[] expected = {5,5,5.5f,6,6};
+//        assertArrayEquals(expected, interpolateElevation(samplesExamples));
+//    }
+//
+//    @Test
+//    void interpolateElevationWorksFor3NaNSimple(){
+//        float[] samplesExamples = {5,NaN, NaN,NaN, 6};
+//        float[] expected = {5, 5.25f, 5.5f, 5.75f, 6};
+//        assertArrayEquals(expected, interpolateElevation(samplesExamples));
+    //}
 
 }

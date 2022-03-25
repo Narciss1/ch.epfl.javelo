@@ -4,6 +4,7 @@ import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.data.*;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.awt.*;
@@ -511,5 +512,25 @@ public class SingleRouteTest {
         double position1 = -100000000;
         //TEST 2: Should return 0.0
         singleRoute.rightPosition(position1);
+    }
+    @Test
+    public void pointClosestToTestGuiDa() {
+        List<Edge> edgeList = new ArrayList<>(List.of(
+                new Edge(0, 0, pointCreator(0, 0), pointCreator(2, 0), 2, null),
+                new Edge(0, 0, pointCreator(2, 0), pointCreator(2, 2), Math.sqrt(2), null)
+        ));
+        SingleRoute sr = new SingleRoute(edgeList);
+
+        Assertions.assertEquals(pointCreator(1, 0).toString(), sr.pointClosestTo(pointCreator(1, 1)).point().toString());
+        Assertions.assertEquals(pointCreator(0, 0).toString(), sr.pointClosestTo(pointCreator(0, 0)).point().toString());
+        Assertions.assertEquals(pointCreator(2, 2).toString(), sr.pointClosestTo(pointCreator(2, 2)).point().toString());
+        Assertions.assertEquals(pointCreator(2, 0).toString(), sr.pointClosestTo(pointCreator(2, 0)).point().toString());
+        Assertions.assertEquals(pointCreator(2, 2).toString(), sr.pointClosestTo(pointCreator(1000, 1000)).point().toString());
+
+    }
+
+    private PointCh pointCreator(int e, int n)
+    {
+        return new PointCh(SwissBounds.MIN_E + e, SwissBounds.MIN_N + n);
     }
 }
