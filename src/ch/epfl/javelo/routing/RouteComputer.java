@@ -26,7 +26,7 @@ public final class RouteComputer {
 
         Preconditions.checkArgument(startNodeId != endNodeId);
 
-        record WeightedNode(int nodeId, double distance)
+        record WeightedNode(int nodeId, double distance) //Dans les conseils de prog, ils use float pour la distance :/
                 implements Comparable<WeightedNode> {
             @Override
             public int compareTo(WeightedNode that) {
@@ -35,7 +35,8 @@ public final class RouteComputer {
         }
 
         double[] distances = new double[graph.nodeCount()];
-        int[] predecessors = new int[graph.nodeCount()];
+        int[] predecessors = new int[graph.nodeCount()];// Quand tu vas passer sur toutes la suisse les
+        //10 millions de nodes à mettre dans le tableau ça va etre complique, guigui a dit de revoir ça, tu peux faire mieu :/
         fill(distances, 0, distances.length, Double.POSITIVE_INFINITY);
         distances[startNodeId] = 0;
 
@@ -95,9 +96,13 @@ public final class RouteComputer {
                 }
             }
             edgesForRoute.add(Edge.of(graph, edgeId, predecessors[currentNode], currentNode));
+            //Ici guigui pense que tas fait ton graphe dans le sens inverse parceque
+            // quand tu prend le truc de predecessors bah tu le mets au debut du graphe alors que c'est la
+            //derniere edge(ou un truc du genre)
             currentNode = predecessors[currentNode];
         }
         return new SingleRoute(edgesForRoute);
+        //La on a le mm itineraire mais partant dans le sens inverse
     }
 
 

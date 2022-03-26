@@ -1,12 +1,21 @@
 package ch.epfl.javelo.routing;
 
+import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.util.Locale;
 
 public final class KmlPrinter {
+    public static void main(String[] args) throws IOException {
+        Graph g = Graph.loadFrom(Path.of("lausanne"));
+        CostFunction cf = new CityBikeCF(g);
+        RouteComputer rc = new RouteComputer(g, cf);
+        Route r = rc.bestRouteBetween(159049, 117669);
+        write("javelo.kml", r);
+    }
     private static final String KML_HEADER =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                     "<kml xmlns=\"http://www.opengis.net/kml/2.2\"\n" +
