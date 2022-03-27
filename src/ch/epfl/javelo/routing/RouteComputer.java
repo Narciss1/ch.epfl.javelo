@@ -46,7 +46,7 @@ public final class RouteComputer {
         HashSet<Integer> explorating = new HashSet<>();
         explorating.add(startNodeId);
 
-        while (!explorating.isEmpty()) {
+        while (!exploring.isEmpty()) {
 
             int currentNode = currentNode(distances, explorating);
             explorating.remove(currentNode);
