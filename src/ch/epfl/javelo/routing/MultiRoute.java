@@ -3,6 +3,7 @@ package ch.epfl.javelo.routing;
 import ch.epfl.javelo.projection.PointCh;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static ch.epfl.javelo.Math2.clamp;
@@ -108,6 +109,9 @@ public final class MultiRoute implements Route{
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint closestPoint = RoutePoint.NONE;
+        for (int i = 0; i < segments.size(); ++i) {
+            System.out.println(segments.get(i).edges());
+        }
         for (int i = 0; i < segments.size(); ++i) {
             RoutePoint newClosePoint = segments.get(i).pointClosestTo(point);
             closestPoint = closestPoint.min(newClosePoint);
