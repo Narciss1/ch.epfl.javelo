@@ -87,11 +87,6 @@ public final class RouteComputer {
         return new SingleRoute(edgesForRoute);
     }
 
-
-
-
-
-
     private int currentNode (float[] distances, HashSet<Integer> explorating){
         double distanceToKeep = Double.POSITIVE_INFINITY;
         int nodeToKeep = 0;
