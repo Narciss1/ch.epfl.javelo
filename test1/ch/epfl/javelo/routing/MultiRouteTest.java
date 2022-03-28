@@ -280,30 +280,38 @@ public class MultiRouteTest {
     @Test
     public void pointClosestToTest(){
         MultiRoute m = multiRouteConstructorForTest();
+        //itinéraire horizontal
         //Cas normal
         PointCh point0 = new PointCh(SwissBounds.MIN_E + 5, SwissBounds.MIN_N + 1);
         PointCh expected0 = new PointCh(SwissBounds.MIN_E + 5, SwissBounds.MIN_N);
         PointCh actual0 = m.pointClosestTo(point0).point();
         assertEquals(expected0, actual0);
-       /* //Cas sup à la length
-        RoutePoint expected1 = 8;
-        RoutePoint actual1 = m.pointClosestTo(SwissBounds.MIN_E + 5);
+        //Cas point.e() sup à length
+        PointCh point1 = new PointCh(SwissBounds.MIN_E + 40, SwissBounds.MIN_N + 40);
+        PointCh expected1 = new PointCh(SwissBounds.MIN_E + 28, SwissBounds.MIN_N);
+        PointCh actual1 = m.pointClosestTo(point1).point();
         assertEquals(expected1, actual1);
-        //Cas position négative
-        RoutePoint expected2 = 0;
-        RoutePoint actual2 = m.pointClosestTo(-30);
+        //Cas point en dessus du premier de l'itinéraire
+        PointCh point2 = new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N + 40);
+        PointCh expected2 = new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N);
+        PointCh actual2 = m.pointClosestTo(point2).point();
         assertEquals(expected2, actual2);
-        //Cas position nulle
-        RoutePoint expected3 = expected2;
-        RoutePoint actual3 = m.pointClosestTo(0);
-        assertEquals(expected3, actual3);
-        //Cas position = length
-        RoutePoint expected4 = expected1;
-        RoutePoint actual4 = m.pointClosestTo(35.0);
-        assertEquals(expected4, actual4);
+        //Cas point en dessus du dernier de l'itinéraire
+        PointCh point3 = new PointCh(SwissBounds.MIN_E + 28, SwissBounds.MIN_N + 40);
+        PointCh expected3 = new PointCh(SwissBounds.MIN_E + 28, SwissBounds.MIN_N);
+        PointCh actual3 = m.pointClosestTo(point3).point();
+        //Ne devrait pas passer: GOOD
+        //assertEquals(expected3, actual3);
         //Cas normal 2.0
-        RoutePoint expected5 = 2;
-        RoutePoint actual5 = m.pointClosestTo(12);
-        assertEquals(expected5, actual5);*/
+        PointCh point4 = new PointCh(SwissBounds.MIN_E + 22, SwissBounds.MIN_N + 40);
+        PointCh expected4 = new PointCh(SwissBounds.MIN_E + 20, SwissBounds.MIN_N);
+        PointCh actual4 = m.pointClosestTo(point4).point();
+        //Ne devrait pas passer: GOOD
+        //assertEquals(expected4, actual4);
+        //Cas point sur l'itinéraire
+        PointCh point5 = new PointCh(SwissBounds.MIN_E + 10, SwissBounds.MIN_N);
+        PointCh expected5 = new PointCh(SwissBounds.MIN_E + 10, SwissBounds.MIN_N);
+        PointCh actual5 = m.pointClosestTo(point5).point();
+        assertEquals(expected5, actual5);
     }
 }
