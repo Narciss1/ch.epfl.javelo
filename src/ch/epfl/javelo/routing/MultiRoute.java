@@ -1,8 +1,10 @@
 package ch.epfl.javelo.routing;
 
+import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static ch.epfl.javelo.Math2.clamp;
@@ -12,6 +14,7 @@ public final class MultiRoute implements Route{
     private final List<Route> segments;
 
     public MultiRoute(List<Route> segments) {
+        Preconditions.checkArgument(!segments.isEmpty());
         this.segments = List.copyOf(segments);
     }
 
