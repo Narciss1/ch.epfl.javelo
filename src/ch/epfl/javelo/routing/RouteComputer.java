@@ -3,7 +3,7 @@ package ch.epfl.javelo.routing;
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.data.Graph;
 
-import java.util.*;
+import java.util.*;   //A eviter ?
 
 import static java.util.Arrays.fill;
 
@@ -19,6 +19,13 @@ public final class RouteComputer {
         this.costFunction = costFunction;
     }
 
+
+    /** calculates the best route between two nodes.
+     *
+     * @param startNodeId the n
+     * @param endNodeId
+     * @return
+     */
     public Route bestRouteBetween(int startNodeId, int endNodeId) {
 
         Preconditions.checkArgument(startNodeId != endNodeId);
@@ -27,44 +34,44 @@ public final class RouteComputer {
                 implements Comparable<WeightedNode> {
             @Override
             public int compareTo(WeightedNode that) {
+
                 return Double.compare(this.distance, that.distance);
             }
         }
 
         float[] distances = new float[graph.nodeCount()];
-        int[] predecessors = new int[graph.nodeCount()];// Quand tu vas passer sur toutes la suisse les
-        //10 millions de nodes à mettre dans le tableau ça va etre complique, guigui a dit de revoir ça, tu peux faire mieu :/
-        fill(distances, 0, distances.length, Float.POSITIVE_INFINITY);
+        Arrays.fill(distances,Float.POSITIVE_INFINITY);
         distances[startNodeId] = 0;
+        int[] predecessors = new int[graph.nodeCount()];
 
         PriorityQueue<WeightedNode> exploring = new PriorityQueue<>();
-        exploring.add(new WeightedNode(startNodeId, distances[startNodeId]));
-
-        HashSet<Integer> explorating = new HashSet<>();
-        explorating.add(startNodeId);
+        exploring.add(new WeightedNode(startNodeId, distances[startNodeId]
+         + distanceBetweenNodes(startNodeId, endNodeId)
+        ));
 
         while (!exploring.isEmpty()) {
 
-            int currentNode = currentNode(distances, explorating);
-            explorating.remove(currentNode);
+            int currentNode = exploring.remove().nodeId;
 
-            int currentNod = exploring.remove().nodeId;
-
-            if (currentNod == endNodeId) {
+            if (currentNode == endNodeId) {
                 return constructRoute(predecessors, startNodeId, endNodeId);
             }
 
-            for (int i = 0; i < graph.nodeOutDegree(currentNode); ++i){
-                int targetNode = graph.edgeTargetNodeId(graph.nodeOutEdgeId(currentNode, i));
-                float potentialDistance = (float) (distances[currentNode] +
-                        graph.edgeLength(graph.nodeOutEdgeId(currentNode, i)) *
-                        costFunction.costFactor(currentNode, graph.nodeOutEdgeId(currentNode, i)));
-                if (potentialDistance < distances[targetNode]) {
-                    distances[targetNode] = potentialDistance;
-                    predecessors[targetNode] = currentNode;
-                    explorating.add(targetNode);
-                    exploring.add(new WeightedNode(targetNode, potentialDistance));
+            if (distances[currentNode] != Float.NEGATIVE_INFINITY){
+                for (int i = 0; i < graph.nodeOutDegree(currentNode); ++i){
+                    int edgeId = graph.nodeOutEdgeId(currentNode, i);
+                    int targetNodeId = graph.edgeTargetNodeId(edgeId);
+                    float potentialDistance = (float) (distances[currentNode] +
+                            graph.edgeLength(edgeId) * costFunction.costFactor(currentNode, edgeId));
+                    if (potentialDistance < distances[targetNodeId]) {
+                        distances[targetNodeId] = potentialDistance;
+                        predecessors[targetNodeId] = currentNode;
+                        exploring.add(new WeightedNode(targetNodeId, distances[targetNodeId]
+                                + distanceBetweenNodes(targetNodeId, endNodeId)
+                        ));
+                    }
                 }
+                distances[currentNode] = Float.NEGATIVE_INFINITY;
             }
         }
         return null;
@@ -74,12 +81,11 @@ public final class RouteComputer {
         List<Edge> edgesForRoute = new ArrayList<>();
         int currentNode = endNodeId;
         while (currentNode != startNodeId){
-            int edgeId = -1;
-            for (int i = 0; i < graph.nodeOutDegree(predecessors[currentNode]); ++i){
-                if (graph.edgeTargetNodeId(graph.nodeOutEdgeId(predecessors[currentNode], i)) == currentNode){
-                    edgeId = graph.nodeOutEdgeId(currentNode, i);
-                }
+            int i = 0;
+            while (graph.edgeTargetNodeId(graph.nodeOutEdgeId(predecessors[currentNode], i)) != currentNode){
+                ++i;
             }
+            int edgeId = graph.nodeOutEdgeId(currentNode, i);
             edgesForRoute.add(Edge.of(graph, edgeId, predecessors[currentNode], currentNode));
             currentNode = predecessors[currentNode];
         }
@@ -89,19 +95,12 @@ public final class RouteComputer {
 
 
 
+    //On retourne un double ou un float ?
+    //Est-ce mieux de mettre le gros calcul comme ça ou d'abord de stocker les
+    //PointCh qlq part ?
 
-
-
-    private int currentNode (float[] distances, HashSet<Integer> explorating){
-        double distanceToKeep = Double.POSITIVE_INFINITY;
-        int nodeToKeep = 0;
-        for (Integer node : explorating){
-            if (distances[node] <= distanceToKeep){
-                distanceToKeep = distances[node];
-                nodeToKeep = node;
-            }
-        }
-        return nodeToKeep;
+    private float distanceBetweenNodes(int targetNodeId, int endNodeId) {
+        return (float) graph.nodePoint(targetNodeId).distanceTo(graph.nodePoint(endNodeId));
     }
 
 }
