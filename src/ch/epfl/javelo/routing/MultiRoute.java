@@ -2,6 +2,7 @@ package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
+import jdk.swing.interop.SwingInterOpUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,8 @@ public final class MultiRoute implements Route{
             }
             previousIndex += segments.get(i).indexOfSegmentAt(length) + 1;
         }
-        return previousIndex + segments.get(segments.size() - 1).indexOfSegmentAt(newPosition);
+        //Tester pour mieux comprendre
+        return previousIndex - 1;
     }
 
     @Override
@@ -111,9 +113,11 @@ public final class MultiRoute implements Route{
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint closestPoint = RoutePoint.NONE;
+        double segmentsLength = 0d;
         for (int i = 0; i < segments.size(); ++i) {
             RoutePoint newClosePoint = segments.get(i).pointClosestTo(point);
-            closestPoint = closestPoint.min(newClosePoint);
+            closestPoint = closestPoint.min(newClosePoint.withPositionShiftedBy(segmentsLength));
+            segmentsLength += segments.get(i).length();
         }
         return closestPoint;
     }
