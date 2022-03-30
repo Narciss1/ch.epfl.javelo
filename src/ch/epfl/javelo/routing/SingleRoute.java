@@ -146,9 +146,7 @@ public final class SingleRoute implements Route {
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint closestPoint = RoutePoint.NONE;
-        double newPosition = 0;
-        double edgesLength = 0;
-        int i = 0;
+        double newPosition = 0, edgesLength = 0, i = 0;
         for (Edge edge : edges) {
             ++i;
             newPosition = clamp(0, edge.positionClosestTo(point), edge.length());
