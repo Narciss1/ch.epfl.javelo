@@ -44,7 +44,7 @@ public final class RouteComputer {
 
         PriorityQueue<WeightedNode> exploring = new PriorityQueue<>();
         exploring.add(new WeightedNode(startNodeId, distances[startNodeId]
-                + distanceBetweenNodes(startNodeId, endNodeId)
+                //+ distanceBetweenNodes(startNodeId, endNodeId)
         ));
 
         while (!exploring.isEmpty()) {
@@ -67,7 +67,7 @@ public final class RouteComputer {
                         distances[targetNodeId] = potentialDistance;
                         predecessors[targetNodeId] = currentNode;
                         exploring.add(new WeightedNode(targetNodeId, distances[targetNodeId]
-                                + distanceBetweenNodes(targetNodeId, endNodeId)
+                                //+ distanceBetweenNodes(targetNodeId, endNodeId)
                         ));
                     }
                 }

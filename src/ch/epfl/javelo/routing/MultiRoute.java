@@ -56,14 +56,20 @@ public final class MultiRoute implements Route{
 
     @Override
     public List<PointCh> points() {
+        //Is set a better choice?
         List<PointCh> points = new ArrayList<>();
         for (int i = 0; i < segments.size(); ++i) {
-            if(points.isEmpty()){
-                points.addAll(segments.get(i).points());
-            } else {
+            //if(points.isEmpty()){
+                //points.addAll(segments.get(i).points());
+                for(PointCh point : segments.get(i).points()){
+                    if(!points.contains(point)){
+                        points.add(point);
+                    }
+                }
+           /* } else {
                 points.remove(points.size() - 1);
                 points.addAll(segments.get(i).points());
-            }
+            }*/
         }
         return points;
     }

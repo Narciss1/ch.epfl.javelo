@@ -107,13 +107,11 @@ public final class SingleRoute implements Route {
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex < 0) {
             return edges.get(edgeIndex).elevationAt(position - positionAllNodes.get(edgeIndex));
-        } else {
-            if (nodeIndex >= 0 && nodeIndex < edges.size()) {
+        } else if (nodeIndex >= 0 && nodeIndex < edges.size()) {
                 return edges.get(nodeIndex).elevationAt(0);
             } else {
                 return edges.get(nodeIndex - 1).elevationAt(edges.get(nodeIndex - 1).length());
             }
-        }
     }
 
     /**
