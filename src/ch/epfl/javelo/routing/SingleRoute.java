@@ -70,6 +70,7 @@ public final class SingleRoute implements Route {
     @Override
     public List<PointCh> points() {
         List<PointCh> points = new ArrayList<>();
+        //est ce que je dois verifier if all contains?
         for (int i = 0; i < edges.size(); ++i) {
             points.add(edges.get(i).fromPoint());
         }

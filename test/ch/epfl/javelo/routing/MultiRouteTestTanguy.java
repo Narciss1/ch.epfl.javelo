@@ -234,7 +234,7 @@ public class MultiRouteTestTanguy {
         PointCh p4 = new PointCh(p3.e(), p3.n() + EDGE_LENGTH + EDGE_LENGTH);
         System.out.println(p4.e() + EDGE_LENGTH + EDGE_LENGTH);
         System.out.println(p2.e());
-        PointCh p5 = new PointCh(p4.e() + EDGE_LENGTH + EDGE_LENGTH, p2.e());
+        PointCh p5 = new PointCh(p4.e() + EDGE_LENGTH + EDGE_LENGTH, p2.n());
 
         Edge e0 = new Edge(0, 1, origin, p1, p1.distanceTo(origin), Functions.constant(NaN));
         Edge e1 = new Edge(1, 2, p1, p2 , p2.distanceTo(p1), Functions.constant(NaN));
