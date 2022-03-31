@@ -147,7 +147,8 @@ public final class Graph {
      * @param edgeId identity of a certain edge
      * @return the length of the given identity edge
      */
-    public double edgeLength(int edgeId) { return edges.length(edgeId); }
+    public double edgeLength(int edgeId) {
+        return edges.length(edgeId); }
 
     /**
      * Calculates the total elevation gain of an edge

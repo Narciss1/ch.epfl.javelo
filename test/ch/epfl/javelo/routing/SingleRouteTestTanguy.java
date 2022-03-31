@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Double.isNaN;
+import static java.lang.Math.sqrt;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -277,4 +278,38 @@ public class SingleRouteTestTanguy {
         assertEquals(rp.position(), s.pointClosestTo(p).position(), 1e-2);
         assertEquals(rp.distanceToReference(), s.pointClosestTo(p).distanceToReference());
     }
+
+    //Last test added that i didnt run
+    /*@Test
+    public void pointClosestToWorksOnDiagonalItinerary2() {
+        PointCh p = new PointCh(SwissBounds.MIN_E + 220, SwissBounds.MIN_N + 350);
+        PointCh pp = new PointCh(SwissBounds.MIN_E + 285, SwissBounds.MIN_N + 285);
+
+        RoutePoint rp = new RoutePoint(pp, 403, 92);
+
+        System.out.println((new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N).distanceTo(pp)));
+
+        Edge e0 = new Edge(0,1,new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), new PointCh(SwissBounds.MIN_E + 100, SwissBounds.MIN_N + 100),100sqrt(2), Functions.constant(Double.NaN));
+        Edge e1 = new Edge(1,2,new PointCh(SwissBounds.MIN_E + 100, SwissBounds.MIN_N + 100), new PointCh(SwissBounds.MIN_E + 200, SwissBounds.MIN_N + 200),100sqrt(2), Functions.constant(Double.NaN));
+        Edge e2 = new Edge(2,3,new PointCh(SwissBounds.MIN_E + 200, SwissBounds.MIN_N + 200),
+                new PointCh(SwissBounds.MIN_E + 300, SwissBounds.MIN_N + 300),100sqrt(2),
+                Functions.constant(Double.NaN));
+        Edge e3 = new Edge(4,5,new PointCh(SwissBounds.MIN_E + 300, SwissBounds.MIN_N + 300),
+                new PointCh(SwissBounds.MIN_E + 400, SwissBounds.MIN_N + 400),100sqrt(2),
+                Functions.constant(Double.NaN));
+        Edge e4 = new Edge(5,6,new PointCh(SwissBounds.MIN_E + 400, SwissBounds.MIN_N + 400),
+                new PointCh(SwissBounds.MIN_E + 500, SwissBounds.MIN_N + 500),100*sqrt(2),
+                Functions.constant(Double.NaN));
+        List<Edge> l = new ArrayList<>();
+        l.add(e0);
+        l.add(e1);
+        l.add(e2);
+        l.add(e3);
+        l.add(e4);
+        SingleRoute s = new SingleRoute(l);
+        assertEquals(rp.point(), s.pointClosestTo(p).point());
+        assertEquals(rp.position(), s.pointClosestTo(p).position(), 1);
+        assertEquals(rp.distanceToReference(), s.pointClosestTo(p).distanceToReference(), 1);
+    }*/
+
 }
