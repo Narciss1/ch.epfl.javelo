@@ -331,4 +331,45 @@ public class MultiRouteTestLesBoss {
     {
         return new PointCh(SwissBounds.MIN_E + e, SwissBounds.MIN_N + n);
     }
+
+    @Test
+    public void indexOf()
+    {
+        MultiRoute mr1 = new MultiRoute(new ArrayList<Route>(Arrays.asList(
+                new SingleRoute(new ArrayList<>(
+                        Arrays.asList(
+                                new Edge(3, 4, null, null, 100, null),
+                                new Edge(4, 4, null, null, 100, null))
+                )
+                ),
+                new SingleRoute(new ArrayList<>(
+                        Arrays.asList(
+                                new Edge(3, 4, null, null, 100, null),
+                                new Edge(4, 4, null, null, 100, null))
+                )
+                )
+        )));
+        MultiRoute mr2 = new MultiRoute(new ArrayList<Route>(Arrays.asList(
+                new SingleRoute(new ArrayList<>(
+                        Arrays.asList(
+                                new Edge(3, 4, null, null, 100, null),
+                                new Edge(4, 4, null, null, 100, null))
+                )
+                )
+                ,
+                new SingleRoute(new ArrayList<>(
+                        Arrays.asList(
+                                new Edge(3, 4, null, null, 100, null),
+                                new Edge(4, 4, null, null, 100, null))
+                )
+                ), mr1
+
+        )));
+        System.out.println(mr2.indexOfSegmentAt(-1));
+        System.out.println(mr2.indexOfSegmentAt(0));
+        System.out.println(mr2.indexOfSegmentAt(201));
+        System.out.println(mr2.indexOfSegmentAt(401));
+        System.out.println(mr2.indexOfSegmentAt(601));
+        System.out.println(mr2.indexOfSegmentAt(600001));
+}
 }

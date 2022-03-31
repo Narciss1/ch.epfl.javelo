@@ -118,8 +118,6 @@ public final class RouteComputer {
         return new SingleRoute(edgesForRoute);
     }
 
-
-
     //On retourne un double ou un float ?
     //Est-ce mieux de mettre le gros calcul comme ça ou d'abord de stocker les
     //PointCh qlq part ?
