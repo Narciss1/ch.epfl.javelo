@@ -3,9 +3,7 @@ package ch.epfl.javelo.routing;
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.data.Graph;
 
-import java.util.*;   //A eviter ?
-
-import static java.util.Arrays.fill;
+import java.util.*;
 
 public final class RouteComputer {
 
@@ -54,6 +52,8 @@ public final class RouteComputer {
             int currentNode = exploring.remove().nodeId;
 
             if (currentNode == endNodeId) {
+                Route route = constructRoute(predecessors, startNodeId, endNodeId);
+                System.out.println(route.length());
                 return constructRoute(predecessors, startNodeId, endNodeId);
             }
 
@@ -77,19 +77,44 @@ public final class RouteComputer {
         return null;
     }
 
+    /** Constructs the Route by finding its edges using predecessors array.
+     *
+     * @param predecessors
+     * @param startNodeId
+     * @param endNodeId
+     * @return
+     */
     private Route constructRoute(int[] predecessors, int startNodeId, int endNodeId){
         List<Edge> edgesForRoute = new ArrayList<>();
         int currentNode = endNodeId;
+        int edgeId;
         while (currentNode != startNodeId){
             int i = 0;
             while (graph.edgeTargetNodeId(graph.nodeOutEdgeId(predecessors[currentNode], i)) != currentNode){
                 ++i;
             }
-            int edgeId = graph.nodeOutEdgeId(currentNode, i);
+            edgeId = graph.nodeOutEdgeId(predecessors[currentNode], i);
+            //System.out.println(edgeId);
             edgesForRoute.add(Edge.of(graph, edgeId, predecessors[currentNode], currentNode));
             currentNode = predecessors[currentNode];
         }
+
+//        List<Edge> listEdges = new ArrayList<>();
+//        int nodeId = endNodeId;
+//        int edgeId;
+//        while (nodeId != startNodeId) {
+//            for (int i = 0; i < graph.nodeOutDegree(predecessors[nodeId]); i++) {
+//                edgeId = graph.nodeOutEdgeId(predecessors[nodeId], i);
+//                if (graph.edgeTargetNodeId(edgeId) == nodeId) {
+//                    listEdges.add(Edge.of(graph, edgeId, predecessors[nodeId], nodeId));
+//                    System.out.println(edgeId);
+//                    break;
+//                }
+//            }
+//            nodeId = predecessors[nodeId];
+//        }
         Collections.reverse(edgesForRoute);
+        //System.out.println(edgesForRoute.size());
         return new SingleRoute(edgesForRoute);
     }
 
@@ -97,6 +122,12 @@ public final class RouteComputer {
     //Est-ce mieux de mettre le gros calcul comme ça ou d'abord de stocker les
     //PointCh qlq part ?
 
+    /** Calculates the distance between a poten
+     *
+     * @param targetNodeId
+     * @param endNodeId
+     * @return the distance between
+     */
     private float distanceBetweenNodes(int targetNodeId, int endNodeId) {
         return (float) graph.nodePoint(targetNodeId).distanceTo(graph.nodePoint(endNodeId));
     }
