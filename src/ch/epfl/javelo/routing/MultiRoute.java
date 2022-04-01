@@ -2,12 +2,8 @@ package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
-import jdk.swing.interop.SwingInterOpUtils;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
 import static ch.epfl.javelo.Math2.clamp;
 
 public final class MultiRoute implements Route{
@@ -63,7 +59,7 @@ public final class MultiRoute implements Route{
      */
     @Override
     public List<Edge> edges() {
-        List<Edge> edges= new ArrayList<Edge>();
+        List<Edge> edges= new ArrayList<>();
         for (Route route: segments) {
             edges.addAll(route.edges());
         }
@@ -94,7 +90,7 @@ public final class MultiRoute implements Route{
      */
     @Override
     public PointCh pointAt(double position) {
-        position = clamp(0, position, this.length());
+        position = clamp(0, position, length());
         double length = 0;
         for(Route route: segments) {
             position -= length;
@@ -114,7 +110,7 @@ public final class MultiRoute implements Route{
      */
     @Override
     public double elevationAt(double position) {
-        position = clamp(0, position, this.length());
+        position = clamp(0, position, length());
         double length = 0;
         for(Route route: segments){
             position -= length;
@@ -134,7 +130,7 @@ public final class MultiRoute implements Route{
      */
     @Override
     public int nodeClosestTo(double position) {
-        position = clamp(0, position, this.length());
+        position = clamp(0, position, length());
         double length = 0;
         for(Route route: segments){
             position -= length;

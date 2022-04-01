@@ -2,13 +2,8 @@ package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
-import jdk.swing.interop.SwingInterOpUtils;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
 import static ch.epfl.javelo.Math2.clamp;
 import static java.util.Collections.binarySearch;
 
@@ -87,9 +82,8 @@ public final class SingleRoute implements Route {
         int edgeIndex = -nodeIndex - 2;
         if(nodeIndex < 0) {
             return edges.get(edgeIndex).pointAt(position - positionAllNodes.get(edgeIndex));
-        } else {
-            return points().get(nodeIndex);
         }
+        return points().get(nodeIndex);
     }
 
     /**
@@ -105,11 +99,11 @@ public final class SingleRoute implements Route {
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex < 0) {
             return edges.get(edgeIndex).elevationAt(position - positionAllNodes.get(edgeIndex));
-        } else if (nodeIndex >= 0 && nodeIndex < edges.size()) {
-                return edges.get(nodeIndex).elevationAt(0);
-            } else {
-                return edges.get(nodeIndex - 1).elevationAt(edges.get(nodeIndex - 1).length());
-            }
+        }
+        if (nodeIndex < edges.size()) {
+            return edges.get(nodeIndex).elevationAt(0);
+        }
+        return edges.get(nodeIndex - 1).elevationAt(edges.get(nodeIndex - 1).length());
     }
 
     /**
@@ -125,13 +119,11 @@ public final class SingleRoute implements Route {
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex < 0) {
             return closestNode(position, edgeIndex, positionAllNodes);
-        } else {
-            if (nodeIndex >= 0 && nodeIndex < edges.size()) {
-                return edges.get(nodeIndex).fromNodeId();
-            } else {
-                return edges.get(nodeIndex - 1).toNodeId();
-            }
         }
+        if (nodeIndex < edges.size()) {
+            return edges.get(nodeIndex).fromNodeId();
+        }
+        return edges.get(nodeIndex - 1).toNodeId();
     }
 
     /**
@@ -177,8 +169,7 @@ public final class SingleRoute implements Route {
         double secondDistance = positionAllNodes.get(edgeIndex + 1) - position;
         if(firstDistance <= secondDistance) {
             return edges.get(edgeIndex).fromNodeId();
-        } else {
-            return edges.get(edgeIndex).toNodeId();
         }
+        return edges.get(edgeIndex).toNodeId();
     }
 }

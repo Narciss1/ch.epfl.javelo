@@ -11,9 +11,7 @@ public final class WebMercator {
      * @param lon the longitude of a point
      * @return the coordinate x of the point
      */
-    public static double x(double lon){
-        return (1.0/(2.0*Math.PI))*(lon + Math.PI);
-    }
+    public static double x(double lon) { return (1.0 / (2.0 * Math.PI)) * (lon + Math.PI);}
 
     /**
      * Calculates the coordinate y of the projection of a point at latitude lat, given in radians
@@ -21,7 +19,7 @@ public final class WebMercator {
      * @return the coordinate y of the point
      */
     public static double y(double lat){
-        return (1.0/(2.0*Math.PI))*(Math.PI - Math2.asinh(Math.tan(lat)));
+        return (1.0 / (2.0 * Math.PI)) * (Math.PI - Math2.asinh(Math.tan(lat)));
     }
 
     /**
@@ -30,7 +28,7 @@ public final class WebMercator {
      * @return the longitude in radians
      */
     public static double lon(double x){
-        return 2.0*Math.PI*x - Math.PI;
+        return 2.0 * Math.PI * x - Math.PI;
     }
 
     /**
@@ -39,7 +37,6 @@ public final class WebMercator {
      * @return the latitude in radians
      */
     public static double lat(double y){
-        return Math.atan(Math.sinh(Math.PI - 2.0*Math.PI*y));
+        return Math.atan(Math.sinh(Math.PI - 2.0 * Math.PI * y));
     }
-
 }

@@ -11,11 +11,8 @@ import java.nio.ShortBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
-
-import static javax.swing.UIManager.get;
 
 public final class Graph {
 
@@ -39,11 +36,10 @@ public final class Graph {
     }
 
     /**
-     * Finds the JaVelo graph obtained from the files located in a directory or throws
+     * Finds the graph obtained from the files located in a directory or throws
      * IOException in case of an input/output error
      * @param basePath path of the directory
-     * @return the JaVelo graph obtained from the files located in the directory
-     * @throws IOException
+     * @return the graph obtained from the files located in the directory
      */
     public static Graph loadFrom(Path basePath) throws IOException {
        IntBuffer nodesBuffer = fileBuffer(basePath, "nodes.bin").asIntBuffer();
@@ -165,7 +161,6 @@ public final class Graph {
      * @param basePath path of the directory
      * @param string name of the file
      * @return a buffer of type ByteBuffer
-     * @throws IOException
      */
     private static ByteBuffer fileBuffer(Path basePath, String string) throws IOException {
         Path stringPath = basePath.resolve(string);

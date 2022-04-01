@@ -9,7 +9,6 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Compact constructor
-     *
      * @param x a coordinate of the point
      * @param y a coordinate of the point
      */
@@ -43,7 +42,7 @@ public record PointWebMercator(double x, double y) {
      * Calculates the coordinate x in the zoom level given
      *
      * @param zoomLevel level of zooming of the map
-     * @return the new coordiante x
+     * @return the new coordinate x
      */
     public double xAtZoomLevel(int zoomLevel) {
         return Math.scalb(x, 8 + zoomLevel);
@@ -53,7 +52,7 @@ public record PointWebMercator(double x, double y) {
      * Calculates the coordinate y in the zoom level given
      *
      * @param zoomLevel level of zooming of the map
-     * @return the new coordiante y
+     * @return the new coordinate y
      */
     public double yAtZoomLevel(int zoomLevel) {
         return Math.scalb(y, 8 + zoomLevel);
@@ -61,7 +60,6 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Calculates the longitude of a point given its coordinate x
-     *
      * @return the longitude in radians
      */
     public double lon() {
@@ -70,7 +68,6 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Calculates the latitude of a point given its coordinate y
-     *
      * @return the latitude in radians
      */
     public double lat() {
@@ -86,9 +83,8 @@ public record PointWebMercator(double x, double y) {
         double n = n(WebMercator.lon(this.x), WebMercator.lat(this.y));
         if (containsEN(e, n)) {
             return new PointCh(e, n);
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**
