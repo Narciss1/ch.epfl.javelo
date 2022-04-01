@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import static ch.epfl.javelo.Math2.clamp;
 
-public final class MultiRoute implements Route{
+public final class MultiRoute implements Route {
 
     private final List<Route> segments;
 
@@ -165,5 +165,7 @@ public final class MultiRoute implements Route{
      * @param length a given length
      * @return true if the position's value is between 0 and the length and false otherwise
      */
-    private boolean rightRange(double position, double length) { return position >= 0 && position <= length;}
+    private boolean rightRange(double position, double length) {
+        return position >= 0 && position <= length;
+    }
 }

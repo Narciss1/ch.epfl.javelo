@@ -1,5 +1,6 @@
 package ch.epfl.javelo.projection;
 
+import static ch.epfl.javelo.Preconditions.checkArgument;
 import static ch.epfl.javelo.projection.SwissBounds.containsEN;
 
 public record PointCh(double e, double n) {
@@ -10,9 +11,7 @@ public record PointCh(double e, double n) {
      * @param n north coordinate of the point
      */
     public PointCh {
-        //Precondition
-        if (!containsEN(e, n)){
-            throw new IllegalArgumentException();}
+        checkArgument(containsEN(e, n));
     }
 
     /**

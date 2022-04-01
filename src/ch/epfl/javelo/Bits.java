@@ -18,8 +18,7 @@ public final class Bits {
     public static int extractSigned(int value, int start, int length){
         int x = Integer.SIZE - length;
         checkArgument(start >= 0 && start <= 31 && length >= 1 && 0 <= x && x-start >= 0);
-        int newValue = (value << (x - start)) >> (x);
-        return newValue;
+        return (value << (x - start)) >> (x);
     }
 
     /**
@@ -34,7 +33,6 @@ public final class Bits {
     public static int extractUnsigned(int value, int start, int length){
         int x = Integer.SIZE - length;
         checkArgument(start >= 0 && start <= 31 && length >= 1 && 0 < x && x-start >= 0);
-        int newValue = (value << (x - start)) >>> (x);
-        return newValue;
+        return (value << (x - start)) >>> (x);
     }
 }
