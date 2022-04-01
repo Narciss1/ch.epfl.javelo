@@ -1,5 +1,6 @@
 package ch.epfl.javelo.routing;
 
+import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 import jdk.swing.interop.SwingInterOpUtils;
 
@@ -21,13 +22,10 @@ public final class SingleRoute implements Route {
      * @param edges a given list of edges
      */
     public SingleRoute(List<Edge> edges) {
-        if (edges.isEmpty()) {
-            throw new IllegalArgumentException();
-        } else {
+        Preconditions.checkArgument(!edges.isEmpty());
             this.edges = List.copyOf(edges);
             positionAllNodes = new ArrayList<>();
             positionAllNodes = positionAllNodes();
-        }
     }
 
     /**
@@ -48,8 +46,8 @@ public final class SingleRoute implements Route {
     @Override
     public double length() {
         double length = 0;
-        for (int i = 0; i < edges.size(); ++i) {
-            length += edges.get(i).length();
+        for (Edge edge : edges) {
+            length += edge.length();
         }
         return length;
     }
@@ -70,8 +68,8 @@ public final class SingleRoute implements Route {
     @Override
     public List<PointCh> points() {
         List<PointCh> points = new ArrayList<>();
-        for (int i = 0; i < edges.size(); ++i) {
-            points.add(edges.get(i).fromPoint());
+        for (Edge edge : edges) {
+            points.add(edge.fromPoint());
         }
         points.add(edges.get(edges.size() - 1).toPoint());
         return points;
@@ -107,13 +105,11 @@ public final class SingleRoute implements Route {
         int edgeIndex = -nodeIndex - 2;
         if (nodeIndex < 0) {
             return edges.get(edgeIndex).elevationAt(position - positionAllNodes.get(edgeIndex));
-        } else {
-            if (nodeIndex >= 0 && nodeIndex < edges.size()) {
+        } else if (nodeIndex >= 0 && nodeIndex < edges.size()) {
                 return edges.get(nodeIndex).elevationAt(0);
             } else {
                 return edges.get(nodeIndex - 1).elevationAt(edges.get(nodeIndex - 1).length());
             }
-        }
     }
 
     /**
@@ -146,9 +142,9 @@ public final class SingleRoute implements Route {
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint closestPoint = RoutePoint.NONE;
-        double newPosition = 0, edgesLength = 0, i = 0;
+        double edgesLength = 0;
         for (Edge edge : edges) {
-            newPosition = clamp(0, edge.positionClosestTo(point), edge.length());
+            double newPosition = clamp(0, edge.positionClosestTo(point), edge.length());
             closestPoint = closestPoint.min(edge.pointAt(newPosition), edgesLength + newPosition, point.distanceTo(edge.pointAt(newPosition)));
             edgesLength += edge.length();
         }
@@ -162,8 +158,8 @@ public final class SingleRoute implements Route {
     private List<Double> positionAllNodes() {
         double length = 0;
         positionAllNodes.add(length);
-        for (int i = 0; i < edges.size(); ++i) {
-            length += edges.get(i).length();
+        for (Edge edge : edges) {
+            length += edge.length();
             positionAllNodes.add(length);
         }
         return positionAllNodes;

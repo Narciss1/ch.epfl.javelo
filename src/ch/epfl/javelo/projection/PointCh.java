@@ -10,6 +10,7 @@ public record PointCh(double e, double n) {
      * @param n north coordinate of the point
      */
     public PointCh {
+        //Precondition
         if (!containsEN(e, n)){
             throw new IllegalArgumentException();}
     }

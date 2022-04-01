@@ -57,7 +57,6 @@ public final class Graph {
        for(int i = 0; i < attributesBuffer.capacity(); i++) {
            attributeSetsBuffer.add(new AttributeSet(attributesBuffer.get(i)));
        }
-
        return new Graph(new GraphNodes(nodesBuffer), new GraphSectors(sectorsBuffer),
                new GraphEdges(edgesBuffer, profileIdsBuffer, elevationsBuffer), attributeSetsBuffer);
     }
@@ -66,7 +65,7 @@ public final class Graph {
      * Calculates the total number of nodes in the graph
      * @return total number of nodes in the graph
      */
-   public int nodeCount(){ return nodes.count(); }
+   public int nodeCount() { return nodes.count();}
 
     /**
      * Calculates the position of a node
@@ -80,9 +79,7 @@ public final class Graph {
      * @param nodeId identity of a certain node
      * @return the number of edges leaving the given identity node
      */
-   public int nodeOutDegree(int nodeId){
-       return nodes.outDegree(nodeId);
-   }
+   public int nodeOutDegree(int nodeId) { return nodes.outDegree(nodeId);}
 
     /**
      * Calculates the identity of the edgeIndex-th edge outgoing from a node,
@@ -90,9 +87,7 @@ public final class Graph {
      * @param edgeIndex index of an edge
      * @return the identity of the edgeIndex-th edge outgoing from the identity node nodeId,
      */
-   public int nodeOutEdgeId(int nodeId, int edgeIndex) {
-       return nodes.edgeId(nodeId, edgeIndex);
-   }
+   public int nodeOutEdgeId(int nodeId, int edgeIndex) { return nodes.edgeId(nodeId, edgeIndex);}
 
     /**
      * Finds the node closest to a given point at a certain distance
@@ -105,8 +100,8 @@ public final class Graph {
        double minDistance = Math.pow(searchDistance, 2);
        int closestNode = -1;
        List<GraphSectors.Sector> closeSectors = sectors.sectorsInArea(point, searchDistance);
-       for(int i = 0; i < closeSectors.size(); i++){
-          for(int j = closeSectors.get(i).startNodeId(); j < closeSectors.get(i).endNodeId(); j++){
+       for(GraphSectors.Sector sector : closeSectors){
+          for(int j = sector.startNodeId(); j < sector.endNodeId(); j++){
               double distance = point.squaredDistanceTo(new PointCh(nodes.nodeE(j), nodes.nodeN(j)));
               if(distance < minDistance){
                   minDistance = distance;
@@ -122,41 +117,35 @@ public final class Graph {
      * @param edgeId identity of a certain edge
      * @return the identity of the destination node of the given identity edge
      */
-    public int edgeTargetNodeId(int edgeId){
-        return edges.targetNodeId(edgeId);
-    }
+    public int edgeTargetNodeId(int edgeId) { return edges.targetNodeId(edgeId);}
 
     /**
      * @param edgeId identity of a certain edge
      * @return returns true iff the given identity edge goes in the opposite direction
      * of the OSM channel it comes from
      */
-    public boolean edgeIsInverted(int edgeId) { return edges.isInverted(edgeId); }
+    public boolean edgeIsInverted(int edgeId) { return edges.isInverted(edgeId);}
 
     /**
      * Finds the set of OSM attributes attached to an edge
      * @param edgeId identity of a certain edge
      * @return the set of OSM attributes attached to the given identity edge
      */
-   public AttributeSet edgeAttributes(int edgeId){
-       return attributeSets.get(edges.attributesIndex(edgeId));
-    }
+   public AttributeSet edgeAttributes(int edgeId) { return attributeSets.get(edges.attributesIndex(edgeId));}
 
     /**
      * Calculates the length of an edge in meters
      * @param edgeId identity of a certain edge
      * @return the length of the given identity edge
      */
-    public double edgeLength(int edgeId) { return edges.length(edgeId); }
+    public double edgeLength(int edgeId) { return edges.length(edgeId);}
 
     /**
      * Calculates the total elevation gain of an edge
      * @param edgeId identity of a certain edge
      * @return the total elevation gain of the given identity edge
      */
-    public double edgeElevationGain(int edgeId){
-        return edges.elevationGain(edgeId);
-    }
+    public double edgeElevationGain(int edgeId) { return edges.elevationGain(edgeId);}
 
     /**
      * Calculates the longitudinal profile of an edge as a function

@@ -44,7 +44,7 @@ public final class RouteComputer {
 
         PriorityQueue<WeightedNode> exploring = new PriorityQueue<>();
         exploring.add(new WeightedNode(startNodeId, distances[startNodeId]
-         + distanceBetweenNodes(startNodeId, endNodeId)
+                //+ distanceBetweenNodes(startNodeId, endNodeId)
         ));
 
         while (!exploring.isEmpty()) {
@@ -53,7 +53,7 @@ public final class RouteComputer {
 
             if (currentNode == endNodeId) {
                 Route route = constructRoute(predecessors, startNodeId, endNodeId);
-                System.out.println(route.length());
+                System.out.println("Distance : " + route.length());
                 return constructRoute(predecessors, startNodeId, endNodeId);
             }
 
@@ -67,7 +67,7 @@ public final class RouteComputer {
                         distances[targetNodeId] = potentialDistance;
                         predecessors[targetNodeId] = currentNode;
                         exploring.add(new WeightedNode(targetNodeId, distances[targetNodeId]
-                                + distanceBetweenNodes(targetNodeId, endNodeId)
+                                //+ distanceBetweenNodes(targetNodeId, endNodeId)
                         ));
                     }
                 }
@@ -113,10 +113,13 @@ public final class RouteComputer {
 //            }
 //            nodeId = predecessors[nodeId];
 //        }
+        System.out.println("Edges number : " + edgesForRoute.size());
         Collections.reverse(edgesForRoute);
         //System.out.println(edgesForRoute.size());
         return new SingleRoute(edgesForRoute);
     }
+
+
 
     //On retourne un double ou un float ?
     //Est-ce mieux de mettre le gros calcul comme ça ou d'abord de stocker les
