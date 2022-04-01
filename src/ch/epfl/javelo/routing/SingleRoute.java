@@ -46,8 +46,8 @@ public final class SingleRoute implements Route {
     @Override
     public double length() {
         double length = 0;
-        for (int i = 0; i < edges.size(); ++i) {
-            length += edges.get(i).length();
+        for (Edge edge : edges) {
+            length += edge.length();
         }
         return length;
     }
@@ -68,9 +68,8 @@ public final class SingleRoute implements Route {
     @Override
     public List<PointCh> points() {
         List<PointCh> points = new ArrayList<>();
-        //est ce que je dois verifier if all contains?
-        for (int i = 0; i < edges.size(); ++i) {
-            points.add(edges.get(i).fromPoint());
+        for (Edge edge : edges) {
+            points.add(edge.fromPoint());
         }
         points.add(edges.get(edges.size() - 1).toPoint());
         return points;
@@ -143,9 +142,9 @@ public final class SingleRoute implements Route {
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint closestPoint = RoutePoint.NONE;
-        double newPosition = 0, edgesLength = 0, i = 0;
+        double edgesLength = 0;
         for (Edge edge : edges) {
-            newPosition = clamp(0, edge.positionClosestTo(point), edge.length());
+            double newPosition = clamp(0, edge.positionClosestTo(point), edge.length());
             closestPoint = closestPoint.min(edge.pointAt(newPosition), edgesLength + newPosition, point.distanceTo(edge.pointAt(newPosition)));
             edgesLength += edge.length();
         }
@@ -159,8 +158,8 @@ public final class SingleRoute implements Route {
     private List<Double> positionAllNodes() {
         double length = 0;
         positionAllNodes.add(length);
-        for (int i = 0; i < edges.size(); ++i) {
-            length += edges.get(i).length();
+        for (Edge edge : edges) {
+            length += edge.length();
             positionAllNodes.add(length);
         }
         return positionAllNodes;

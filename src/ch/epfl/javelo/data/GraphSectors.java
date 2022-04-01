@@ -36,18 +36,7 @@ public record GraphSectors(ByteBuffer buffer) {
      *                     to twice the given distance
      */
     public List<Sector> sectorsInArea(PointCh center, double distance) {
-
         ArrayList<Sector> sectorInArea = new ArrayList<Sector>();
-
-       /* double xMinInter = clamp(MIN_E, center.e() - distance, MAX_E - 1);
-        double xMaxInter = clamp(MIN_E, center.e() + distance, MAX_E - 1);
-        double yMinInter = clamp(MIN_N, center.n() - distance, MAX_N - 1);
-        double yMaxInter = clamp(MIN_N, center.n() + distance, MAX_N - 1);
-
-        int xMin = (int) ((xMinInter - MIN_E)*128 / WIDTH);
-        int xMax = (int) ((xMaxInter - MIN_E)*128 / WIDTH);
-        int yMin = (int) ((yMinInter - MIN_N)*128 / HEIGHT);
-        int yMax = (int) ((yMaxInter - MIN_N)*128 / HEIGHT);*/
 
         double xMinInter = center.e() - distance;
         double xMaxInter = center.e() + distance;
@@ -79,6 +68,5 @@ public record GraphSectors(ByteBuffer buffer) {
      *   startNodeId and the identity of the node located just after the last
      *     node in the sector, which is its index endNodeId.
      */
-    public record Sector(int startNodeId, int endNodeId) {
-    }
+    public record Sector(int startNodeId, int endNodeId) {}
 }

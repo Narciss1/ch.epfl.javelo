@@ -30,18 +30,17 @@ public final class MultiRoute implements Route{
      */
     @Override
     public int indexOfSegmentAt(double position) {
+        position = clamp(0, position, length());
         int previousIndex = 0;
         double length = 0;
-        double newPosition = clamp(0, position, this.length());
-        for(int i = 0; i < segments.size(); ++i){
-            newPosition -= length;
-            length = segments.get(i).length();
-            if(rightRange(newPosition, length)) {
-                return previousIndex + segments.get(i).indexOfSegmentAt(newPosition);
+        for(Route route: segments){
+            position -= length;
+            length = route.length();
+            if(rightRange(position, length)) {
+                return previousIndex + route.indexOfSegmentAt(position);
             }
-            previousIndex += segments.get(i).indexOfSegmentAt(length) + 1;
+            previousIndex += route.indexOfSegmentAt(length) + 1;
         }
-        //Tester pour mieux comprendre
         return previousIndex - 1;
     }
 
@@ -52,8 +51,8 @@ public final class MultiRoute implements Route{
     @Override
     public double length() {
         double length = 0;
-        for (int i = 0; i < segments.size(); ++i) {
-            length += segments.get(i).length();
+        for (Route route: segments) {
+            length += route.length();
         }
         return length;
     }
@@ -65,8 +64,8 @@ public final class MultiRoute implements Route{
     @Override
     public List<Edge> edges() {
         List<Edge> edges= new ArrayList<Edge>();
-        for (int i = 0; i < segments.size(); ++i) {
-            edges.addAll(segments.get(i).edges());
+        for (Route route: segments) {
+            edges.addAll(route.edges());
         }
         return edges;
     }
@@ -78,20 +77,12 @@ public final class MultiRoute implements Route{
      */
     @Override
     public List<PointCh> points() {
-        //Is set a better choice?
         List<PointCh> points = new ArrayList<>();
-        for (int i = 0; i < segments.size(); ++i) {
-            //if(points.isEmpty()){
-                //points.addAll(segments.get(i).points());
-                for(PointCh point : segments.get(i).points()){
-                    if(!points.contains(point)){
-                        points.add(point);
-                    }
-                }
-           /* } else {
+        for (Route route: segments) {
+            if (!points.isEmpty()) {
                 points.remove(points.size() - 1);
-                points.addAll(segments.get(i).points());
-            }*/
+            }
+            points.addAll(route.points());
         }
         return points;
     }
@@ -103,16 +94,16 @@ public final class MultiRoute implements Route{
      */
     @Override
     public PointCh pointAt(double position) {
-        double newPosition = clamp(0, position, this.length());
+        position = clamp(0, position, this.length());
         double length = 0;
-        for(int i = 0; i < segments.size(); ++i){
-            newPosition -= length;
-            length = segments.get(i).length();
-            if(rightRange(newPosition, length)) {
-                return segments.get(i).pointAt(newPosition);
+        for(Route route: segments) {
+            position -= length;
+            length = route.length();
+            if(rightRange(position, length)) {
+                return route.pointAt(position);
             }
         }
-        return segments.get(segments.size() - 1).pointAt(newPosition);
+        return segments.get(segments.size() - 1).pointAt(position);
     }
 
     /**
@@ -123,16 +114,16 @@ public final class MultiRoute implements Route{
      */
     @Override
     public double elevationAt(double position) {
-        double newPosition = clamp(0, position, this.length());
+        position = clamp(0, position, this.length());
         double length = 0;
-        for(int i = 0; i < segments.size(); ++i){
-            newPosition -= length;
-            length = segments.get(i).length();
-            if(rightRange(newPosition, length)) {
-                return segments.get(i).elevationAt(newPosition);
+        for(Route route: segments){
+            position -= length;
+            length = route.length();
+            if(rightRange(position, length)) {
+                return route.elevationAt(position);
             }
         }
-        return segments.get(segments.size() - 1).elevationAt(newPosition);
+        return segments.get(segments.size() - 1).elevationAt(position);
     }
 
     /**
@@ -143,16 +134,16 @@ public final class MultiRoute implements Route{
      */
     @Override
     public int nodeClosestTo(double position) {
-        double newPosition = clamp(0, position, this.length());
+        position = clamp(0, position, this.length());
         double length = 0;
-        for(int i = 0; i < segments.size(); ++i){
-            newPosition -= length;
-            length = segments.get(i).length();
-            if(rightRange(newPosition, length)) {
-                return segments.get(i).nodeClosestTo(newPosition);
+        for(Route route: segments){
+            position -= length;
+            length = route.length();
+            if(rightRange(position, length)) {
+                return route.nodeClosestTo(position);
             }
         }
-        return segments.get(segments.size() - 1).nodeClosestTo(newPosition);
+        return segments.get(segments.size() - 1).nodeClosestTo(position);
     }
 
     /**
@@ -163,11 +154,11 @@ public final class MultiRoute implements Route{
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint closestPoint = RoutePoint.NONE;
-        double segmentsLength = 0d;
-        for (int i = 0; i < segments.size(); ++i) {
-            RoutePoint newClosePoint = segments.get(i).pointClosestTo(point);
+        double segmentsLength = 0;
+        for (Route route: segments) {
+            RoutePoint newClosePoint = route.pointClosestTo(point);
             closestPoint = closestPoint.min(newClosePoint.withPositionShiftedBy(segmentsLength));
-            segmentsLength += segments.get(i).length();
+            segmentsLength += route.length();
         }
         return closestPoint;
     }
@@ -178,10 +169,5 @@ public final class MultiRoute implements Route{
      * @param length a given length
      * @return true if the position's value is between 0 and the length and false otherwise
      */
-    private boolean rightRange(double position, double length){
-        if(position >= 0 && position <= length){
-            return true;
-        }
-        return false;
-    }
+    private boolean rightRange(double position, double length) { return position >= 0 && position <= length;}
 }
