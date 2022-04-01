@@ -190,13 +190,13 @@ public class MultiRouteTestTanguy {
         return works;
     }
 
-    @Test
+  /*  @Test
     void pointWorksOnMultipleIterations() {
         System.out.println("Ce test peut prendre quelques secondes");
         for (int i = 0; i < RANDOM_ITERATIONS; i++) {
             assertTrue(pointsWorks());
         }
-    }
+    }*/
 
     @Test
     void pointAtWorksWithOnlySingleRoutesInSegments() {

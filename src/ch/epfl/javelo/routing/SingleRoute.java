@@ -1,5 +1,6 @@
 package ch.epfl.javelo.routing;
 
+import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 import jdk.swing.interop.SwingInterOpUtils;
 
@@ -21,13 +22,10 @@ public final class SingleRoute implements Route {
      * @param edges a given list of edges
      */
     public SingleRoute(List<Edge> edges) {
-        if (edges.isEmpty()) {
-            throw new IllegalArgumentException();
-        } else {
+        Preconditions.checkArgument(!edges.isEmpty());
             this.edges = List.copyOf(edges);
             positionAllNodes = new ArrayList<>();
             positionAllNodes = positionAllNodes();
-        }
     }
 
     /**
