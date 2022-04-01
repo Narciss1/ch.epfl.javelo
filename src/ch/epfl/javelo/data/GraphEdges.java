@@ -98,7 +98,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
 
     /** Stores in an array the profile samples of an edge that can be of any type. The array
-     * is empty if the edge hasno profile.
+     * is empty if the edge has no profile.
      *
      * @param edgeId the edge's identity
      * @return an array containing the profile samples of the edge.
@@ -122,7 +122,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
             }
 
             else if (typeOfProfile(edgeId) == 2){
-                profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));
+                profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));   //Ici pas besoin de Unsigned??
                 int numberOfShorts = (samplesNumber - 1) / 2;
                 for (int i = 1; i<= numberOfShorts; ++i){
                     profileSamples[i * 2 - 1] = profileSamples[i * 2 - 2] +
@@ -172,6 +172,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         }
     }
 
+
+    //Faut vrmt passer par cet algo ?
     /** takes an array of float values and inverses its values
      *
      * @param toInverse the array we want to inverse the values for

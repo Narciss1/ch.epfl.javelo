@@ -20,9 +20,9 @@ public final class RouteComputer {
 
     /** calculates the best route between two nodes.
      *
-     * @param startNodeId the n
-     * @param endNodeId
-     * @return
+     * @param startNodeId the node we start the itinerary from
+     * @param endNodeId   the node we end the itinerary in
+     * @return  the best itinerary for a bike between the two nodes
      */
     public Route bestRouteBetween(int startNodeId, int endNodeId) {
 
@@ -94,28 +94,12 @@ public final class RouteComputer {
                 ++i;
             }
             edgeId = graph.nodeOutEdgeId(predecessors[currentNode], i);
-            //System.out.println(edgeId);
             edgesForRoute.add(Edge.of(graph, edgeId, predecessors[currentNode], currentNode));
             currentNode = predecessors[currentNode];
         }
 
-//        List<Edge> listEdges = new ArrayList<>();
-//        int nodeId = endNodeId;
-//        int edgeId;
-//        while (nodeId != startNodeId) {
-//            for (int i = 0; i < graph.nodeOutDegree(predecessors[nodeId]); i++) {
-//                edgeId = graph.nodeOutEdgeId(predecessors[nodeId], i);
-//                if (graph.edgeTargetNodeId(edgeId) == nodeId) {
-//                    listEdges.add(Edge.of(graph, edgeId, predecessors[nodeId], nodeId));
-//                    System.out.println(edgeId);
-//                    break;
-//                }
-//            }
-//            nodeId = predecessors[nodeId];
-//        }
         System.out.println("Edges number : " + edgesForRoute.size());
         Collections.reverse(edgesForRoute);
-        //System.out.println(edgesForRoute.size());
         return new SingleRoute(edgesForRoute);
     }
 
