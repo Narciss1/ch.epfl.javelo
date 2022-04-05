@@ -5,8 +5,8 @@ public final class Preconditions {
     private Preconditions() {}
 
     /**
-     * checks if a method throws an Illegal Argument Exception.
-     * @param shouldBeTrue the argument that should be true.
+     * Checks if a method throws an Illegal Argument Exception.
+     * @param shouldBeTrue argument that should be true.
      */
     public static void checkArgument(boolean shouldBeTrue){
         if (!shouldBeTrue){

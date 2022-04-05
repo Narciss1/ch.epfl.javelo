@@ -23,44 +23,57 @@ public record GraphNodes(IntBuffer buffer) {
      */
     private static final int NODE_INTS = OFFSET_OUT_EDGES + 1;
 
+    private static final int OUT_DEGREE_START = 28;
+
+    private static final int OUT_DEGREE_LENGTH = 4;
+
+    private static final int EDGE_ID_LENGTH = 28;
+
     /**
      * Calculates the number of nodes contained in the buffer
-     * @return the total number of nodes
+     * @return total number of nodes
      */
-    public int count() { return buffer.capacity() / NODE_INTS;}
-
-    /**
-     * Calculates the east coordinate of the given identity node
-     * @param nodeId identity of a node
-     * @return the east coordinate of the node
-     */
-    public double nodeE(int nodeId) { return asDouble(buffer.get(NODE_INTS * nodeId + OFFSET_E));}
-
-    /**
-     * Calculates the north coordinate of the given identity node
-     * @param nodeId identity of a node
-     * @return the north coordinate of the node
-     */
-    public double nodeN(int nodeId) { return asDouble(buffer.get(NODE_INTS * nodeId + OFFSET_N));}
+    public int count() {
+        return buffer.capacity() / NODE_INTS;
+    }
 
     /**
      * Calculates the number of edges exiting the given identity node
      * @param nodeId identity of a node
-     * @return the number of edges exiting the node
+     * @return number of edges exiting the node
      */
     public int outDegree(int nodeId) {
-        return extractUnsigned(buffer.get(NODE_INTS * nodeId + OFFSET_OUT_EDGES), 28, 4);
+        return extractUnsigned(buffer.get(NODE_INTS*nodeId + OFFSET_OUT_EDGES),
+                OUT_DEGREE_START, OUT_DEGREE_LENGTH);
     }
 
     /**
      * Calculates the identity of the edgeIndex-th edge coming out of the identity node
-     * @param nodeId the node's identity
+     * @param nodeId node's identity
      * @param edgeIndex index of an edge
-     * @return the identity of an edge
+     * @return identity of an edge
      */
     public int edgeId(int nodeId, int edgeIndex) {
         assert 0 <= edgeIndex && edgeIndex < outDegree(nodeId);
-        return extractUnsigned(buffer.get(NODE_INTS * nodeId + OFFSET_OUT_EDGES),0, 28)
+        return extractUnsigned(buffer.get(NODE_INTS*nodeId + OFFSET_OUT_EDGES), 0, EDGE_ID_LENGTH)
                 + edgeIndex;
+    }
+
+    /**
+     * Calculates the east coordinate of the given identity node
+     * @param nodeId identity of a node
+     * @return east coordinate of the node
+     */
+    public double nodeE(int nodeId) {
+        return asDouble(buffer.get(NODE_INTS*nodeId + OFFSET_E));
+    }
+
+    /**
+     * Calculates the north coordinate of the given identity node
+     * @param nodeId identity of a node
+     * @return north coordinate of the node
+     */
+    public double nodeN(int nodeId) {
+        return asDouble(buffer.get(NODE_INTS*nodeId + OFFSET_N));
     }
 }

@@ -14,10 +14,40 @@ public interface Route {
     public abstract int indexOfSegmentAt(double position);
 
     /**
+     * Finds the node belonging to the itinerary and located closest to
+     * a certain position
+     * @param position position
+     * @return identity of the node belonging to the itinerary and located closest to
+     * the given position
+     */
+    public abstract int nodeClosestTo(double position);
+
+    /**
      * Calculates the length of the itinerary in meters
      * @return length of the itinerary
      */
     public abstract double length();
+
+    /**
+     * Finds the altitude at the given position along the itinerary
+     * @param position position
+     * @return altitude at a given position along the itinerary
+     */
+    public abstract double elevationAt(double position);
+
+    /**
+     * Finds the point at the given position along the itinerary
+     * @param position position
+     * @return point at the given position along the itinerary
+     */
+    public abstract PointCh pointAt(double position);
+
+    /**
+     * Finds the point on the route that is closest to a given point
+     * @param point reference point
+     * @return point on the route that is closest to the given reference point
+     */
+    public abstract RoutePoint pointClosestTo(PointCh point);
 
     /**
      * Finds all the edges of the itinerary
@@ -30,34 +60,4 @@ public interface Route {
      * @return list of the points located at the extremities of the edges
      */
     public abstract List<PointCh> points();
-
-    /**
-     * Finds the point at the given position along the itinerary
-     * @param position position
-     * @return point at the given position along the itinerary
-     */
-    public abstract PointCh pointAt(double position);
-
-    /**
-     * Finds the altitude at the given position along the itinerary
-     * @param position position
-     * @return altitude at a given position along the itinerary
-     */
-    public abstract double elevationAt(double position);
-
-    /**
-     * Finds the node belonging to the itinerary and located closest to
-     * a certain position
-     * @param position position
-     * @return identity of the node belonging to the itinerary and located closest to
-     * the given position
-     */
-    public abstract int nodeClosestTo(double position);
-
-    /**
-     * Finds the point on the route that is closest to a given point
-     * @param point reference point
-     * @return point on the route that is closest to the given reference point
-     */
-    public abstract RoutePoint pointClosestTo(PointCh point);
 }

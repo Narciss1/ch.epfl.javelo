@@ -27,9 +27,9 @@ public record GraphSectors(ByteBuffer buffer) {
 
     /**
      * Lists all sectors having an intersection with a given square
-     * @param center of the square
-     * @param distance separating the center of the square and its sides
-     * @return the list of all sectors having an intersection with the square
+     * @param center center of the square
+     * @param distance distance separating the center of the square and its sides
+     * @return list of all sectors having an intersection with the square
      *             centered at the given point and with a side equal
      *                     to twice the given distance
      */
@@ -41,20 +41,20 @@ public record GraphSectors(ByteBuffer buffer) {
         double yMinInter = center.n() - distance;
         double yMaxInter = center.n() + distance;
 
-        int xMin = clamp(0, (int) ((xMinInter - MIN_E) * SECTOR_SIDE / WIDTH), SECTOR_MAX);
-        int xMax = clamp(0, (int) ((xMaxInter - MIN_E) * SECTOR_SIDE / WIDTH), SECTOR_MAX);
-        int yMin = clamp(0, (int) ((yMinInter - MIN_N) * SECTOR_SIDE / HEIGHT), SECTOR_MAX);
-        int yMax = clamp(0, (int) ((yMaxInter - MIN_N) * SECTOR_SIDE / HEIGHT), SECTOR_MAX);
+        int xMin = clamp(0, (int) ((xMinInter - MIN_E)*SECTOR_SIDE / WIDTH), SECTOR_MAX);
+        int xMax = clamp(0, (int) ((xMaxInter - MIN_E)*SECTOR_SIDE / WIDTH), SECTOR_MAX);
+        int yMin = clamp(0, (int) ((yMinInter - MIN_N)*SECTOR_SIDE / HEIGHT), SECTOR_MAX);
+        int yMax = clamp(0, (int) ((yMaxInter - MIN_N)*SECTOR_SIDE / HEIGHT), SECTOR_MAX);
 
-        int indexLeftDown = xMin + SECTOR_SIDE * yMin;
-        int indexLeftUp = xMin + SECTOR_SIDE * yMax;
-        int indexRightDown = xMax + SECTOR_SIDE * yMin;
+        int indexLeftDown = xMin + SECTOR_SIDE*yMin;
+        int indexLeftUp = xMin + SECTOR_SIDE*yMax;
+        int indexRightDown = xMax + SECTOR_SIDE*yMin;
         int largeur = indexRightDown - indexLeftDown + 1;
 
         for(int i = indexLeftDown; i <= indexLeftUp; i += SECTOR_SIDE){
             for(int j = 0; j < largeur; ++j){
-                int indexStartNode = buffer.getInt((i + j) * SECTOR_INTS + OFFSET_INDEX);
-                int numberNodes = toUnsignedInt(buffer().getShort((i + j) * SECTOR_INTS + OFFSET_NUMBER));
+                int indexStartNode = buffer.getInt((i + j)*SECTOR_INTS + OFFSET_INDEX);
+                int numberNodes = toUnsignedInt(buffer().getShort((i + j)*SECTOR_INTS + OFFSET_NUMBER));
                 sectorInArea.add(new Sector(indexStartNode, indexStartNode + numberNodes));
             }
         }
@@ -64,7 +64,7 @@ public record GraphSectors(ByteBuffer buffer) {
     /**
      * Represents a sector defined by the identity of its first node, which is its index
      *   startNodeId and the identity of the node located just after the last
-     *     node in the sector, which is its index endNodeId.
+     *      node in the sector, which is its index endNodeId.
      */
     public record Sector(int startNodeId, int endNodeId) {}
 }

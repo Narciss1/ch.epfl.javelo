@@ -10,10 +10,10 @@ public final class Bits {
      * Extracts from the 32-bit vector value the range of length bits starting at
      * the index bit start, which it interprets as a two's complement signed value or
      * throws an exception if the range is invalid
-     * @param value a 32-bit vector
-     * @param start the index representing the start of the range of bits to extract
-     * @param length of the range of bits to extract
-     * @return the extracted range of bits
+     * @param value 32-bit vector
+     * @param start index representing the start of the range of bits to extract
+     * @param length length of the range of bits to extract
+     * @return extracted range of bits
      */
     public static int extractSigned(int value, int start, int length){
         int x = Integer.SIZE - length;
@@ -25,9 +25,9 @@ public final class Bits {
      * Extracts from the 32-bit vector value the range of length bits starting at
      * the index bit start, which it interprets as a two's complement unsigned value or
      * throws an exception if the range is invalid
-     * @param value a 32-bit vector
-     * @param start the index representing the start of the range of bits to extract
-     * @param length of the range of bits to extract
+     * @param value 32-bit vector
+     * @param start index representing the start of the range of bits to extract
+     * @param length length of the range of bits to extract
      * @return the extracted range of bits
      */
     public static int extractUnsigned(int value, int start, int length){
