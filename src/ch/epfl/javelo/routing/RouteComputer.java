@@ -44,14 +44,16 @@ public final class RouteComputer {
 
         PriorityQueue<WeightedNode> exploring = new PriorityQueue<>();
         exploring.add(new WeightedNode(startNodeId, distances[startNodeId]
-                //+ distanceBetweenNodes(startNodeId, endNodeId)
+                + distanceBetweenNodes(startNodeId, endNodeId)
         ));
 
+        int count = 0;
         while (!exploring.isEmpty()) {
-
+            ++count;
             int currentNode = exploring.remove().nodeId;
 
             if (currentNode == endNodeId) {
+                System.out.println(count);
                 Route route = constructRoute(predecessors, startNodeId, endNodeId);
                 System.out.println("Distance : " + route.length());
                 return constructRoute(predecessors, startNodeId, endNodeId);
@@ -67,7 +69,7 @@ public final class RouteComputer {
                         distances[targetNodeId] = potentialDistance;
                         predecessors[targetNodeId] = currentNode;
                         exploring.add(new WeightedNode(targetNodeId, distances[targetNodeId]
-                                //+ distanceBetweenNodes(targetNodeId, endNodeId)
+                                + distanceBetweenNodes(targetNodeId, endNodeId)
                         ));
                     }
                 }
