@@ -7,8 +7,8 @@ public final class Functions
 
     private Functions (){ }
 
-    /** creates a DoubleUnaryOperator of type Constant using y which is the image of all the antecedents
-     *
+    /**
+     * creates a DoubleUnaryOperator of type Constant using y which is the image of all the antecedents
      * @param y the image we want the constant function to give
      * @return a new Object of type Constant
      */
@@ -17,25 +17,26 @@ public final class Functions
     }
 
 
-    /** creates a DoubleUnaryOperator of type Sampled using an array samples containing some images
-     * and the maximum value x for which the image figures in samples
-     *
+    /**
+     * creates a DoubleUnaryOperator of type Sampled using an array samples containing some images
+     * and the maximum value xMax for which the image figures in samples
+     * @throws IllegalArgumentException if the array samples contains less than 2 elements,
+     * or xMax is negative.
      * @param samples an array that contains the images of some values
      * @param xMax the last antecedent for which we have the image in samples
-     * @return an new Object of type Sampled
+     * @return a new Object of type Sampled
      */
     public static DoubleUnaryOperator sampled(float[] samples, double xMax){
-        Preconditions.checkArgument(samples.length >= 2);
-        Preconditions.checkArgument(xMax > 0);
+        Preconditions.checkArgument(samples.length >= 2 && xMax > 0);
         return new Sampled(samples, xMax);
         }
 
 
     private static record Constant(double constantValue) implements DoubleUnaryOperator {
 
-
-        /** applies the constant function on x and returns its image
-         *
+        /**
+         *  creates a DoubleUnaryOperator of type Sampled using an array samples containing some
+         *  images and the maximum value xMax for which the image figures in samples
          * @param x the antecedent
          * @return the image of x
          */
@@ -56,15 +57,15 @@ public final class Functions
             this.xMax = xMax;
         }
 
-        /** gives the image of x from the array samples if its image is there or calculate its
-         * image using interpolation
-         *
+        /**
+         * gives the image of x from the array samples using interpolation, or returns the
+         * image of 0 if x is smaller than 0, or the image of xMax if x is bigger than xMax
          * @param x the antecedent
          * @return the image of x
          */
         @Override
         public double applyAsDouble(double x){
-            //The gap is the distance between two antecents which image is in the array samples
+            //The gap is the distance between two antecedents which image is in the array samples
             double gap = xMax / (samples.length - 1);
             double floorValue = Math.floor(x / gap);
             if (x > 0 && x < xMax) {

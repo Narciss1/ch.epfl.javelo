@@ -1,6 +1,6 @@
 package ch.epfl.javelo.data;
 
-import ch.epfl.javelo.projection.PointCh;
+
 import org.junit.jupiter.api.Test;
 
 import static ch.epfl.javelo.data.Attribute.*;

@@ -9,8 +9,8 @@ import java.util.function.DoubleUnaryOperator;
 public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPoint, double length,
                    DoubleUnaryOperator profile) {
 
-    /** creates a new Edge
-     *
+    /**
+     *creates a new Edge
      * @param graph the edge's belongs to
      * @param edgeId the edge's identity
      * @param fromNodeId the identity of the first node in the
@@ -22,31 +22,31 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
                 graph.edgeLength(edgeId), graph.edgeProfile(edgeId));
     }
 
-    /** Gives the closest position according to the edge to the PointCh given
-     *
+    /**
+     * Gives the closest position according to the edge to the PointCh given
      * @param point the PointCh we want to give the closest position in the edge to
      * @return the double corresponding closest position along the edge to the given PointCh
      */
     public double positionClosestTo(PointCh point){
-        return Math2.projectionLength(fromPoint.getE(), fromPoint.getN(), toPoint.getE(),
-                toPoint.getN(), point.getE(), point.getN());
+        return Math2.projectionLength(fromPoint.e(), fromPoint.n(), toPoint.e(),
+                toPoint.n(), point.e(), point.n());
     }
 
-    /** gives the PointCh located in the given position in the edge
-     *
+    /**
+     * Gives the PointCh located in the given position in the edge
      * @param position the given position we want to find the PointCh in.
      * @return the PointCh in the given position in the edge.
      */
     public PointCh pointAt(double position){
+        //The percentage of the edge at which we find the position
         double percentage = position / length;
-        double y = Math2.interpolate(fromPoint.getN(), toPoint.getN(), percentage);
-        double x = Math2.interpolate(fromPoint.getE(), toPoint.getE(), percentage);
+        double y = Math2.interpolate(fromPoint.n(), toPoint.n(), percentage);
+        double x = Math2.interpolate(fromPoint.e(), toPoint.e(), percentage);
         return new PointCh(x, y);
     }
 
-
-    /** Gives the elevation for a given position in meters.
-     *
+    /**
+     * Gives the elevation for a given position in meters.
      * @param position given position for the height
      * @return the double corresponding to the height in meters corresponding to the position given,
      * on the edge.

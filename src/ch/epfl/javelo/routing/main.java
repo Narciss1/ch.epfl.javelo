@@ -25,6 +25,7 @@ public class main {
         KmlPrinter.write("javelo.kml", r3);
         System.out.printf("Itinéraire calculé en %d ms\n",
                 (System.nanoTime() - t0) / 1_000_000);
+        System.out.println(-4 % 16);
     }
 
 }

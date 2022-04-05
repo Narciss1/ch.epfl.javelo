@@ -2,6 +2,7 @@ package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.data.Graph;
+import ch.epfl.javelo.projection.PointCh;
 
 import java.util.*;
 
@@ -11,7 +12,6 @@ public final class RouteComputer {
     private final CostFunction costFunction;
 
 
-    //Faut-il rajouter des trucs à ce constructeur pour immuabilité ?
     public RouteComputer(Graph graph, CostFunction costFunction){
         this.graph = graph;
         this.costFunction = costFunction;
@@ -42,36 +42,42 @@ public final class RouteComputer {
         distances[startNodeId] = 0;
         int[] predecessors = new int[graph.nodeCount()];
 
+        //It is better to have it stored here in order not to find the PointCh each time we
+        //want to calculate the distance between a node and the one in the end.
+        PointCh endNodePointCh = graph.nodePoint(endNodeId);
+
         PriorityQueue<WeightedNode> exploring = new PriorityQueue<>();
         exploring.add(new WeightedNode(startNodeId, distances[startNodeId]
-                //+ distanceBetweenNodes(startNodeId, endNodeId)
+                + (float) graph.nodePoint(startNodeId).distanceTo(endNodePointCh)
         ));
+
 
         while (!exploring.isEmpty()) {
 
-            int currentNode = exploring.remove().nodeId;
+            int currentNodeId = exploring.remove().nodeId;
 
-            if (currentNode == endNodeId) {
-                Route route = constructRoute(predecessors, startNodeId, endNodeId);
-                System.out.println("Distance : " + route.length());
+            if (currentNodeId == endNodeId) {
+                //Route route = constructRoute(predecessors, startNodeId, endNodeId);
+                //System.out.println("Distance : " + route.length());
                 return constructRoute(predecessors, startNodeId, endNodeId);
             }
 
-            if (distances[currentNode] != Float.NEGATIVE_INFINITY){
-                for (int i = 0; i < graph.nodeOutDegree(currentNode); ++i){
-                    int edgeId = graph.nodeOutEdgeId(currentNode, i);
+            if (distances[currentNodeId] != Float.NEGATIVE_INFINITY){
+                for (int i = 0; i < graph.nodeOutDegree(currentNodeId); ++i){
+                    int edgeId = graph.nodeOutEdgeId(currentNodeId, i);
                     int targetNodeId = graph.edgeTargetNodeId(edgeId);
-                    float potentialDistance = (float) (distances[currentNode] +
-                            graph.edgeLength(edgeId) * costFunction.costFactor(currentNode, edgeId));
+                    //Faut-il rajouter un check de negative Infinity a ce niveau ou pas la peine ?
+                    float potentialDistance = (float) (distances[currentNodeId] +
+                            graph.edgeLength(edgeId) * costFunction.costFactor(currentNodeId, edgeId));
                     if (potentialDistance < distances[targetNodeId]) {
                         distances[targetNodeId] = potentialDistance;
-                        predecessors[targetNodeId] = currentNode;
+                        predecessors[targetNodeId] = currentNodeId;
                         exploring.add(new WeightedNode(targetNodeId, distances[targetNodeId]
-                                //+ distanceBetweenNodes(targetNodeId, endNodeId)
+                                + (float) graph.nodePoint(targetNodeId).distanceTo(endNodePointCh)
                         ));
                     }
                 }
-                distances[currentNode] = Float.NEGATIVE_INFINITY;
+                distances[currentNodeId] = Float.NEGATIVE_INFINITY;
             }
         }
         return null;
@@ -79,10 +85,10 @@ public final class RouteComputer {
 
     /** Constructs the Route by finding its edges using predecessors array.
      *
-     * @param predecessors
-     * @param startNodeId
-     * @param endNodeId
-     * @return
+     * @param predecessors the array containing a node's predecessor's identity, if it has one.
+     * @param startNodeId  the identity of the first node of the itinerary
+     * @param endNodeId    the identity of the last node of the itinerary
+     * @return the Route corresponding to the itinerary
      */
     private Route constructRoute(int[] predecessors, int startNodeId, int endNodeId){
         List<Edge> edgesForRoute = new ArrayList<>();
@@ -97,23 +103,19 @@ public final class RouteComputer {
             edgesForRoute.add(Edge.of(graph, edgeId, predecessors[currentNode], currentNode));
             currentNode = predecessors[currentNode];
         }
-
-        System.out.println("Edges number : " + edgesForRoute.size());
+        //System.out.println("Edges number : " + edgesForRoute.size());
         Collections.reverse(edgesForRoute);
         return new SingleRoute(edgesForRoute);
     }
 
 
 
-    //On retourne un double ou un float ?
-    //Est-ce mieux de mettre le gros calcul comme ça ou d'abord de stocker les
-    //PointCh qlq part ?
-
-    /** Calculates the distance between a poten
-     *
-     * @param targetNodeId
-     * @param endNodeId
-     * @return the distance between
+    /**
+     * Calculates the straight distance between a node in the graph and the last node of
+     * the itinerary
+     * @param targetNodeId a node in the graph
+     * @param endNodeId   the last node of the route
+     * @return the distance between the two nodes given as parameters.
      */
     private float distanceBetweenNodes(int targetNodeId, int endNodeId) {
         return (float) graph.nodePoint(targetNodeId).distanceTo(graph.nodePoint(endNodeId));
