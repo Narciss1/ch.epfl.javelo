@@ -1,3 +1,4 @@
+/*
 package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Functions;
@@ -74,3 +75,4 @@ public class ElevationProfileComputerTestGuiDa {
         Assertions.assertEquals(8, elevationProfileTesting.elevationAt(-1));
     }
 }
+*/

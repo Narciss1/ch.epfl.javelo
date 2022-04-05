@@ -9,9 +9,8 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Compact constructor
-     *
-     * @param x a coordinate of the point
-     * @param y a coordinate of the point
+     * @param x coordinate of the point
+     * @param y coordinate of the point
      */
     public PointWebMercator {
         checkArgument(x >= 0 && x <= 1 && y >= 0 && y <= 1 );
@@ -20,9 +19,9 @@ public record PointWebMercator(double x, double y) {
     /**
      * Finds the original point that has x and y as coordinates in the zoom level given
      * @param zoomLevel level of zooming of the map
-     * @param x a coordinate of the point in the zoom level given
-     * @param y a coordinate of the point in the zoom level given
-     * @return the original point
+     * @param x coordinate of the point in the zoom level given
+     * @param y coordinate of the point in the zoom level given
+     * @return original point
      */
     public static PointWebMercator of(int zoomLevel, double x, double y) {
         return new PointWebMercator(Math.scalb(x, -(zoomLevel + 8)), Math.scalb(y, -(zoomLevel + 8)));
@@ -30,8 +29,8 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Finds the WebMercator point corresponding to the point given in the swiss system
-     * @param pointCh a point in the swiss system
-     * @return a WebMercator point
+     * @param pointCh point in the swiss system
+     * @return WebMercator point
      */
     public static PointWebMercator ofPointCh(PointCh pointCh) {
         double x = WebMercator.x(pointCh.lon());
@@ -41,9 +40,8 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Calculates the coordinate x in the zoom level given
-     *
      * @param zoomLevel level of zooming of the map
-     * @return the new coordiante x
+     * @return new coordinate x
      */
     public double xAtZoomLevel(int zoomLevel) {
         return Math.scalb(x, 8 + zoomLevel);
@@ -51,9 +49,8 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Calculates the coordinate y in the zoom level given
-     *
      * @param zoomLevel level of zooming of the map
-     * @return the new coordiante y
+     * @return new coordinate y
      */
     public double yAtZoomLevel(int zoomLevel) {
         return Math.scalb(y, 8 + zoomLevel);
@@ -61,8 +58,7 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Calculates the longitude of a point given its coordinate x
-     *
-     * @return the longitude in radians
+     * @return longitude in radians
      */
     public double lon() {
         return WebMercator.lon(x);
@@ -70,8 +66,7 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Calculates the latitude of a point given its coordinate y
-     *
-     * @return the latitude in radians
+     * @return latitude in radians
      */
     public double lat() {
         return WebMercator.lat(y);
@@ -79,30 +74,15 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Finds a point in the swiss system that has the same position as the receiver
-     * @return a point in the swiss system or null if this point is not in the limits of Switzerland
+     * @return point in the swiss system or null if this point is not in the limits of Switzerland
      */
     public PointCh toPointCh() {
         double e = e(WebMercator.lon(this.x), WebMercator.lat(this.y));
         double n = n(WebMercator.lon(this.x), WebMercator.lat(this.y));
         if (containsEN(e, n)) {
             return new PointCh(e, n);
-        } else {
-            return null;
         }
-    }
-
-    /**
-     * @return the coordinate x of a point
-     */
-    public double getX(){
-        return x;
-    }
-
-    /**
-     * @return the coordinate y of a point
-     */
-    public double getY(){
-        return y;
+        return null;
     }
 }
 

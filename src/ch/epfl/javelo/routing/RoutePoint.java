@@ -7,16 +7,15 @@ import static java.lang.Double.POSITIVE_INFINITY;
 public record RoutePoint(PointCh point, double position, double distanceToReference) {
 
     /**
-     * A constant representing a non-existent point
+     * Constant representing a non-existent point
      */
     public static final RoutePoint NONE = new RoutePoint(null, Double.NaN, POSITIVE_INFINITY);
 
     /**
      * Finds a point identical to the receiver (this), but whose position is shifted by the given
      * difference
-     * @param positionDifference a given position difference, which can be positive or negative
-     * @return a point identical to the receiver but whose position has been shifted
-     *
+     * @param positionDifference position difference, which can be positive or negative
+     * @return point identical to the receiver but whose position has been shifted
      */
     public RoutePoint withPositionShiftedBy(double positionDifference) {
         return new RoutePoint(this.point, this.position + positionDifference,
@@ -25,8 +24,8 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
 
     /**
      * Determines the point of the itinerary whose distance to the reference is the smallest
-     * @param that a given point of the itinerary
-     * @return the point of the itinerary "this" if its distance to the reference is less than
+     * @param that point of the itinerary
+     * @return point of the itinerary "this" if its distance to the reference is less than
      * or equal to the point "that"'s distance to the reference, and the point "that" otherwise
      */
     public RoutePoint min(RoutePoint that) {
@@ -39,10 +38,10 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
     /**
      * Gives the point of the itinerary "this" if its distance to the reference is less than
      * or equal to thatDistanceToReference, and otherwise a new RoutePoint instance
-     * @param thatPoint a given point of the itinerary
+     * @param thatPoint point of the itinerary
      * @param thatPosition position of the given point along the route, in meters
      * @param thatDistanceToReference distance in meters between the point and the reference
-     * @return the point of the itinerary "this" if its distance to the reference is less than
+     * @return point of the itinerary "this" if its distance to the reference is less than
      * or equal to thatDistanceToReference, and otherwise a new RoutePoint instance whose attributes
      * are the arguments passed to the method min
      */

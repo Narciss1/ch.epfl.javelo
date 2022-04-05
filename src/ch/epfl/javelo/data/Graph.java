@@ -11,11 +11,8 @@ import java.nio.ShortBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
-
-import static javax.swing.UIManager.get;
 
 public final class Graph {
 
@@ -25,11 +22,52 @@ public final class Graph {
     private final List<AttributeSet> attributeSets;
 
     /**
+     * Gives a buffer of type ByteBuffer, whose content is that of a file in the directory
+     * @param basePath path of the directory
+     * @param string name of the file
+     * @return buffer of type ByteBuffer
+     */
+    private static ByteBuffer fileBuffer(Path basePath, String string) throws IOException {
+        Path stringPath = basePath.resolve(string);
+        ByteBuffer stringBuffer;
+        try(FileChannel channel = FileChannel.open(stringPath)) {
+            stringBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+        }
+        return stringBuffer;
+    }
+
+    /**
+     * Finds the graph obtained from the files located in a directory or throws
+     * IOException in case of an input/output error
+     * @param basePath path of the directory
+     * @return graph obtained from the files located in the directory
+     */
+    public static Graph loadFrom(Path basePath) throws IOException {
+        IntBuffer nodesBuffer = fileBuffer(basePath, "nodes.bin").asIntBuffer();
+        ByteBuffer sectorsBuffer = fileBuffer(basePath, "sectors.bin");
+        ByteBuffer edgesBuffer = fileBuffer(basePath, "edges.bin");
+        IntBuffer profileIdsBuffer = fileBuffer(basePath, "profile_ids.bin").asIntBuffer();
+        ShortBuffer elevationsBuffer = fileBuffer(basePath, "elevations.bin").asShortBuffer();
+        LongBuffer attributesBuffer = fileBuffer(basePath, "attributes.bin").asLongBuffer();
+
+        GraphNodes graphNodes = new GraphNodes(nodesBuffer);
+        GraphSectors graphSectors = new GraphSectors(sectorsBuffer);
+        GraphEdges graphEdges = new GraphEdges(edgesBuffer, profileIdsBuffer, elevationsBuffer);
+        List<AttributeSet> attributeSetsBuffer = new ArrayList<>();
+        for(int i = 0; i < attributesBuffer.capacity(); i++) {
+            AttributeSet attributeSet = new AttributeSet(attributesBuffer.get(i));
+            attributeSetsBuffer.add(attributeSet);
+        }
+
+        return new Graph(graphNodes, graphSectors, graphEdges, attributeSetsBuffer);
+    }
+
+    /**
      * Constructor
-     * @param nodes a given array of all graph nodes
-     * @param sectors a given array of all sectors
-     * @param edges a given array of all graph edges
-     * @param attributeSets a list of all attribute sets
+     * @param nodes array of all graph nodes
+     * @param sectors array of all sectors
+     * @param edges array of all graph edges
+     * @param attributeSets list of all attribute sets
      */
     public Graph(GraphNodes nodes, GraphSectors sectors, GraphEdges edges, List<AttributeSet> attributeSets){
         this.nodes = nodes;
@@ -39,61 +77,37 @@ public final class Graph {
     }
 
     /**
-     * Finds the JaVelo graph obtained from the files located in a directory or throws
-     * IOException in case of an input/output error
-     * @param basePath path of the directory
-     * @return the JaVelo graph obtained from the files located in the directory
-     * @throws IOException
-     */
-    public static Graph loadFrom(Path basePath) throws IOException {
-       IntBuffer nodesBuffer = fileBuffer(basePath, "nodes.bin").asIntBuffer();
-       ByteBuffer sectorsBuffer = fileBuffer(basePath, "sectors.bin");
-       ByteBuffer edgesBuffer = fileBuffer(basePath, "edges.bin");
-       IntBuffer profileIdsBuffer = fileBuffer(basePath, "profile_ids.bin").asIntBuffer();
-       ShortBuffer elevationsBuffer = fileBuffer(basePath, "elevations.bin").asShortBuffer();
-       LongBuffer attributesBuffer = fileBuffer(basePath, "attributes.bin").asLongBuffer();
-
-       List<AttributeSet> attributeSetsBuffer = new ArrayList<>();
-       for(int i = 0; i < attributesBuffer.capacity(); i++) {
-           attributeSetsBuffer.add(new AttributeSet(attributesBuffer.get(i)));
-       }
-       return new Graph(new GraphNodes(nodesBuffer), new GraphSectors(sectorsBuffer),
-               new GraphEdges(edgesBuffer, profileIdsBuffer, elevationsBuffer), attributeSetsBuffer);
-    }
-
-    /**
      * Calculates the total number of nodes in the graph
      * @return total number of nodes in the graph
      */
-   public int nodeCount() { return nodes.count();}
-
-    /**
-     * Calculates the position of a node
-     * @param nodeId identity of a certain node
-     * @return the position of the given identity node
-     */
-   public PointCh nodePoint(int nodeId) { return new PointCh(nodes.nodeE(nodeId), nodes.nodeN(nodeId));}
+   public int nodeCount() {
+       return nodes.count();
+   }
 
     /**
      * Calculates the number of edges leaving a node
-     * @param nodeId identity of a certain node
-     * @return the number of edges leaving the given identity node
+     * @param nodeId identity of a node
+     * @return number of edges leaving the given identity node
      */
-   public int nodeOutDegree(int nodeId) { return nodes.outDegree(nodeId);}
+   public int nodeOutDegree(int nodeId) {
+       return nodes.outDegree(nodeId);
+   }
 
     /**
      * Calculates the identity of the edgeIndex-th edge outgoing from a node,
-     * @param nodeId identity of a certain node
+     * @param nodeId identity of a node
      * @param edgeIndex index of an edge
-     * @return the identity of the edgeIndex-th edge outgoing from the identity node nodeId,
+     * @return identity of the edgeIndex-th edge outgoing from the identity node nodeId
      */
-   public int nodeOutEdgeId(int nodeId, int edgeIndex) { return nodes.edgeId(nodeId, edgeIndex);}
+   public int nodeOutEdgeId(int nodeId, int edgeIndex) {
+       return nodes.edgeId(nodeId, edgeIndex);
+   }
 
     /**
      * Finds the node closest to a given point at a certain distance
-     * @param point a certain point
-     * @param searchDistance the maximum distance in meters
-     * @return the identity of the node closest to the given point or -1 if no node
+     * @param point point
+     * @param searchDistance maximum distance in meters
+     * @return identity of the node closest to the given point or -1 if no node
      * matches these criteria
      */
    public int nodeClosestTo(PointCh point, double searchDistance) {
@@ -114,43 +128,63 @@ public final class Graph {
 
     /**
      * Calculates the identity of the destination node of an edge
-     * @param edgeId identity of a certain edge
-     * @return the identity of the destination node of the given identity edge
+     * @param edgeId identity of an edge
+     * @return identity of the destination node of the given identity edge
      */
-    public int edgeTargetNodeId(int edgeId) { return edges.targetNodeId(edgeId);}
-
-    /**
-     * @param edgeId identity of a certain edge
-     * @return returns true iff the given identity edge goes in the opposite direction
-     * of the OSM channel it comes from
-     */
-    public boolean edgeIsInverted(int edgeId) { return edges.isInverted(edgeId);}
-
-    /**
-     * Finds the set of OSM attributes attached to an edge
-     * @param edgeId identity of a certain edge
-     * @return the set of OSM attributes attached to the given identity edge
-     */
-   public AttributeSet edgeAttributes(int edgeId) { return attributeSets.get(edges.attributesIndex(edgeId));}
+    public int edgeTargetNodeId(int edgeId) {
+        return edges.targetNodeId(edgeId);
+    }
 
     /**
      * Calculates the length of an edge in meters
-     * @param edgeId identity of a certain edge
-     * @return the length of the given identity edge
+     * @param edgeId identity of an edge
+     * @return length of the given identity edge
      */
-    public double edgeLength(int edgeId) { return edges.length(edgeId);}
+    public double edgeLength(int edgeId) {
+        return edges.length(edgeId);
+    }
 
     /**
      * Calculates the total elevation gain of an edge
-     * @param edgeId identity of a certain edge
-     * @return the total elevation gain of the given identity edge
+     * @param edgeId identity of an edge
+     * @return total elevation gain of the given identity edge
      */
-    public double edgeElevationGain(int edgeId) { return edges.elevationGain(edgeId);}
+    public double edgeElevationGain(int edgeId) {
+        return edges.elevationGain(edgeId);
+    }
+
+    /**
+     * @param edgeId identity of an edge
+     * @return returns true iff the given identity edge goes in the opposite direction
+     * of the OSM channel it comes from
+     */
+    public boolean edgeIsInverted(int edgeId) {
+        return edges.isInverted(edgeId);
+    }
+
+    /**
+     * Calculates the position of a node
+     * @param nodeId identity of a node
+     * @return position of the given identity node
+     */
+    public PointCh nodePoint(int nodeId) {
+        return new PointCh(nodes.nodeE(nodeId), nodes.nodeN(nodeId));
+    }
+
+    /**
+     * Finds the set of OSM attributes attached to an edge
+     * @param edgeId identity of an edge
+     * @return set of OSM attributes attached to the given identity edge
+     */
+   public AttributeSet edgeAttributes(int edgeId) {
+       int index = edges.attributesIndex(edgeId);
+       return attributeSets.get(index);
+   }
 
     /**
      * Calculates the longitudinal profile of an edge as a function
-     * @param edgeId identity of a certain edge
-     * @return the longitudinal profile of the given identity edge, as a function. If the edge
+     * @param edgeId identity of an edge
+     * @return longitudinal profile of the given identity edge, as a function. If the edge
      * has no profile, then this function must return Double.NaN for any argument.
      */
     public DoubleUnaryOperator edgeProfile(int edgeId){
@@ -158,21 +192,5 @@ public final class Graph {
             return Functions.sampled(edges.profileSamples(edgeId), edges.length(edgeId));
         }
         return Functions.constant(Double.NaN);
-    }
-
-    /**
-     * Gives a buffer of type ByteBuffer, whose content is that of a file in the directory
-     * @param basePath path of the directory
-     * @param string name of the file
-     * @return a buffer of type ByteBuffer
-     * @throws IOException
-     */
-    private static ByteBuffer fileBuffer(Path basePath, String string) throws IOException {
-        Path stringPath = basePath.resolve(string);
-        ByteBuffer stringBuffer;
-        try(FileChannel channel = FileChannel.open(stringPath)){
-            stringBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-        }
-        return stringBuffer;
     }
 }
