@@ -41,18 +41,4 @@ public record PointCh(double e, double n) {
      * @return latitude in radians of a point in the WGS84 system
      */
     public double lat(){ return Ch1903.lat(e, n); }
-
-    /**
-     * @return east coordinate of a point
-     */
-    public double getE(){
-        return e;
-    }
-
-    /**
-     * @return the north coordinate of a point
-     */
-    public double getN(){
-        return n;
-    }
 }

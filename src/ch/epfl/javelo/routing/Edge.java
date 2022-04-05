@@ -28,8 +28,8 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @return the double corresponding closest position along the edge to the given PointCh
      */
     public double positionClosestTo(PointCh point){
-        return Math2.projectionLength(fromPoint.getE(), fromPoint.getN(), toPoint.getE(),
-                toPoint.getN(), point.getE(), point.getN());
+        return Math2.projectionLength(fromPoint.e(), fromPoint.n(), toPoint.e(),
+                toPoint.n(), point.e(), point.n());
     }
 
     /** gives the PointCh located in the given position in the edge
@@ -39,8 +39,8 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      */
     public PointCh pointAt(double position){
         double percentage = position / length;
-        double y = Math2.interpolate(fromPoint.getN(), toPoint.getN(), percentage);
-        double x = Math2.interpolate(fromPoint.getE(), toPoint.getE(), percentage);
+        double y = Math2.interpolate(fromPoint.n(), toPoint.n(), percentage);
+        double x = Math2.interpolate(fromPoint.e(), toPoint.e(), percentage);
         return new PointCh(x, y);
     }
 
