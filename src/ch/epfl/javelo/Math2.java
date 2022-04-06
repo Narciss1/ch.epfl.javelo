@@ -29,9 +29,6 @@ public final class Math2
         return Math.fma(y1-y0, x , y0);
     }
 
-
-    //D'après un post piazza, ces méthodes clamp s'écrivent en 1 SEULE Ligne, d'où la modif.
-
     /**
      * takes a double v as an argument, returns it if the interval between the arguments min and max
      * contains v, returns min if the double is smaller than min, or returns max if v is bigger
@@ -44,12 +41,6 @@ public final class Math2
      */
     public static double clamp(double min, double v, double max){
         Preconditions.checkArgument(min < max);
-//        if (v < min){
-//            return min;
-//        } else if (v > max){
-//            return max;
-//        }
-//        return v;
         return Math.min(Math.max(min,v),max);
     }
 
@@ -64,12 +55,6 @@ public final class Math2
      */
     public static int clamp(int min, int v, int max){
         Preconditions.checkArgument(min < max);
-//        if (v < min){
-//            return min;
-//        } else if (v > max){
-//            return max;
-//        }
-//        return v;
         return Math.min(Math.max(min,v),max);
     }
 
@@ -82,7 +67,6 @@ public final class Math2
         return Math.log(x + Math.sqrt(1 + Math.pow(x,2)));
     }
 
-    //Arguments or parameters ?
     /**
      * calculates and returns the dot product of the two vectors which coordinates are given as arguments.
      * @param uX  coordinate x of the first vector

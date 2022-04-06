@@ -20,18 +20,14 @@ public record AttributeSet (long bits) {
         Preconditions.checkArgument(testBits == 0L);
     }
 
-
-    //Ici je peux retourner tout le truc en même temps, devrais-je laisser les deux variables là ?
     /**
      * checks if the attribute given as an argument is in the set
      * @param attribute we want to check if it is the set
      * @return true if attribute is in the set
      */
     public boolean contains(Attribute attribute){
-//        long attributeMask = 1L << attribute.ordinal();
-//        long testMask = attributeMask & bits;
-//        return (testMask != 0L);
-        return (((1L << attribute.ordinal()) & bits) != 0);
+        long attributeMask = 1L << attribute.ordinal();
+        return ((attributeMask & bits) != 0);
     }
 
     /**
@@ -56,26 +52,10 @@ public record AttributeSet (long bits) {
             }
         }
         return attributes.toString();
-
-
-//        String toReturn = "{";
-//        boolean starting = true;
-//        for (int i = 0; i < ALL.toArray().length; ++i){
-//            if (contains(ALL.get(i))){
-//                if (!starting)
-//                    toReturn = toReturn + "," + ALL.get(i).toString();
-//                else {
-//                    toReturn = toReturn + ALL.get(i).toString();
-//                    starting = false;
-//                }
-//            }
-//        }
-//        toReturn = toReturn + "}";
-//
-//        return toReturn;
     }
 
 
+    //Petit doute sur la boucle.
     /**
      * creates an AttributeSet which attribute bits has 1 in the positions (beginning from 0)
      * of the given attributes in the list Attribute.

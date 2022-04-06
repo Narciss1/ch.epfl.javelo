@@ -16,7 +16,6 @@ public final class Functions
         return new Constant(y);
     }
 
-
     /**
      * creates a DoubleUnaryOperator of type Sampled using an array samples containing some images
      * and the maximum value xMax for which the image figures in samples
