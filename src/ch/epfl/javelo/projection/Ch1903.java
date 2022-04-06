@@ -14,7 +14,7 @@ public final class Ch1903 {
         double lon1 = 0.0001 * (3600.0*Math.toDegrees(lon) - 26782.5);
         double lat1 = 0.0001 * (3600.0*Math.toDegrees(lat) - 169028.66);
         return 2600072.37 + 211455.93*lon1 - 10938.51*lon1*lat1 - 0.36*lon1*lat1*lat1
-                - 44.54*Math.pow(lon1,3.0);
+                - 44.54*lon1*lon1*lon1;
     }
 
     /**
@@ -27,7 +27,7 @@ public final class Ch1903 {
         double lon1 = 0.0001 * (3600.0*Math.toDegrees(lon) - 26782.5);
         double lat1 = 0.0001 * (3600.0*Math.toDegrees(lat) - 169028.66);
         return 1200147.07 + 308807.95*lat1 + 3745.25*lon1*lon1 + 76.63*lat1*lat1
-                - 194.56*lat1*lon1*lon1 + 119.79*Math.pow(lat1, 3.0);
+                - 194.56*lat1*lon1*lon1 + 119.79*lat1*lat1*lat1;
     }
 
     /**
@@ -39,7 +39,8 @@ public final class Ch1903 {
     public static double lon(double e, double n){
         double x = 0.000001 * (e - 2600000.0);
         double y = 0.000001 * (n - 1200000.0);
-        double lon0 = 2.6779094 + 4.728982*x + 0.791484*x*y + 0.1306*x*y*y - 0.0436*Math.pow(x, 3.0);
+        double lon0 = 2.6779094 + 4.728982*x + 0.791484*x*y + 0.1306*x*y*y
+                - 0.0436*x*x*x;
         double lon = lon0*100.0 / 36.0;
       return Math.toRadians(lon);
     }
@@ -54,7 +55,7 @@ public final class Ch1903 {
         double x = 0.000001 * (e - 2600000.0);
         double y = 0.000001 * (n - 1200000.0);
         double lat0 = 16.9023892 + 3.238272*y - 0.270978*x*x - 0.002528*y*y - 0.0447*x*x*y
-                - 0.0140*Math.pow(y, 3.0);
+                - 0.0140*y*y*y;
         double lat = lat0*100.0 / 36.0;
         return Math.toRadians(lat);
     }

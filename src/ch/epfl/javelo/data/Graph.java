@@ -111,7 +111,7 @@ public final class Graph {
      * matches these criteria
      */
    public int nodeClosestTo(PointCh point, double searchDistance) {
-       double minDistance = Math.pow(searchDistance, 2);
+       double minDistance = searchDistance*searchDistance;
        int closestNode = -1;
        List<GraphSectors.Sector> closeSectors = sectors.sectorsInArea(point, searchDistance);
        for(GraphSectors.Sector sector : closeSectors){

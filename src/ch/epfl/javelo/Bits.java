@@ -14,6 +14,7 @@ public final class Bits {
      * @param start index representing the start of the range of bits to extract
      * @param length length of the range of bits to extract
      * @return extracted range of bits
+     * @throws IllegalArgumentException if the range is invalid
      */
     public static int extractSigned(int value, int start, int length){
         int x = Integer.SIZE - length;
@@ -29,6 +30,7 @@ public final class Bits {
      * @param start index representing the start of the range of bits to extract
      * @param length length of the range of bits to extract
      * @return the extracted range of bits
+     * @throws IllegalArgumentException if the range is invalid
      */
     public static int extractUnsigned(int value, int start, int length){
         int x = Integer.SIZE - length;

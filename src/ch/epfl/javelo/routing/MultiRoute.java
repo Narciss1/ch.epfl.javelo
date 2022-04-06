@@ -5,6 +5,7 @@ import ch.epfl.javelo.projection.PointCh;
 import java.util.ArrayList;
 import java.util.List;
 import static ch.epfl.javelo.Math2.clamp;
+import static ch.epfl.javelo.Preconditions.checkArgument;
 
 public final class MultiRoute implements Route {
 
@@ -13,9 +14,10 @@ public final class MultiRoute implements Route {
     /**
      * Constructor
      * @param segments list of routes
+     * @throws IllegalArgumentException if the list of segments is empty
      */
     public MultiRoute(List<Route> segments) {
-        Preconditions.checkArgument(!segments.isEmpty());
+        checkArgument(!segments.isEmpty());
         this.segments = List.copyOf(segments);
     }
 
