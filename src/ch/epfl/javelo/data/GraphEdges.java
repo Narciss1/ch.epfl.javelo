@@ -44,9 +44,15 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     private static final int PROFILES_INTS = OFFSET_PROFILE_ID + 1;
 
 
-    private static final int SWITCHER_START_TYPE_2 = 8;
+    /**
+     * the number of bits a difference occupies in a short of BufferElevation
+     * for an edge of type 2
+     */
     private static final int DIFFERENCE_LENGTH_TYPE_2 = 8;
-    private static final int SWITCHER_START_TYPE_3 = 12;
+    /**
+     * the number of bits a difference occupies in a short of BufferElevation
+     * for an edge of type 3
+     */
     private static final int DIFFERENCE_LENGTH_TYPE_3 = 4;
 
 
@@ -81,7 +87,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the length of the edge
      */
     public double length(int edgeId){
-        return Q28_4.asDouble(toUnsignedInt(edgesBuffer.getShort(EDGES_INTS * edgeId + OFFSET_LENGTH)));
+        return Q28_4.asDouble(toUnsignedInt(edgesBuffer.getShort(EDGES_INTS * edgeId
+                + OFFSET_LENGTH)));
     }
 
 
@@ -91,7 +98,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the total elevation gain of the edge
      */
     public double elevationGain(int edgeId){
-        return Q28_4.asDouble(toUnsignedInt(edgesBuffer.getShort(EDGES_INTS * edgeId + OFFSET_ELEVATION)));
+        return Q28_4.asDouble(toUnsignedInt(edgesBuffer.getShort(EDGES_INTS * edgeId
+                + OFFSET_ELEVATION)));
     }
 
     /**
@@ -100,34 +108,10 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return true if the edge has a profile
      */
     public boolean hasProfile(int edgeId){
-        return Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID), 30, 2) != 0;
+        return Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID),
+                30, 2) != 0;
     }
 
-    private void profileSamplesThroughDifferences(int switcher,  int startValue, int lengthOfDifferences,
-                                                  float[] profileSamples, int firstSampleId,
-                                                  int samplesNumber){
-        profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));
-        int firstStartValue = startValue;
-        int samplesTaken = 1;
-        int index = 1;
-        while (samplesTaken < samplesNumber){
-            profileSamples[samplesTaken] = profileSamples[samplesTaken - 1]
-                    + Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + index),
-                    startValue, lengthOfDifferences));
-            startValue = (startValue + switcher) % 16;
-            ++samplesTaken;
-
-            //Pr marquer que l'on passe à l'autre short.
-            if (startValue == firstStartValue){
-                ++index;
-            }
-        }
-
-    }
-
-
-    //ça passe de pas inclure le type 0 dans le switch ?
-    //Prk pr type 2, 3 y a pas unsigned pr la 1ère valeur ?
     /**
      *Stores in an array the profile samples of an edge that can be of any type. The array
      * is empty if the edge has no profile.
@@ -144,102 +128,21 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         float[] profileSamples = new float[samplesNumber];
         int firstSampleId = Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID),
                 0, 30);
+        //We put the first elevation, that is never compressed regardless of the type, in the array
+        profileSamples[0] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(firstSampleId)));
         switch(typeOfProfile(edgeId)){
             case 1 :
-                for (int i = 0; i < samplesNumber; ++i) {
+                for (int i = 1; i < samplesNumber; ++i) {
                     profileSamples[i] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(firstSampleId + i)));
                 }
                 break;
             case 2 :
-                profileSamplesThroughDifferences(SWITCHER_START_TYPE_2, SWITCHER_START_TYPE_2,
-                        DIFFERENCE_LENGTH_TYPE_2, profileSamples, firstSampleId, samplesNumber);
+                profileSamplesThroughDifferences(DIFFERENCE_LENGTH_TYPE_2, profileSamples, firstSampleId);
                 break;
             case 3 :
-                profileSamplesThroughDifferences(SWITCHER_START_TYPE_3, SWITCHER_START_TYPE_3,
-                        DIFFERENCE_LENGTH_TYPE_3, profileSamples, firstSampleId, samplesNumber);
+                profileSamplesThroughDifferences(DIFFERENCE_LENGTH_TYPE_3, profileSamples, firstSampleId);
                 break;
         }
-
-//        if (!hasProfile(edgeId)) {
-//            return new float[0];
-//
-//        } else {
-//            int samplesNumber = 1 + Math2.ceilDiv(Short.toUnsignedInt(edgesBuffer.getShort(
-//                            EDGES_INTS * edgeId + OFFSET_LENGTH)),
-//                    Q28_4.ofInt(2));
-//            float[] profileSamples = new float[samplesNumber];
-//            int firstSampleId = Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID),
-//                    0, 30);
-//            if (typeOfProfile(edgeId) == 1) {
-//                for (int i = 0; i < samplesNumber; ++i) {
-//                    profileSamples[i] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(firstSampleId + i)));
-//                }
-//            } else {
-//                profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));
-//
-//                int samplesTaken = 1;
-//                int index = 1;
-//
-//                int switcher = switcher(edgeId);
-//                int startValue = startValue(edgeId);
-//                int lengthOfDifference = lengthOfDifference(edgeId);
-//
-//                while (samplesTaken < samplesNumber){
-//                    profileSamples[samplesTaken] = profileSamples[samplesTaken - 1]
-//                    + Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + index), startValue, lengthOfDifference));
-//                    startValue = (startValue + switcher) % 16;
-//                    ++samplesTaken;
-//
-//                    //Pr marquer que l'on passe à l'autre short.
-//                    if (startValue == startValue(edgeId)){
-//                        ++index;
-//                    }
-//                }
-//            }
-
-//            else if (typeOfProfile(edgeId) == 2){
-//                profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));   //Ici pas besoin de Unsigned??
-//                int numberOfShorts = (samplesNumber - 1) / 2;
-//                for (int i = 1; i<= numberOfShorts; ++i){
-//                    profileSamples[i * 2 - 1] = profileSamples[i * 2 - 2] +
-//                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i), 8, 8));
-//                    profileSamples[i * 2] = profileSamples[i * 2 - 1] +
-//                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i),
-//                                    0,8 ));
-//                }
-//                if ((samplesNumber - 1) % 2 != 0){
-//                    profileSamples[samplesNumber - 1] = profileSamples [samplesNumber - 2] +
-//                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId +
-//                                    numberOfShorts + 1), 8, 8));
-//                }
-//
-//            } else {
-//                profileSamples[0] = Q28_4.asFloat(elevations.get(firstSampleId));
-//                int numberOfShorts = (samplesNumber - 1) / 4;
-//                for (int i = 1; i <= numberOfShorts; ++i){
-//                    profileSamples[i * 4 - 3] = profileSamples[i * 4 - 4] +
-//                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i),
-//                                    12,4));
-//                    profileSamples[i * 4 - 2] = profileSamples[i * 4 - 3] +
-//                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i),
-//                                    8,4));
-//                    profileSamples[i * 4 - 1] = profileSamples[i * 4 - 2] +
-//                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i),
-//                                    4,4));
-//                    profileSamples[i * 4] = profileSamples[i * 4 - 1] +
-//                            Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + i),
-//                                    0,4));
-//                }
-//                int samplesLeft = (samplesNumber-1) % 4;
-//                int counting = 0;
-//                while (samplesLeft != 0){
-//                    profileSamples[samplesNumber - samplesLeft] = profileSamples[samplesNumber - samplesLeft - 1] +
-//                            Q28_4.asFloat(Bits.extractSigned(elevations.get
-//                                    (firstSampleId + Math2.ceilDiv(samplesNumber, 4)), 12 - counting,4));
-//                    samplesLeft = samplesLeft - 1;
-//                    counting = counting + 4;
-//                }
-//            }
             if (!isInverted(edgeId)){
                 return profileSamples;
             } else {
@@ -247,12 +150,38 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
             }
     }
 
+    /**
+     * This method fills the array profileSamples with the elevations.
+     * @param lengthOfDifferences  the number of bits of the difference in a short.
+     * @param profileSamples  the array of samples to fill
+     * @param firstSampleId   the identity of the first elevation in the ElevationBuffer
+     */
+    private void profileSamplesThroughDifferences(int lengthOfDifferences, float[] profileSamples,
+                                                  int firstSampleId){
+        int firstStartValue = -lengthOfDifferences + Short.SIZE;
+        int startValue = -lengthOfDifferences + Short.SIZE;
+        int switcher = -lengthOfDifferences + Short.SIZE;
+        //It is equal to one because the first elevation has already been added.
+        int samplesTaken = 1;
+        int shortNumber = 1;
+        while (samplesTaken < profileSamples.length){
+            profileSamples[samplesTaken] = profileSamples[samplesTaken - 1]
+                    + Q28_4.asFloat(Bits.extractSigned(elevations.get(firstSampleId + shortNumber),
+                    startValue, lengthOfDifferences));
+            startValue = (startValue + switcher) % Short.SIZE;
+            ++samplesTaken;
+            //The condition is valid when it is time to switch to the next short
+            if (startValue == firstStartValue){
+                ++shortNumber;
+            }
+        }
 
-    //Faut vrmt passer par cet algo ?
-    /** takes an array of float values and inverses its values
-     *
+    }
+
+    /**
+     * takes an array of float values and inverses its values
      * @param toInverse the array we want to inverse the values for
-     * @return an array with the inversed values of the one given as an argument
+     * @return an array with the inverse values of the one given as an argument
      */
     private static float[] inverse(float[] toInverse){
         int i = 0;
@@ -267,8 +196,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         return toInverse;
     }
 
-    /** gives us the integer corresponding to the edge's profile.
-     *
+    /**
+     * gives us the integer corresponding to the edge's profile.
      * @param edgeId the edge's identity
      * @return the profile type of the edge
      */
@@ -276,28 +205,6 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         return (Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID),
                 30, 2));
     }
-
-
-
-//    private int switcher(int edgeId){
-//        if (typeOfProfile(edgeId) == 2){
-//            return SWITCHER_TYPE_2;
-//        } return SWITCHER_TYPE_3;
-//    }
-//
-//    private int startValue(int edgeId){
-//        if (typeOfProfile(edgeId) == 2){
-//            return 8;
-//        } return 12;
-//    }
-//
-//    private int lengthOfDifference(int edgeId){
-//        if (typeOfProfile(edgeId) == 2){
-//            return 8;
-//        } return 4;
-//    }
-
-
 
     /**
      * gives us the identity of all the attributes related to the edge which identity is given

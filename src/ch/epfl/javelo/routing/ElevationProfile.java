@@ -32,7 +32,6 @@ public final class ElevationProfile {
         return length;
     }
 
-
     /**
      * creates statistics concerning the array of the edge's elevation samples
      * @param elevationSamples the array containing the samples' heights
@@ -43,10 +42,6 @@ public final class ElevationProfile {
         for (float i : elevationSamples){
             s.accept(i);
         }
-
-//        for (int i = 0; i < elevationSamples.length; ++i){
-//            s.accept(elevationSamples[i]);
-//        }
         return s;
     }
 
@@ -66,27 +61,12 @@ public final class ElevationProfile {
         return constructStatistics(elevationSamples).getMax();
     }
 
-
-    //YA DU CODE HYPER SEMBLABLE MAIS A PRIORI (POUR MOI) there is no way to split them out :(.
     /**
      * Gives the sum of all the ascents of the edge
      * @return the total ascent in the edge
      */
     public double totalAscent(){
-        double ascent = 0;
-        float previousElevation = elevationSamples[0];
-        for (float elevation : elevationSamples){
-            if (previousElevation < elevation){
-                ascent = ascent + (elevation - previousElevation);
-            }
-            previousElevation = elevation;
-        }
-//        for (int i = 1; i < elevationSamples.length; ++i){
-//            if (elevationSamples[i-1] < elevationSamples[i]){
-//                ascent = ascent + (elevationSamples[i] - elevationSamples[i-1]);
-//            }
-//        }
-        return ascent;
+        return totalAscentOrDescent(true);
     }
 
     /**
@@ -94,22 +74,26 @@ public final class ElevationProfile {
      * @return the total descent in the edge
      */
     public double totalDescent(){
-        double descent = 0;
-        float previousElevation = elevationSamples[0];
-        for (float elevation : elevationSamples){
-            if (previousElevation > elevation){
-                descent = descent + (previousElevation - elevation);
-            }
-            previousElevation = elevation;
-        }
-//        for (int i = 1; i < elevationSamples.length; ++i){
-//            if (elevationSamples[i-1] > elevationSamples[i]){
-//                descent = descent + (elevationSamples[i-1] - elevationSamples[i]);
-//            }
-//        }
-        return descent;
+        return totalAscentOrDescent(false);
     }
 
+    /** calculates the total ascent if
+     *
+     * @param ascent argument that is true if and only if we are calculating the total ascent
+     * @return
+     */
+    private double totalAscentOrDescent(boolean ascent){
+        double total = 0;
+        float previousElevation = elevationSamples[0];
+        for (float elevation : elevationSamples){
+            total = ascent && previousElevation < elevation ?
+                    (total + (elevation - previousElevation))
+                    : !ascent && previousElevation > elevation ?
+                    (total + (previousElevation - elevation)) : total;
+            previousElevation = elevation;
+        }
+        return total;
+    }
 
     /**
      * Gives the elevation at a certain position given
