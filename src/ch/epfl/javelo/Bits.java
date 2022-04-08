@@ -2,6 +2,10 @@ package ch.epfl.javelo;
 
 import static ch.epfl.javelo.Preconditions.checkArgument;
 
+/**
+ * Contains two methods to extract a sequence of bits from a 32 bits vector
+ * @author Aya Hamane (345565)
+ */
 public final class Bits {
 
     private Bits(){}

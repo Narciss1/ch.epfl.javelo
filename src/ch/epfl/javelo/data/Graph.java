@@ -14,6 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
+/**
+ * Represents the Javelo graph
+ * Every graph has a corresponding list of attribute sets, a GraphNodes containing all
+ * the graph's nodes, as well as a GraphSectors and a GraphEdges containing all the
+ * graph's sectors and edges
+ * @author Aya Hamane (345565)
+ */
 public final class Graph {
 
     private final GraphNodes nodes;

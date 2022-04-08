@@ -2,6 +2,10 @@ package ch.epfl.javelo.projection;
 
 import ch.epfl.javelo.Math2;
 
+/**
+ * Provides static methods to convert between WGS 84 and Web Mercator coordinates
+ * @author Aya Hamane (345565)
+ */
 public final class WebMercator {
 
     private WebMercator(){}

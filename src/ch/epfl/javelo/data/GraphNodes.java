@@ -15,18 +15,28 @@ public record GraphNodes(IntBuffer buffer) {
      */
     private static final int OFFSET_N = OFFSET_E + 1;
     /**
-     * index corresponding to the number of edges of a node and the identity of the first one
+     * index corresponding to the number of edges of a node and the identity of
+     * the first one
      */
     private static final int OFFSET_OUT_EDGES = OFFSET_N + 1;
     /**
      * number of values representing a sector
      */
     private static final int NODE_INTS = OFFSET_OUT_EDGES + 1;
-
+    /**
+     * index corresponding to the start of the number of edges exiting a given
+     * identity node
+     */
     private static final int OUT_DEGREE_START = 28;
-
+    /**
+     * number representing the length of the number of edges exiting a given identity
+     * node
+     */
     private static final int OUT_DEGREE_LENGTH = 4;
-
+    /**
+     * number representing the length of the number corresponding to
+     * the identity of the edgeIndex-th edge coming out of an identity node
+     */
     private static final int EDGE_ID_LENGTH = 28;
 
     /**

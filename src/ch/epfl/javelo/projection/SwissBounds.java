@@ -1,5 +1,9 @@
 package ch.epfl.javelo.projection;
 
+/**
+ * Contains constants and methods related to the limits of Switzerland
+ * @author Aya Hamane (345565)
+ */
 public final class SwissBounds {
 
     private SwissBounds() {}

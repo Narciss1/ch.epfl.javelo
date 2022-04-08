@@ -8,6 +8,12 @@ import static ch.epfl.javelo.Math2.clamp;
 import static ch.epfl.javelo.projection.SwissBounds.*;
 import static java.lang.Short.toUnsignedInt;
 
+/**
+ * Represents a table containing the 16384 sectors of JaVelo
+ * Every GraphSectors had a buffer containing the value
+ * of the attributes of all the sectors
+ * @author Aya Hamane (345565)
+ */
 public record GraphSectors(ByteBuffer buffer) {
 
     /**
@@ -15,14 +21,20 @@ public record GraphSectors(ByteBuffer buffer) {
      */
     private static final int OFFSET_INDEX = 0;
     /**
-     *  index corresponding to the last byte of the number of nodes in a sector
+     * index corresponding to the last byte of the number of nodes in a sector
      */
     private static final int OFFSET_NUMBER = OFFSET_INDEX + Integer.BYTES;
     /**
      * number of bytes representing a sector
      */
     private static final int SECTOR_INTS = OFFSET_NUMBER + Short.BYTES;
+    /**
+     * number of sectors on the side of the rectangle encompassing Switzerland
+     */
     private static final int SECTOR_SIDE = 128;
+    /**
+     * number representing the limit of sectors that can be used
+     */
     private static final int SECTOR_MAX = 127;
 
     /**
@@ -49,10 +61,10 @@ public record GraphSectors(ByteBuffer buffer) {
         int indexLeftDown = xMin + SECTOR_SIDE*yMin;
         int indexLeftUp = xMin + SECTOR_SIDE*yMax;
         int indexRightDown = xMax + SECTOR_SIDE*yMin;
-        int largeur = indexRightDown - indexLeftDown + 1;
+        int width = indexRightDown - indexLeftDown + 1;
 
         for(int i = indexLeftDown; i <= indexLeftUp; i += SECTOR_SIDE){
-            for(int j = 0; j < largeur; ++j){
+            for(int j = 0; j < width; ++j){
                 int indexStartNode = buffer.getInt((i + j)*SECTOR_INTS + OFFSET_INDEX);
                 int numberNodes = toUnsignedInt(buffer().getShort((i + j)*SECTOR_INTS + OFFSET_NUMBER));
                 sectorInArea.add(new Sector(indexStartNode, indexStartNode + numberNodes));

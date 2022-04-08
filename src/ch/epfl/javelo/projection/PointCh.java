@@ -3,6 +3,11 @@ package ch.epfl.javelo.projection;
 import static ch.epfl.javelo.Preconditions.checkArgument;
 import static ch.epfl.javelo.projection.SwissBounds.containsEN;
 
+/**
+ * Represents a point in the Swiss coordinate system
+ * Each point had its corresponding east and north coordinate
+ * @author Aya Hamane (345565)
+ */
 public record PointCh(double e, double n) {
 
     /**

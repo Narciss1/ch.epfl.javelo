@@ -4,6 +4,13 @@ import ch.epfl.javelo.projection.PointCh;
 
 import static java.lang.Double.POSITIVE_INFINITY;
 
+/**
+ * Represents the closest point on a route to a given
+ * reference point, which is in the vicinity of the route
+ * Every RoutePoint has a corresponding PointCh, a given position and a distance to the
+ * given reference point
+ * @author Aya Hamane (345565)
+ */
 public record RoutePoint(PointCh point, double position, double distanceToReference) {
 
     /**

@@ -2,6 +2,11 @@ package ch.epfl.javelo;
 
 import static java.lang.Math.scalb;
 
+/**
+ * Contains static methods to convert numbers between the Q28.4
+ * representation and other representations
+ * @author Aya Hamane (345565)
+ */
 public final class Q28_4 {
 
     private Q28_4(){}

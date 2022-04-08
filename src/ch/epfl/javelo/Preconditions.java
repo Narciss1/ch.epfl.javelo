@@ -1,5 +1,9 @@
 package ch.epfl.javelo;
 
+/**
+ * Provides a method to check that the arguments of a method satisfy certain conditions
+ * @author Aya Hamane (345565)
+ */
 public final class Preconditions {
 
     private Preconditions() {}

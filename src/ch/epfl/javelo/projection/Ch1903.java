@@ -1,5 +1,9 @@
 package ch.epfl.javelo.projection;
 
+/**
+ * Provides static methods to convert between WGS 84 and Swiss coordinates
+ * @author Aya Hamane (345565)
+ */
 public final class Ch1903 {
 
     private Ch1903() {}

@@ -8,6 +8,12 @@ import static ch.epfl.javelo.Math2.clamp;
 import static ch.epfl.javelo.Preconditions.checkArgument;
 import static java.util.Collections.binarySearch;
 
+/**
+ * Represents a simple route, i.e. an itinerary that has no intermediate points
+ * between its starting and ending points
+ * Every simple route has a corresponding list of edges
+ * @author Aya Hamane (345565)
+ */
 public final class SingleRoute implements Route {
 
     private final List<Edge> edges;

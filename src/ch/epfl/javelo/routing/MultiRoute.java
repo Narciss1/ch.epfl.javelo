@@ -7,6 +7,12 @@ import java.util.List;
 import static ch.epfl.javelo.Math2.clamp;
 import static ch.epfl.javelo.Preconditions.checkArgument;
 
+/**
+ * Represents a multiple route, i.e. an itinerary composed of a sequence of
+ * contiguous routes called segments
+ * Every multiple route has a corresponding list of segments
+ * @author Aya Hamane (345565)
+ */
 public final class MultiRoute implements Route {
 
     private final List<Route> segments;
