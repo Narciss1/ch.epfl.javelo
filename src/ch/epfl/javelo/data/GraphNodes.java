@@ -7,7 +7,7 @@ import static ch.epfl.javelo.Q28_4.asDouble;
 /**
  * Represents the array of all the nodes in Javelo
  * @author Lina Sadgal (342075)
- * @author Aya Hamane (...)
+ * @author Aya Hamane (345565)
  */
 public record GraphNodes(IntBuffer buffer) {
 

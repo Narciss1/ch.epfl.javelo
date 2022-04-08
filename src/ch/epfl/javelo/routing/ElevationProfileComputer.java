@@ -60,14 +60,13 @@ public final class ElevationProfileComputer {
         if (firstNotNan == elevationSamples.length){
             Arrays.fill(elevationSamples, 0);
             return false;
-        } else {
-            fill(elevationSamples, 0, firstNotNan, elevationSamples[firstNotNan]);
-            int lastNotNan = elevationSamples.length - 1;
-            while ( lastNotNan > 0 && isNaN(elevationSamples[lastNotNan])){
-                --lastNotNan;
-            }
-            fill(elevationSamples, lastNotNan, elevationSamples.length, elevationSamples[lastNotNan]);
         }
+        fill(elevationSamples, 0, firstNotNan, elevationSamples[firstNotNan]);
+        int lastNotNan = elevationSamples.length - 1;
+        while ( lastNotNan > 0 && isNaN(elevationSamples[lastNotNan])){
+            --lastNotNan;
+        }
+        fill(elevationSamples, lastNotNan, elevationSamples.length, elevationSamples[lastNotNan]);
         return true;
     }
 

@@ -79,10 +79,9 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         if (! isInverted(edgeId)){
             return Bits.extractUnsigned(edgesBuffer.getInt(EDGES_INTS * edgeId + OFFSET_NODE),
                     0, 31);
-        } else {
-            return Bits.extractUnsigned(~edgesBuffer.getInt(EDGES_INTS * edgeId + OFFSET_NODE),
-                    0, 31);
         }
+        return Bits.extractUnsigned(~edgesBuffer.getInt(EDGES_INTS * edgeId + OFFSET_NODE),
+                0, 31);
     }
 
     /**
@@ -152,9 +151,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         }
             if (!isInverted(edgeId)){
                 return profileSamples;
-            } else {
-                return reverse(profileSamples);
             }
+            return reverse(profileSamples);
     }
 
     /**
