@@ -8,7 +8,7 @@ import java.util.*;
 
 /**
  * Represents an itinerary planner
- * @author Lina Sadgal
+ * @author Lina Sadgal (342075)
  */
 
 public final class RouteComputer {
