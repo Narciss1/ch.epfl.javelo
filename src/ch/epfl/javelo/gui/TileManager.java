@@ -16,7 +16,7 @@ public final class TileManager {
     private Path directory;
     private String server;
     //Verify if that's how it should be initialized?
-    private LinkedHashMap<TileId, Image> memory = new LinkedHashMap(0, 100, true);
+    private LinkedHashMap<TileId, Image> memory = new LinkedHashMap(100, 0.75f, true);
 
     public record TileId(int zoomLevel, int indexX, int indexY) {
         //private or public record?
