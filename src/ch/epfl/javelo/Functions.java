@@ -2,6 +2,12 @@ package ch.epfl.javelo;
 
 import java.util.function.DoubleUnaryOperator;
 
+/**
+ * Contains methods allowing us to create objects representing mathematical functions
+ from the real numbers to the real numbers.
+ * @author Lina Sadgal (342075)
+ */
+
 public final class Functions
 {
 
@@ -31,6 +37,9 @@ public final class Functions
         }
 
 
+    /**
+     * allows us to create a constant function
+     */
     private static record Constant(double constantValue) implements DoubleUnaryOperator {
 
         /**
@@ -46,11 +55,20 @@ public final class Functions
 
     }
 
+    /**
+     * allows us to create a function from an array of distant samples
+     */
+
     private final static class Sampled implements DoubleUnaryOperator{
 
         private final float[] samples;
         private final double xMax;
 
+        /**
+         * allows us to create a function from an array of samples
+         * @param samples the array of samples
+         * @param xMax the last antecedent for which we have the image in samples
+         */
         public Sampled (float[] samples, double xMax){
             this.samples = samples.clone();
             this.xMax = xMax;

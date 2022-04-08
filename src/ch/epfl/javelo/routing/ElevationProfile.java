@@ -6,6 +6,11 @@ import ch.epfl.javelo.Preconditions;
 import java.util.DoubleSummaryStatistics;
 import java.util.function.DoubleUnaryOperator;
 
+/**
+ * Represents the profile of a simple or multiple itinerary
+ * @author Lina Sadgal (342075)
+ */
+
 public final class ElevationProfile {
 
     private final double length;
@@ -77,10 +82,10 @@ public final class ElevationProfile {
         return totalAscentOrDescent(false);
     }
 
-    /** calculates the total ascent if
-     *
+    /**
+     * calculates the total ascent if the argument given is true, the total descent otherwise
      * @param ascent argument that is true if and only if we are calculating the total ascent
-     * @return
+     * @return the total ascent or descent, depending on the argument received
      */
     private double totalAscentOrDescent(boolean ascent){
         double total = 0;

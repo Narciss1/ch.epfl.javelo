@@ -4,6 +4,11 @@ import java.nio.IntBuffer;
 import static ch.epfl.javelo.Bits.extractUnsigned;
 import static ch.epfl.javelo.Q28_4.asDouble;
 
+/**
+ * Represents the array of all the nodes in Javelo
+ * @author Lina Sadgal (342075)
+ * @author Aya Hamane (...)
+ */
 public record GraphNodes(IntBuffer buffer) {
 
     /**
@@ -55,8 +60,8 @@ public record GraphNodes(IntBuffer buffer) {
      */
     public int edgeId(int nodeId, int edgeIndex) {
         assert 0 <= edgeIndex && edgeIndex < outDegree(nodeId);
-        return extractUnsigned(buffer.get(NODE_INTS*nodeId + OFFSET_OUT_EDGES), 0, EDGE_ID_LENGTH)
-                + edgeIndex;
+        return extractUnsigned(buffer.get(NODE_INTS*nodeId + OFFSET_OUT_EDGES),
+                0, EDGE_ID_LENGTH) + edgeIndex;
     }
 
     /**

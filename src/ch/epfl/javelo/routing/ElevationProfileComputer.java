@@ -8,6 +8,11 @@ import java.util.Arrays;
 import static java.lang.Float.isNaN;
 import static java.util.Arrays.fill;
 
+/**
+ * Represents a profile calculator
+ * @author Lina Sadgal (342075)
+ */
+
 public final class ElevationProfileComputer {
 
     private ElevationProfileComputer(){}

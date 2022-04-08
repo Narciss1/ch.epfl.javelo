@@ -116,7 +116,8 @@ public final class Graph {
        List<GraphSectors.Sector> closeSectors = sectors.sectorsInArea(point, searchDistance);
        for(GraphSectors.Sector sector : closeSectors){
           for(int j = sector.startNodeId(); j < sector.endNodeId(); j++){
-              double distance = point.squaredDistanceTo(new PointCh(nodes.nodeE(j), nodes.nodeN(j)));
+              double distance = point.squaredDistanceTo(
+                      new PointCh(nodes.nodeE(j), nodes.nodeN(j)));
               if(distance < minDistance){
                   minDistance = distance;
                   closestNode = j;

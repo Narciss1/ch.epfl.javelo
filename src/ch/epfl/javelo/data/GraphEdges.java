@@ -11,6 +11,11 @@ import java.nio.ShortBuffer;
 
 import static java.lang.Short.toUnsignedInt;
 
+/**
+ * Represents the array of all the edges in JaVelo
+ * @author Lina Sadgal (342075)
+ */
+
 public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuffer elevations) {
 
     /**
@@ -42,7 +47,6 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * number of values representing an edge
      */
     private static final int PROFILES_INTS = OFFSET_PROFILE_ID + 1;
-
 
     /**
      * the number of bits a difference occupies in a short of BufferElevation
@@ -126,41 +130,55 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                         EDGES_INTS * edgeId + OFFSET_LENGTH)),
                 Q28_4.ofInt(2));
         float[] profileSamples = new float[samplesNumber];
-        int firstSampleId = Bits.extractUnsigned(profileIds.get(PROFILES_INTS * edgeId + OFFSET_PROFILE_ID),
-                0, 30);
+        int firstSampleId = Bits.extractUnsigned(profileIds.get
+                        (PROFILES_INTS * edgeId + OFFSET_PROFILE_ID), 0, 30);
         //We put the first elevation, that is never compressed regardless of the type, in the array
         profileSamples[0] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(firstSampleId)));
         switch(typeOfProfile(edgeId)){
             case 1 :
                 for (int i = 1; i < samplesNumber; ++i) {
-                    profileSamples[i] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(firstSampleId + i)));
+                    profileSamples[i] = Q28_4.asFloat(Short.toUnsignedInt
+                            (elevations.get(firstSampleId + i)));
                 }
                 break;
             case 2 :
-                profileSamplesThroughDifferences(DIFFERENCE_LENGTH_TYPE_2, profileSamples, firstSampleId);
+                profileSamplesThroughDifferences(DIFFERENCE_LENGTH_TYPE_2,
+                        profileSamples, firstSampleId);
                 break;
             case 3 :
-                profileSamplesThroughDifferences(DIFFERENCE_LENGTH_TYPE_3, profileSamples, firstSampleId);
+                profileSamplesThroughDifferences(DIFFERENCE_LENGTH_TYPE_3,
+                        profileSamples, firstSampleId);
                 break;
         }
             if (!isInverted(edgeId)){
                 return profileSamples;
             } else {
-                return inverse(profileSamples);
+                return reverse(profileSamples);
             }
     }
 
     /**
      * This method fills the array profileSamples with the elevations.
-     * @param lengthOfDifferences  the number of bits of the difference in a short.
+     * @param lengthOfDifferences  the number of bits of the difference in a Short.
      * @param profileSamples  the array of samples to fill
      * @param firstSampleId   the identity of the first elevation in the ElevationBuffer
      */
     private void profileSamplesThroughDifferences(int lengthOfDifferences, float[] profileSamples,
                                                   int firstSampleId){
+
+        //The value of the start of the first difference (8 for type 2 and 12 for type 3).
+        //This value does not change during the execution of the method to let us know it is
+        //high time to go to the next level.
         int firstStartValue = -lengthOfDifferences + Short.SIZE;
+
+        //The value of the start of the first difference (8 for type 2 and 12 for type 3).
+        //This value changes during the execution of the method
         int startValue = -lengthOfDifferences + Short.SIZE;
+
+        //The switcher, 8 for type 2 and 12 for type 3, allows us, through a modulo operation
+        //to change the start value to give as an argument to extractedSigned
         int switcher = -lengthOfDifferences + Short.SIZE;
+
         //It is equal to one because the first elevation has already been added.
         int samplesTaken = 1;
         int shortNumber = 1;
@@ -175,25 +193,24 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 ++shortNumber;
             }
         }
-
     }
 
     /**
      * takes an array of float values and inverses its values
-     * @param toInverse the array we want to inverse the values for
+     * @param toReverse the array we want to inverse the values for
      * @return an array with the inverse values of the one given as an argument
      */
-    private static float[] inverse(float[] toInverse){
+    private static float[] reverse(float[] toReverse){
         int i = 0;
-        int j = toInverse.length - 1;
+        int j = toReverse.length - 1;
         while (i < j){
-            float toKeep = toInverse[i];
-            toInverse[i] = toInverse[j];
-            toInverse[j] = toKeep;
+            float toKeep = toReverse[i];
+            toReverse[i] = toReverse[j];
+            toReverse[j] = toKeep;
             i = i + 1;
             j = j - 1;
         }
-        return toInverse;
+        return toReverse;
     }
 
     /**
