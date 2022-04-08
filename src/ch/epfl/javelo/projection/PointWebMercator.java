@@ -7,7 +7,7 @@ import static ch.epfl.javelo.projection.SwissBounds.containsEN;
 
 /**
  * Represents a point in the Web Mercator system
- * Each point had its corresponding x and y coordinates
+ * Each point has its corresponding x and y coordinates
  * @author Aya Hamane (345565)
  */
 public record PointWebMercator(double x, double y) {
