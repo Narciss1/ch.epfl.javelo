@@ -60,6 +60,7 @@ public final class TileManager {
         //Image image = new Image(j);
         //memory.put(tileId, image);
         //return image;
+        return null;
     }
 
 }

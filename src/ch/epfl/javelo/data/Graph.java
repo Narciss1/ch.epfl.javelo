@@ -33,7 +33,7 @@ public final class Graph {
      * @param basePath path of the directory
      * @param string name of the file
      * @return buffer of type ByteBuffer
-     * @throws IOException 
+     * @throws IOException if an I/O error occurs
      */
     private static ByteBuffer fileBuffer(Path basePath, String string) throws IOException {
         Path stringPath = basePath.resolve(string);
