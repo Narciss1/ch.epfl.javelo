@@ -1,5 +1,10 @@
 package ch.epfl.javelo;
 
+/**
+ * Offers some mathematical static methods to easily calculate.
+ * @author Lina Sadgal (342075)
+ */
+
 public final class Math2
 {
     private Math2(){}
@@ -68,7 +73,8 @@ public final class Math2
     }
 
     /**
-     * calculates and returns the dot product of the two vectors which coordinates are given as arguments.
+     * calculates and returns the dot product of the two vectors
+     * which coordinates are given as arguments.
      * @param uX  coordinate x of the first vector
      * @param uY  coordinate y of the first vector
      * @param vX  coordinate x of the second vector
@@ -80,7 +86,8 @@ public final class Math2
     }
 
     /**
-     * calculates and returns the squared norm of the vector which coordinates are given as arguments.
+     * calculates and returns the squared norm of the vector
+     * which coordinates are given as arguments.
      * @param uX coordinate x of the vector
      * @param uY coordinate y of the vector
      * @return the squared norm of the vector

@@ -93,13 +93,10 @@ public final class SingleRoute implements Route {
                     .elevationAt(position - positionAllNodes.get(edgeIndex));
         }
         if (nodeIndex < edges.size()) {
-            return edges.get(nodeIndex)
-                    .elevationAt(0);
+            return edges.get(nodeIndex).elevationAt(0);
         }
-        double lastEdgeLength = edges.get(nodeIndex - 1)
-                                 .length();
-        return edges.get(nodeIndex - 1)
-                .elevationAt(lastEdgeLength);
+        double lastEdgeLength = edges.get(nodeIndex - 1).length();
+        return edges.get(nodeIndex - 1).elevationAt(lastEdgeLength);
     }
 
     /**
@@ -178,7 +175,8 @@ public final class SingleRoute implements Route {
     }
 
     /**
-     * Determines which one of the first and last nodes of an edge is the closest to a certain position
+     * Determines which one of the first and last nodes of an edge is the closest
+     * to a certain position
      * @param position position
      * @param edgeIndex index of an edge of the itinerary
      * @param positionAllNodes list of the positions of all the itinerary's nodes

@@ -6,6 +6,11 @@ import ch.epfl.javelo.projection.PointCh;
 
 import java.util.function.DoubleUnaryOperator;
 
+/**
+ * Represents an edge of the itinerary
+ * @author Lina Sadgal
+ */
+
 public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPoint, double length,
                    DoubleUnaryOperator profile) {
 

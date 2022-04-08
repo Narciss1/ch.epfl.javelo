@@ -1,9 +1,11 @@
 package ch.epfl.javelo;
 
 /**
- * Provides a method to check that the arguments of a method satisfy certain conditions
- * @author Aya Hamane (345565)
+ *  Represents the class that checks if the arguments of a method in the project are valid
+ and throws an IllegalArgumentException through its checkArgument method if not.
+ * @author Lina Sadgal (342075)
  */
+
 public final class Preconditions {
 
     private Preconditions() {}

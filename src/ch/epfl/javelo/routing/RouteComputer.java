@@ -6,6 +6,11 @@ import ch.epfl.javelo.projection.PointCh;
 
 import java.util.*;
 
+/**
+ * Represents an itinerary planner
+ * @author Lina Sadgal
+ */
+
 public final class RouteComputer {
 
     private final Graph graph;
@@ -81,7 +86,7 @@ public final class RouteComputer {
     }
 
     /**
-     *  Constructs the Route by finding its edges using predecessors array.
+     * Constructs the Route by finding its edges using predecessors array.
      * @param predecessors the array containing a node's predecessor's identity, if it has one.
      * @param startNodeId  the identity of the first node of the itinerary
      * @param endNodeId    the identity of the last node of the itinerary
@@ -93,8 +98,9 @@ public final class RouteComputer {
         int edgeId;
         while (currentNode != startNodeId){
             int i = 0;
-            while (graph.edgeTargetNodeId(graph.nodeOutEdgeId(predecessors[currentNode], i)) != currentNode){
-                ++i;
+            while (graph.edgeTargetNodeId(graph.nodeOutEdgeId(predecessors[currentNode], i))
+                    != currentNode){
+                        ++i;
             }
             edgeId = graph.nodeOutEdgeId(predecessors[currentNode], i);
             edgesForRoute.add(Edge.of(graph, edgeId, predecessors[currentNode], currentNode));

@@ -7,6 +7,11 @@ import java.util.StringJoiner;
 import static ch.epfl.javelo.data.Attribute.ALL;
 import static ch.epfl.javelo.data.Attribute.COUNT;
 
+/**
+ * Represents a set of OpenStreetMap attributes
+ * @author Lina Sadgal (342075)
+ */
+
 public record AttributeSet (long bits) {
 
     /**
@@ -54,8 +59,6 @@ public record AttributeSet (long bits) {
         return attributes.toString();
     }
 
-
-    //Petit doute sur la boucle.
     /**
      * creates an AttributeSet which attribute bits has 1 in the positions (beginning from 0)
      * of the given attributes in the list Attribute.
@@ -69,11 +72,6 @@ public record AttributeSet (long bits) {
             long mask = 1L << attribute.ordinal();
             bitsIncremented = bitsIncremented + mask;
         }
-
-//        for (int i = 0; i < attributes.length; ++i){
-//            long mask = 1L << attributes[i].ordinal();
-//            bitsIncremented = bitsIncremented + mask;
-//        }
 
         return new AttributeSet(bitsIncremented);
     }

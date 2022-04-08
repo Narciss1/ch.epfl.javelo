@@ -66,7 +66,8 @@ public record GraphSectors(ByteBuffer buffer) {
         for(int i = indexLeftDown; i <= indexLeftUp; i += SECTOR_SIDE){
             for(int j = 0; j < width; ++j){
                 int indexStartNode = buffer.getInt((i + j)*SECTOR_INTS + OFFSET_INDEX);
-                int numberNodes = toUnsignedInt(buffer().getShort((i + j)*SECTOR_INTS + OFFSET_NUMBER));
+                int numberNodes = toUnsignedInt(buffer().getShort(
+                        (i + j)*SECTOR_INTS + OFFSET_NUMBER));
                 sectorInArea.add(new Sector(indexStartNode, indexStartNode + numberNodes));
             }
         }
