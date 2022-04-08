@@ -5,6 +5,7 @@ import ch.epfl.javelo.projection.PointCh;
 import java.util.ArrayList;
 import java.util.List;
 import static ch.epfl.javelo.Math2.clamp;
+import static ch.epfl.javelo.Preconditions.checkArgument;
 import static java.util.Collections.binarySearch;
 
 public final class SingleRoute implements Route {
@@ -15,9 +16,10 @@ public final class SingleRoute implements Route {
     /**
      * Constructor
      * @param edges list of edges
+     * @throws IllegalArgumentException if the list of edges is empty
      */
     public SingleRoute(List<Edge> edges) {
-        Preconditions.checkArgument(!edges.isEmpty());
+        checkArgument(!edges.isEmpty());
         this.edges = List.copyOf(edges);
         positionAllNodes = new ArrayList<>();
         positionAllNodes = positionAllNodes();

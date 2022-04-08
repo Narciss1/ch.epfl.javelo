@@ -9,6 +9,8 @@ public record PointCh(double e, double n) {
      * Compact constructor
      * @param e east coordinate of the point
      * @param n north coordinate of the point
+     * @throws IllegalArgumentException when the point is not in the limits
+     * of Switzerland
      */
     public PointCh {
         checkArgument(containsEN(e, n));

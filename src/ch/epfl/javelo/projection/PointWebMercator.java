@@ -11,6 +11,8 @@ public record PointWebMercator(double x, double y) {
      * Compact constructor
      * @param x coordinate of the point
      * @param y coordinate of the point
+     * @throws IllegalArgumentException if the coordinates are not in the range between
+     * 0 and 1
      */
     public PointWebMercator {
         checkArgument(x >= 0 && x <= 1 && y >= 0 && y <= 1 );
