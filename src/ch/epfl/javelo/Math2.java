@@ -69,7 +69,7 @@ public final class Math2
      * @return the inverse hyperbolic sine of x
      */
     public static double asinh(double x){
-        return Math.log(x + Math.sqrt(1 + Math.pow(x,2)));
+        return Math.log(x + Math.sqrt(1 + x*x));
     }
 
     /**
@@ -93,7 +93,7 @@ public final class Math2
      * @return the squared norm of the vector
      */
     public static double squaredNorm(double uX, double uY){
-        return Math.pow(uX,2)+Math.pow(uY,2);
+        return uX*uX + uY*uY;
     }
 
     /**

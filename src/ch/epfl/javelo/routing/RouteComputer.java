@@ -17,6 +17,12 @@ public final class RouteComputer {
     private final CostFunction costFunction;
 
 
+    /**
+     * Constructs a RouteComputer
+     * @param graph the graph containing the information used to construct the Route
+     * @param costFunction the function that calculates the cost of an edge regarding
+     * of its characteristics
+     */
     public RouteComputer(Graph graph, CostFunction costFunction){
         this.graph = graph;
         this.costFunction = costFunction;
