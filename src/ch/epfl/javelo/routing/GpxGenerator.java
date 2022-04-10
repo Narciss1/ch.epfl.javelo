@@ -1,11 +1,21 @@
 package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.projection.Ch1903;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.swing.text.Document;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
 
 public class GpxGenerator {
 
@@ -60,10 +70,27 @@ public class GpxGenerator {
     }
 
 
-    public static Document writeGpx(String fileName, Route route, ElevationProfile profile) {
-        return null;
+    public static Document writeGpx(String fileName, Route route, ElevationProfile profile)
+    throws IOException {
+
+        org.w3c.dom.Document doc = createGpx(route, profile);
+        File file = new File(fileName);
+        Writer w = Files.newBufferedWriter(file.toPath());
+
+        try {
+            Transformer transformer = TransformerFactory
+                    .newDefaultInstance()
+                    .newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.transform(new DOMSource(doc),
+                    new StreamResult(w));
+        } catch (TransformerException e) {
+            throw new Error(e); // Should never happen
+        }
+        return doc;
     }
 
+    
     private static org.w3c.dom.Document newDocument() {
         try {
             return DocumentBuilderFactory

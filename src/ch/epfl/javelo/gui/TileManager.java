@@ -20,9 +20,12 @@ public final class TileManager {
     private static int CACHE_MEMORY_CAPACITY = 100;
 
     public record TileId(int zoomLevel, int indexX, int indexY) {
+
+
+
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
-            return true;//If the tileId is valid; range of attributes?
-            //Ne pas limiter le zoom here, juste verifier sil est positif ou null
+            int limit = (int)Math.pow(2,zoomLevel) - 1;
+            return (indexX <= limit && indexY <= limit);
         }
     }
 
@@ -32,7 +35,7 @@ public final class TileManager {
 
     }
 
-    public Image imageForTile(TileId tileId) throws IOException {
+    public Image imageForTileAt(TileId tileId) throws IOException {
         //Search in cacheMemory:
         if(cacheMemory.containsKey(tileId)){
             return cacheMemory.get(tileId);
