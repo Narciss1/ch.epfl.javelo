@@ -23,7 +23,7 @@ public final class TileManager {
 
     public record TileId(int zoomLevel, int indexX, int indexY) {
 
-        public TileId(){
+        public TileId {
             Preconditions.checkArgument(isValid(zoomLevel, indexX, indexY));
         }
 
@@ -57,7 +57,7 @@ public final class TileManager {
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
 
-        //Creat directories:
+        //Create directories:
         Path directoryPath = basePath.resolve(String.valueOf(tileId.zoomLevel)).
                 resolve(String.valueOf(tileId.indexX));
         Files.createDirectories(directoryPath);
