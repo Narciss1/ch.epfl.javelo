@@ -52,17 +52,19 @@ public class GpxGenerator {
         for (int i = 0; i < route.points().size(); ++i){
 
             Element rtept = doc.createElement("rtept");
-            rtept.setAttribute("lat", String.valueOf(Ch1903.lat(route.points().get(i).e(),
-                    route.points().get(i).e())));
-            rtept.setAttribute("lon", String.valueOf(Ch1903.lon(route.points().get(i).e(),
-                    route.points().get(i).e())));
+            rtept.setAttribute("lat", String.valueOf(Math.toDegrees(Ch1903.lat(route.points().get(i).e(),
+                    route.points().get(i).n()))));
+            rtept.setAttribute("lon", String.valueOf(Math.toDegrees(Ch1903.lon(route.points().get(i).e(),
+                    route.points().get(i).n()))));
             rte.appendChild(rtept);
 
             Element ele = doc.createElement("ele");
             rtept.appendChild(ele);
             ele.setTextContent(String.valueOf(profile.elevationAt(position)));
 
-            position += route.edges().get(i).length();
+            if (i != route.points().size()- 1){
+                position += route.edges().get(i).length();
+            }
 
         }
 

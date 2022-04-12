@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+
+import ch.epfl.javelo.Preconditions;
 import javafx.scene.image.Image;
 
 
@@ -21,18 +23,20 @@ public final class TileManager {
 
     public record TileId(int zoomLevel, int indexX, int indexY) {
 
-
+        public TileId(){
+            Preconditions.checkArgument(isValid(zoomLevel, indexX, indexY));
+        }
 
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
             int limit = (int)Math.pow(2,zoomLevel) - 1;
             return (indexX <= limit && indexY <= limit);
         }
+
     }
 
     public TileManager(Path basePath, String server) {
         this.basePath = basePath;
         this.server = server;
-
     }
 
     public Image imageForTileAt(TileId tileId) throws IOException {
@@ -69,7 +73,7 @@ public final class TileManager {
             javafx.scene.image.Image image = new javafx.scene.image.Image(i);
             if(cacheMemory.size() == CACHE_MEMORY_CAPACITY) {
                 Iterator<TileId> iterator = cacheMemory.keySet().iterator();
-                cacheMemory.remove(iterator.next());
+                System.out.println(cacheMemory.remove(iterator.next()));
             }
             cacheMemory.put(tileId, image);
             return image;
