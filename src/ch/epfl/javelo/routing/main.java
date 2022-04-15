@@ -8,6 +8,7 @@ import java.nio.file.Path;
 
 public class main {
 
+
     public static void main(String[] args) throws IOException {
 
         Graph g = Graph.loadFrom(Path.of("ch_west"));
@@ -24,5 +25,4 @@ public class main {
                 (System.nanoTime() - t0) / 1_000_000);
         System.out.println(-4 % 16);
     }
-
 }

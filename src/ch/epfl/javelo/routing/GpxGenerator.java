@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
+import java.util.Locale;
 
 public class GpxGenerator {
 
@@ -52,15 +53,13 @@ public class GpxGenerator {
         for (int i = 0; i < route.points().size(); ++i){
 
             Element rtept = doc.createElement("rtept");
-            rtept.setAttribute("lat", String.valueOf(Math.toDegrees(Ch1903.lat(route.points().get(i).e(),
-                    route.points().get(i).n()))));
-            rtept.setAttribute("lon", String.valueOf(Math.toDegrees(Ch1903.lon(route.points().get(i).e(),
-                    route.points().get(i).n()))));
+            rtept.setAttribute("lat", String.format(Locale.ROOT, "%.5f", Math.toDegrees(route.points().get(i).lat())));
+            rtept.setAttribute("lon", String.format(Locale.ROOT, "%.5f", Math.toDegrees(route.points().get(i).lon())));
             rte.appendChild(rtept);
 
             Element ele = doc.createElement("ele");
             rtept.appendChild(ele);
-            ele.setTextContent(String.valueOf(profile.elevationAt(position)));
+            ele.setTextContent(String.format(Locale.ROOT, "%.2f", Math.toDegrees(route.points().get(i).lon())));
 
             if (i != route.points().size()- 1){
                 position += route.edges().get(i).length();
@@ -72,7 +71,7 @@ public class GpxGenerator {
     }
 
 
-    public static Document writeGpx(String fileName, Route route, ElevationProfile profile)
+    public static void writeGpx(String fileName, Route route, ElevationProfile profile)
     throws IOException {
 
         org.w3c.dom.Document doc = createGpx(route, profile);
@@ -89,7 +88,6 @@ public class GpxGenerator {
         } catch (TransformerException e) {
             throw new Error(e); // Should never happen
         }
-        return doc;
     }
 
     

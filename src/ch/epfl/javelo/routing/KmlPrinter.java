@@ -11,7 +11,7 @@ import java.util.Locale;
 public final class KmlPrinter {
     public static void main(String[] args) throws IOException {
         final String L = "lausanne";
-        final String S = "lausanne/ch_west";
+        final String S = "ch_west";
 
         Graph g = Graph.loadFrom(Path.of(S));
         CostFunction cf = new CityBikeCF(g);
