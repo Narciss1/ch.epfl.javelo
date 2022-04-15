@@ -29,6 +29,8 @@ public final class BaseMapManager {
         this.tileManager = tileManager;
         this.mapParameters = mapProperty.get();
         pane = new Pane();
+        pane.setPrefHeight(300);
+        pane.setPrefWidth(600);
         canvas = new Canvas();
         pane.getChildren().add(canvas);
         canvas.widthProperty().bind(pane.widthProperty());
@@ -38,12 +40,16 @@ public final class BaseMapManager {
                 newS.addPreLayoutPulseListener(this::redrawIfNeeded);
             });
         //VOIR PIAZZA 1071
-        if(redrawNeeded) {
-            redrawOnNextPulse();
-        }
+        //if(redrawNeeded)
+        redrawOnNextPulse();
     }
 
     public void tilesDraw(){
+        System.out.println("Je suis dans tilesDraw()");
+        System.out.println("pane height: " + pane.getHeight());
+        System.out.println("pane width: " + pane.getWidth());
+        System.out.println("canvas height: " + canvas.getHeight());
+        System.out.println("canvas width: " + canvas.getWidth());
         GraphicsContext canvasGraphicsContext = canvas.getGraphicsContext2D();
         double xTopLeft = mapParameters.xCoordinate();
         double yTopLeft = mapParameters.yCoordinate();
@@ -57,7 +63,8 @@ public final class BaseMapManager {
                         indexXTopLeft, indexYTopLeft);
                 try {
                     Image image = tileManager.imageForTileAt(tileId);
-                    PointWebMercator point = new PointWebMercator(x,y);
+                    System.out.println("x: " + x + " y: " + y);
+                    PointWebMercator point = PointWebMercator.of(mapParameters.zoomLevel(), x, y);
                     canvasGraphicsContext.drawImage(image, mapParameters.viewX(point),
                             mapParameters.viewY(point));
                     //PIAZZA DRAWIMAGE

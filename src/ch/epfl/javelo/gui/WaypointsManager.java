@@ -25,9 +25,16 @@ public final class WaypointsManager {
     public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> mapProperty,
                             ObservableList<Waypoint> wayPoints, Consumer<String> errorConsumer) {
         pane = new Pane();
+        pane.setPrefHeight(300);
+        pane.setPrefWidth(600);
         this.graph = graph;
         this.mapViewParameters = mapProperty.get();
         this.wayPoints = wayPoints;
+        //Not sure
+        pane.sceneProperty().addListener((p, oldS, newS) -> {
+            assert oldS == null;
+            newS.addPreLayoutPulseListener(this::addSVGPaths);
+        });
     }
 
     public Pane pane() {
