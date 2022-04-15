@@ -23,12 +23,12 @@ public final class BaseMapManager {
 
     private final static int PIXELS_IN_TILE = 256;
 
-
     //Il faut un dernier paramètre
     public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager, ObjectProperty<MapViewParameters> mapProperty) {
         this.tileManager = tileManager;
         this.mapParameters = mapProperty.get();
         pane = new Pane();
+        //Piazza
         pane.setPrefHeight(300);
         pane.setPrefWidth(600);
         canvas = new Canvas();
@@ -39,38 +39,24 @@ public final class BaseMapManager {
                 assert oldS == null;
                 newS.addPreLayoutPulseListener(this::redrawIfNeeded);
             });
-        //VOIR PIAZZA 1071
-        //if(redrawNeeded)
         redrawOnNextPulse();
     }
 
-    public void tilesDraw(){
-        //System.out.println("Je suis dans tilesDraw()");
-        //System.out.println("pane height: " + pane.getHeight());
-        //System.out.println("pane width: " + pane.getWidth());
-        //System.out.println("canvas height: " + canvas.getHeight());
-        //System.out.println("canvas width: " + canvas.getWidth());
+    public void tilesDraw() {
         GraphicsContext canvasGraphicsContext = canvas.getGraphicsContext2D();
         double xTopLeft = mapParameters.xCoordinate();
         double yTopLeft = mapParameters.yCoordinate();
         int indexXTopLeft = 0, indexYTopLeft = 0;
 
-        for(double y = yTopLeft; y >= yTopLeft - canvas.getHeight(); y = y - PIXELS_IN_TILE) {
+        for(double y = yTopLeft; y > yTopLeft - canvas.getHeight(); y = y - PIXELS_IN_TILE) {
             for(double x = xTopLeft; x < xTopLeft + canvas.getWidth(); x += PIXELS_IN_TILE) {
                 indexXTopLeft = (int) Math.ceil( x / PIXELS_IN_TILE);
                 indexYTopLeft = (int) Math.ceil( y / PIXELS_IN_TILE);
-                System.out.println(indexXTopLeft);
-                System.out.println(indexYTopLeft);
                 TileManager.TileId tileId = new TileManager.TileId(mapParameters.zoomLevel(),
                         indexXTopLeft, indexYTopLeft);
                 try {
                     Image image = tileManager.imageForTileAt(tileId);
-                    //System.out.println("x: " + x + " y: " + y);
-                    //PointWebMercator point = PointWebMercator.of(mapParameters.zoomLevel(), x, y);
                     canvasGraphicsContext.drawImage(image, x - mapParameters.xCoordinate(), y - mapParameters.yCoordinate());
-                    //System.out.println("x: " + (x - mapParameters.xCoordinate()));
-                    //System.out.println("y: " + (y - mapParameters.yCoordinate()));
-                    //PIAZZA DRAWIMAGE
                 } catch (IOException e){
                    continue;
                 }

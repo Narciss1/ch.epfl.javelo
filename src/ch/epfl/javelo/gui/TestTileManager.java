@@ -16,10 +16,6 @@ import java.nio.file.Path;
         public void start(Stage primaryStage) throws Exception {
             TileManager tm = new TileManager(
                     Path.of("."), "tile.openstreetmap.org");
-//            for (int i = 1; i <= 6; ++i){
-//                Image tileImage = tm.imageForTileAt(
-//                        new TileManager.TileId(12, i, i));
-//            }
             Image tileImage = tm.imageForTileAt(
                     new TileManager.TileId(12, 2122,
                             1446));
