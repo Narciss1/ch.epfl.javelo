@@ -71,6 +71,13 @@ public class GpxGenerator {
     }
 
 
+    /**
+     * writes a GPX document in a file
+     * @param fileName the file name
+     * @param route the itinerary for which we want
+     * @param profile the route's profile
+     * @throws IOException
+     */
     public static void writeGpx(String fileName, Route route, ElevationProfile profile)
     throws IOException {
 
@@ -101,4 +108,5 @@ public class GpxGenerator {
             throw new Error(e); // Should never happen
         }
     }
+
 }

@@ -23,7 +23,9 @@ public final class BaseMapManager {
     private final static int PIXELS_IN_TILE = 256;
 
 
-    public BaseMapManager(TileManager tileManager, ObjectProperty<MapViewParameters> mapProperty) throws IOException {
+    //Il faut un dernier paramètre
+    public BaseMapManager(TileManager tileManager, ObjectProperty<MapViewParameters> mapProperty)
+            throws IOException {
         this.tileManager = tileManager;
         this.mapParameters = mapProperty.get();
         pane = new Pane();
@@ -31,10 +33,15 @@ public final class BaseMapManager {
         pane.getChildren().add(canvas);
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
-        canvas.sceneProperty().addListener((p, oldS, newS) -> {
-            assert oldS == null;
-            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
-        }); //VOIR PIAZZA 1071
+        try{
+            canvas.sceneProperty().addListener((p, oldS, newS) -> {
+                assert oldS == null;
+                newS.addPreLayoutPulseListener(this::redrawIfNeeded);
+            });
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        //VOIR PIAZZA 1071
         if(redrawNeeded) {
             redrawOnNextPulse();
         }
@@ -61,7 +68,8 @@ public final class BaseMapManager {
                         imageHeight += image.getHeight();
                     }
                 } catch (IOException e){
-                    continue;
+                    e.printStackTrace();
+                   continue;
                 }
             }
         }
@@ -70,7 +78,11 @@ public final class BaseMapManager {
     private void redrawIfNeeded() throws IOException {
         if (!redrawNeeded) return;
         redrawNeeded = false;
-        tilesDraw(); //A VERIFIER
+        try {
+            tilesDraw();
+        } catch (IOException e){
+
+        }
     }
 
     private void redrawOnNextPulse() {

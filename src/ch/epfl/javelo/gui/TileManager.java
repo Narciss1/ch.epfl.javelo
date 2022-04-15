@@ -11,46 +11,83 @@ import java.util.LinkedHashMap;
 import ch.epfl.javelo.Preconditions;
 import javafx.scene.image.Image;
 
-
+/**
+ * Represents the manager of OSM tiles.
+ * @author Hamane Aya (345565)
+ * @author Sadgal Lina (342075)
+ */
 public final class TileManager {
 
-    private Path basePath;
-    private String server;
-    private LinkedHashMap<TileId, javafx.scene.image.Image> cacheMemory =
+    private final Path basePath;
+    private final String server;
+    private final LinkedHashMap<TileId, javafx.scene.image.Image> cacheMemory =
             new LinkedHashMap(100, 0.75f, true);
 
-    private static int CACHE_MEMORY_CAPACITY = 100;
+    /**
+     * represents the cache memory capacity
+     */
+    private final static int CACHE_MEMORY_CAPACITY = 100;
 
+    /**
+     * The constructor
+     * @param basePath the path of the directory containing the disk cache
+     * @param server the tiles' server's name
+     */
     public TileManager(Path basePath, String server) {
         this.basePath = basePath;
         this.server = server;
     }
 
+    /**
+     * Represents the identity of an OSM tile.
+     */
     public record TileId(int zoomLevel, int indexX, int indexY) {
 
+        /**
+         * constructor
+         * @throws IllegalArgumentException if the index X or the index Y of the tile are not valid
+         * @param zoomLevel the zoom level of the tile
+         * @param indexX index X of the tile
+         * @param indexY index Y of the tile
+         */
         public TileId {
             Preconditions.checkArgument(isValid(zoomLevel, indexX, indexY));
         }
 
+        /**
+         * checks if the index X and Y of a tile are valid index according to the zoom level
+         * @param zoomLevel the zoom level of the tile
+         * @param indexX index X of a potential tile
+         * @param indexY index Y of a potential tile
+         * @return true if the index X and Y of a potential tile are valid index according to the zoom level,
+         false if one or both of them are not.
+         */
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
             int limit = (int)Math.pow(2,zoomLevel) - 1;
             return (indexX <= limit && indexY <= limit);
         }
 
-        //Faudra l'enlever mais
+        //Faudra l'enlever mais permet de faire des tests sur cacheMemory
         public String toString(){
-            return String.valueOf(zoomLevel) + String.valueOf(indexX) + String.valueOf(indexY);
+            return (zoomLevel) + String.valueOf(indexX) + (indexY);
         }
 
     }
 
+    /**
+     * gives us the image corresponding to the given tile
+     * @param tileId the identity of the tile whose image we want
+     * @throws IOException if an I/O error occurs
+     * @return the image corresponding to the given tile
+     */
     public Image imageForTileAt(TileId tileId) throws IOException {
-        //Search in cacheMemory:
+        //Search in the cacheMemory
         if(cacheMemory.containsKey(tileId)){
             return cacheMemory.get(tileId);
         }
 
-        Path pathImage = basePath.resolve(String.valueOf(tileId.zoomLevel)).resolve(String.valueOf(tileId.indexX))
+        Path pathImage = basePath.resolve(String.valueOf(tileId.zoomLevel))
+                .resolve(String.valueOf(tileId.indexX))
                 .resolve(tileId.indexY + ".png");
         if (Files.exists(pathImage)){
            return imageInCacheMemory(pathImage, tileId);
@@ -62,18 +99,26 @@ public final class TileManager {
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
 
-        //Create directories:
         Path directoryPath = basePath.resolve(String.valueOf(tileId.zoomLevel)).
                 resolve(String.valueOf(tileId.indexX));
         Files.createDirectories(directoryPath);
 
-        try(InputStream i = c.getInputStream(); OutputStream o = new FileOutputStream(pathImage.toFile())){
+        try(InputStream i = c.getInputStream();
+            OutputStream o = new FileOutputStream(pathImage.toFile())){
             i.transferTo(o);
         }
         return imageInCacheMemory(pathImage, tileId);
     }
 
-    public Image imageInCacheMemory(Path pathImage, TileId tileId) throws IOException {
+    /**
+     * checks if the memory cache is full, add directly the image to it if not, or removes
+     * the one that has been charged for the longest one to add the new image
+     * @param pathImage the path of the directory containing the image
+     * @param tileId the identity of the tile we want the image for
+     * @throws IOException if an I/O error occurs
+     * @return the image corresponding to the tile
+     */
+    private Image imageInCacheMemory(Path pathImage, TileId tileId) throws IOException {
         try(InputStream i = new FileInputStream(pathImage.toFile())){
             javafx.scene.image.Image image = new javafx.scene.image.Image(i);
             //System.out.println(cacheMemory.keySet());
@@ -88,4 +133,5 @@ public final class TileManager {
             return image;
         }
     }
+
 }
