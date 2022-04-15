@@ -9,7 +9,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 
-import java.awt.*;
+
 import java.io.IOException;
 
 public final class BaseMapManager {
@@ -24,8 +24,7 @@ public final class BaseMapManager {
 
 
     //Il faut un dernier paramètre
-    public BaseMapManager(TileManager tileManager, ObjectProperty<MapViewParameters> mapProperty)
-            throws IOException {
+    public BaseMapManager(TileManager tileManager, ObjectProperty<MapViewParameters> mapProperty) {
         this.tileManager = tileManager;
         this.mapParameters = mapProperty.get();
         pane = new Pane();
@@ -33,21 +32,17 @@ public final class BaseMapManager {
         pane.getChildren().add(canvas);
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
-        try{
             canvas.sceneProperty().addListener((p, oldS, newS) -> {
                 assert oldS == null;
                 newS.addPreLayoutPulseListener(this::redrawIfNeeded);
             });
-        } catch (IOException e){
-            e.printStackTrace();
-        }
         //VOIR PIAZZA 1071
         if(redrawNeeded) {
             redrawOnNextPulse();
         }
     }
 
-    public void tilesDraw() throws IOException {
+    public void tilesDraw(){
         GraphicsContext canvasGraphicsContext = canvas.getGraphicsContext2D();
         double xTopLeft = mapParameters.xCoordinate();
         double yTopLeft = mapParameters.yCoordinate();
@@ -68,21 +63,16 @@ public final class BaseMapManager {
                         imageHeight += image.getHeight();
                     }
                 } catch (IOException e){
-                    e.printStackTrace();
                    continue;
                 }
             }
         }
     }
 
-    private void redrawIfNeeded() throws IOException {
+    private void redrawIfNeeded(){
         if (!redrawNeeded) return;
         redrawNeeded = false;
-        try {
-            tilesDraw();
-        } catch (IOException e){
-
-        }
+        tilesDraw();
     }
 
     private void redrawOnNextPulse() {
