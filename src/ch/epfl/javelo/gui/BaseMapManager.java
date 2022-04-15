@@ -33,7 +33,7 @@ public final class BaseMapManager {
         canvas.heightProperty().bind(pane.heightProperty());
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
-            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
+           // newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         }); //VOIR PIAZZA 1071
         if(redrawNeeded) {
             redrawOnNextPulse();
