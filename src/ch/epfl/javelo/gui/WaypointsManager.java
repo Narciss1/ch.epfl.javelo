@@ -76,6 +76,7 @@ public final class WaypointsManager {
             group.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(
                     new PointCh(wayPoint.pointCh().e(), wayPoint.pointCh().n()))));
             pane.getChildren().add(group);
+            ++wayPointCounter;
         }
     }
 

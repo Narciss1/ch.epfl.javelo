@@ -1,6 +1,5 @@
 package ch.epfl.javelo.gui;
 
-import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -22,7 +21,7 @@ public final class BaseMapManager {
     private final Canvas canvas;
     private boolean redrawNeeded;
 
-    private final static double PIXELS_IN_TILE = 256.0;
+    private final static int PIXELS_IN_TILE = 256;
 
 
     //Il faut un dernier paramètre
@@ -41,7 +40,7 @@ public final class BaseMapManager {
                 newS.addPreLayoutPulseListener(this::redrawIfNeeded);
             });
         //VOIR PIAZZA 1071
-        //if(redrawNeeded) {
+        //if(redrawNeeded)
         redrawOnNextPulse();
     }
 
@@ -56,7 +55,7 @@ public final class BaseMapManager {
         double yTopLeft = mapParameters.yCoordinate();
         int indexXTopLeft = 0, indexYTopLeft = 0;
 
-        for(double y = yTopLeft; y > yTopLeft - canvas.getHeight(); y -= PIXELS_IN_TILE) {
+        for(double y = yTopLeft; y >= yTopLeft - canvas.getHeight(); y = y - PIXELS_IN_TILE) {
             for(double x = xTopLeft; x < xTopLeft + canvas.getWidth(); x += PIXELS_IN_TILE) {
                 indexXTopLeft = (int) Math.ceil( x / PIXELS_IN_TILE);
                 indexYTopLeft = (int) Math.ceil( y / PIXELS_IN_TILE);
