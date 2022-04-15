@@ -21,6 +21,11 @@ public final class TileManager {
 
     private static int CACHE_MEMORY_CAPACITY = 100;
 
+    public TileManager(Path basePath, String server) {
+        this.basePath = basePath;
+        this.server = server;
+    }
+
     public record TileId(int zoomLevel, int indexX, int indexY) {
 
         public TileId {
@@ -32,11 +37,11 @@ public final class TileManager {
             return (indexX <= limit && indexY <= limit);
         }
 
-    }
+        //Faudra l'enlever mais
+        public String toString(){
+            return String.valueOf(zoomLevel) + String.valueOf(indexX) + String.valueOf(indexY);
+        }
 
-    public TileManager(Path basePath, String server) {
-        this.basePath = basePath;
-        this.server = server;
     }
 
     public Image imageForTileAt(TileId tileId) throws IOException {
@@ -71,11 +76,15 @@ public final class TileManager {
     public Image imageInCacheMemory(Path pathImage, TileId tileId) throws IOException {
         try(InputStream i = new FileInputStream(pathImage.toFile())){
             javafx.scene.image.Image image = new javafx.scene.image.Image(i);
+            //System.out.println(cacheMemory.keySet());
             if(cacheMemory.size() == CACHE_MEMORY_CAPACITY) {
+                //System.out.println("Je suis rentré");
                 Iterator<TileId> iterator = cacheMemory.keySet().iterator();
-                System.out.println(cacheMemory.remove(iterator.next()));
+                cacheMemory.remove(iterator.next());
+                //System.out.println(cacheMemory.keySet());
             }
             cacheMemory.put(tileId, image);
+            System.out.println(cacheMemory.keySet());
             return image;
         }
     }
