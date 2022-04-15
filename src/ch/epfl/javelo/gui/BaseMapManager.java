@@ -1,5 +1,6 @@
 package ch.epfl.javelo.gui;
 
+import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
@@ -24,7 +25,7 @@ public final class BaseMapManager {
 
 
     //Il faut un dernier paramètre
-    public BaseMapManager(TileManager tileManager, ObjectProperty<MapViewParameters> mapProperty) {
+    public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager, ObjectProperty<MapViewParameters> mapProperty) {
         this.tileManager = tileManager;
         this.mapParameters = mapProperty.get();
         pane = new Pane();
@@ -47,7 +48,6 @@ public final class BaseMapManager {
         double xTopLeft = mapParameters.xCoordinate();
         double yTopLeft = mapParameters.yCoordinate();
         int indexXTopLeft = 0, indexYTopLeft = 0;
-        double imageWidth = 0, imageHeight = 0;
 
         for(double y = yTopLeft; y < yTopLeft + canvas.getHeight(); y += PIXELS_IN_TILE) {
             for(double x = xTopLeft; x < xTopLeft + canvas.getWidth(); x += PIXELS_IN_TILE) {
@@ -57,11 +57,10 @@ public final class BaseMapManager {
                         indexXTopLeft, indexYTopLeft);
                 try {
                     Image image = tileManager.imageForTileAt(tileId);
-                    canvasGraphicsContext.drawImage(image, imageWidth, imageHeight); //PIAZZA DRAWIMAGE
-                    imageWidth += image.getWidth();
-                    if(x + PIXELS_IN_TILE >= xTopLeft + canvas.getWidth()) { // A AMELIORER
-                        imageHeight += image.getHeight();
-                    }
+                    PointWebMercator point = new PointWebMercator(x,y);
+                    canvasGraphicsContext.drawImage(image, mapParameters.viewX(point),
+                            mapParameters.viewY(point));
+                    //PIAZZA DRAWIMAGE
                 } catch (IOException e){
                    continue;
                 }

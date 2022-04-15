@@ -11,7 +11,9 @@ import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
 
-public final class WayPointManager {
+import java.util.function.Consumer;
+
+public final class WaypointsManager {
 
     private final Pane pane;
     private final Graph graph;
@@ -20,8 +22,8 @@ public final class WayPointManager {
 
 
     //Il faut un dernier paramètre mais c'est dans le truc de mardi
-    public WayPointManager(Graph graph, ObjectProperty<MapViewParameters> mapProperty,
-                           ObservableList<Waypoint> wayPoints) {
+    public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> mapProperty,
+                            ObservableList<Waypoint> wayPoints, Consumer<String> errorConsumer) {
         pane = new Pane();
         this.graph = graph;
         this.mapViewParameters = mapProperty.get();
@@ -35,7 +37,8 @@ public final class WayPointManager {
     public void addWaypoint(double x, double y) {
         double e = Ch1903.e(WebMercator.lon(x), WebMercator.lat(y));
         double n = Ch1903.n(WebMercator.lon(x), WebMercator.lat(y));
-        wayPoints.add(new Waypoint(e, n, graph.nodeClosestTo(new PointCh(e, n), 500)));
+        PointCh pointCh = new PointCh(e, n);
+        wayPoints.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, 500)));
     }
 
     private void addSVGPaths() {
@@ -62,9 +65,9 @@ public final class WayPointManager {
             group.getChildren().add(exterior);
             group.getChildren().add(interior);
             group.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(
-                    new PointCh(wayPoint.eCoordinate(), wayPoint.nCoordinate()))));
+                    new PointCh(wayPoint.pointCh().e(), wayPoint.pointCh().n()))));
             group.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(
-                    new PointCh(wayPoint.eCoordinate(), wayPoint.nCoordinate()))));
+                    new PointCh(wayPoint.pointCh().e(), wayPoint.pointCh().n()))));
             pane.getChildren().add(group);
         }
     }
