@@ -71,7 +71,7 @@ public class GpxGenerator {
     }
 
 
-    public static Document writeGpx(String fileName, Route route, ElevationProfile profile)
+    public static void writeGpx(String fileName, Route route, ElevationProfile profile)
     throws IOException {
 
         org.w3c.dom.Document doc = createGpx(route, profile);
@@ -88,7 +88,6 @@ public class GpxGenerator {
         } catch (TransformerException e) {
             throw new Error(e); // Should never happen
         }
-        return doc;
     }
 
     
