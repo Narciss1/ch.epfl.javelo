@@ -124,4 +124,71 @@ public class RoutePointTest {
         assertEquals(result.distanceToReference(), found.distanceToReference());
         assertEquals(result.position(), found.position());
     }
+
+    @Test
+    public void withPositionShiftedByReturnsShiftedPointPosition() {
+        RoutePoint base = new RoutePoint(new PointCh(2_485_000, 1_075_000), 1500, 3000);
+        RoutePoint test = new RoutePoint(new PointCh(2_485_000, 1_075_000), 1800, 3000);
+        assertEquals(test, base.withPositionShiftedBy(300));
+        RoutePoint base2 = new RoutePoint(new PointCh(2_485_000, 1_075_000), 1500, 3000);
+        RoutePoint test2 = new RoutePoint(new PointCh(2_485_000, 1_075_000), 1200, 3000);
+        assertEquals(test2, base2.withPositionShiftedBy(-300));
+    }
+
+    @Test
+    public void minReturnsThisIfItsDistanceToReferenceIsBelowOrEqualToThat() {
+        RoutePoint base = new RoutePoint(new PointCh(2_485_000, 1_075_000), 1500, 3000);
+        RoutePoint test = new RoutePoint(new PointCh(2_485_000, 1_075_093), 1800, 3000);
+        assertEquals(base, base.min(test));
+        RoutePoint base2 = new RoutePoint(new PointCh(2_485_000, 1_075_000), 1500, 2999.99);
+        RoutePoint test2 = new RoutePoint(new PointCh(2_485_000, 1_075_030), 1800, 3000);
+        assertEquals(base, base.min(test));
+    }
+
+    @Test
+    public void minReturnsThatifThisDistanceToRefIsGreater() {
+        RoutePoint base = new RoutePoint(new PointCh(2_485_000, 1_075_000), 1500, 3000);
+        RoutePoint test = new RoutePoint(new PointCh(2_485_000, 1_075_023), 1800, 2978);
+        assertEquals(test, base.min(test));
+    }
+
+    @Test
+    public void minReturnsThisIfDistanceToRefIsBelowOrEqualToThatDistanceToRef() {
+        RoutePoint base = new RoutePoint(new PointCh(2_485_000, 1_075_000), 1500, 3000);
+        assertEquals(base, base.min(new PointCh(2_485_000, 1_075_023), 1800, 3000));
+        RoutePoint base2 = new RoutePoint(new PointCh(2_485_000, 1_075_000), 1500, 2745);
+        assertEquals(base2, base2.min(new PointCh(2_485_000, 1_075_023), 1800, 3000));
+    }
+
+    @Test
+    public void minReturnsNewInstanceOfRoutePointWithGivenArgumentsIfThisDistanceToRefIsGreater() {
+        RoutePoint base = new RoutePoint(new PointCh(2_485_000, 1_075_000), 1500, 3000);
+        RoutePoint test = new RoutePoint(new PointCh(2_485_000, 1_075_023), 1800, 2999.984029348);
+        assertEquals(test, base.min(new PointCh(2_485_000, 1_075_023), 1800, 2999.984029348));
+    }
+
+    PointCh p = new PointCh(2537737.9706338, 1152665.627210865);
+    RoutePoint rP = new RoutePoint(p, 176, 116);
+
+    @Test
+    void withPositionShiftedByWorks(){
+        RoutePoint rPs = rP.withPositionShiftedBy(5);
+        //AYA : Meme erreur que les garcons
+        //NORMAL
+        // assertEquals(rPs, new RoutePoint(p, 181, 116.3));
+
+    }
+
+    @Test
+    void minWorks(){
+        RoutePoint routePoint = new RoutePoint(p, 176, 118);
+        RoutePoint routePoint2 = new RoutePoint(p, 176, 110);
+        assertEquals(rP.min(routePoint), rP);
+        assertEquals(rP.min(routePoint2), routePoint2);
+    }
+    @Test
+    void min2Works(){
+        assertEquals(rP.min(p, 5, 120), rP);
+        assertEquals(rP.min(p, 5, 115), new RoutePoint(p, 5, 115));
+    }
 }
