@@ -55,7 +55,7 @@ public final class BaseMapManager {
         double yTopLeft = mapParameters.yCoordinate();
         int indexXTopLeft = 0, indexYTopLeft = 0;
 
-        for(double y = yTopLeft; y < yTopLeft + canvas.getHeight(); y += PIXELS_IN_TILE) {
+        for(double y = yTopLeft; y >= yTopLeft - canvas.getHeight(); y = y - PIXELS_IN_TILE) {
             for(double x = xTopLeft; x < xTopLeft + canvas.getWidth(); x += PIXELS_IN_TILE) {
                 indexXTopLeft = (int) Math.floor( x / PIXELS_IN_TILE);
                 indexYTopLeft = (int) Math.floor( y / PIXELS_IN_TILE);
@@ -65,6 +65,8 @@ public final class BaseMapManager {
                     Image image = tileManager.imageForTileAt(tileId);
                     System.out.println("x: " + x + " y: " + y);
                     PointWebMercator point = PointWebMercator.of(mapParameters.zoomLevel(), x, y);
+                    System.out.println("View X :" + mapParameters.viewX(point));
+                    System.out.println("View Y :" + mapParameters.viewY(point));
                     canvasGraphicsContext.drawImage(image, mapParameters.viewX(point),
                             mapParameters.viewY(point));
                     //PIAZZA DRAWIMAGE
