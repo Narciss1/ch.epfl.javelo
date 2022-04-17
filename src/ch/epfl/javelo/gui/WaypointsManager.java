@@ -20,11 +20,11 @@ public final class WaypointsManager {
     private final MapViewParameters mapViewParameters;
     private final ObservableList<Waypoint> wayPoints;
 
-
     //Il faut un dernier paramètre mais c'est dans le truc de mardi
     public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> mapProperty,
                             ObservableList<Waypoint> wayPoints, Consumer<String> errorConsumer) {
         pane = new Pane();
+        //Piazza
         pane.setPrefHeight(300);
         pane.setPrefWidth(600);
         this.graph = graph;

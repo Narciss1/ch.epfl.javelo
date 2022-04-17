@@ -121,12 +121,9 @@ public final class TileManager {
     private Image imageInCacheMemory(Path pathImage, TileId tileId) throws IOException {
         try(InputStream i = new FileInputStream(pathImage.toFile())){
             javafx.scene.image.Image image = new javafx.scene.image.Image(i);
-            //System.out.println(cacheMemory.keySet());
             if(cacheMemory.size() == CACHE_MEMORY_CAPACITY) {
-                //System.out.println("Je suis rentré");
                 Iterator<TileId> iterator = cacheMemory.keySet().iterator();
                 cacheMemory.remove(iterator.next());
-                //System.out.println(cacheMemory.keySet());
             }
             cacheMemory.put(tileId, image);
             System.out.println(cacheMemory.keySet());
