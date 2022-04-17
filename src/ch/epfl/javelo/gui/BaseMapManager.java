@@ -22,14 +22,11 @@ public final class BaseMapManager {
     private final static int PIXELS_IN_TILE = 256;
 
 
-
     public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager,
                           ObjectProperty<MapViewParameters> mapProperty) {
         this.tileManager = tileManager;
         this.mapParameters = mapProperty.get();
         pane = new Pane();
-        pane.setPrefHeight(300);
-        pane.setPrefWidth(600);
         canvas = new Canvas();
         pane.getChildren().add(canvas);
         canvas.widthProperty().bind(pane.widthProperty());
@@ -51,9 +48,10 @@ public final class BaseMapManager {
         double xTopLeft = mapParameters.xCoordinate();
         double yTopLeft = mapParameters.yCoordinate();
         int indexX = 0, indexY = 0;
-
-        for(double y = yTopLeft; y < yTopLeft + canvas.getHeight(); y += PIXELS_IN_TILE) {
-            for(double x = xTopLeft; x < xTopLeft + canvas.getWidth(); x += PIXELS_IN_TILE) {
+        System.out.println("Width canvas : " + canvas.getWidth());
+        System.out.println("Height canvas : " + canvas.getHeight());
+        for(double y = yTopLeft; y < yTopLeft + canvas.getHeight() + PIXELS_IN_TILE; y += PIXELS_IN_TILE) {
+            for(double x = xTopLeft; x < xTopLeft + canvas.getWidth() + PIXELS_IN_TILE; x += PIXELS_IN_TILE) {
                 indexX = (int) Math.floor( x / PIXELS_IN_TILE);
                 indexY = (int) Math.floor( y / PIXELS_IN_TILE);
                 System.out.println("indice X : " + indexX);
