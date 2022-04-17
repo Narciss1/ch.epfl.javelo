@@ -21,8 +21,8 @@ import java.nio.file.Path;
 //                        new TileManager.TileId(12, i, i));
 //            }
             Image tileImage = tm.imageForTileAt(
-                    new TileManager.TileId(12, 2122,
-                            1446));
+                    new TileManager.TileId(12, (int) Math.ceil(543200.0 / 256),
+                            (int) Math.ceil(370650 / 256)));
             Platform.exit();
         }
 
