@@ -40,11 +40,7 @@ public final class WaypointsManager {
         this.graph = graph;
         this.mapViewParameters = mapProperty.get();
         this.wayPoints = wayPoints;
-        //Not sure
-        pane.sceneProperty().addListener((p, oldS, newS) -> {
-            assert oldS == null;
-            newS.addPreLayoutPulseListener(this::addSVGPaths);
-        });
+        addSVGPaths();
     }
 
     /**
@@ -55,6 +51,7 @@ public final class WaypointsManager {
         return pane;
     }
 
+    //Tester addWaypoint
     /**
      * Adds a new waypoint to the node of the graph that is closest to it
      * @param x a point's x coordinate
