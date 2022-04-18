@@ -51,7 +51,7 @@ public final class BaseMapManager {
     /**
      * Generates and draws each of the visible tiles at least partially
      * If an exception is thrown by the tile manager (of type IOException),
-     * the corresponding tile is simply left undrawn
+     * the corresponding tile is simply not drawn
      * @throws IllegalArgumentException if the index X or the index Y of the tile are not valid
      */
     public void tilesDraw(){
@@ -67,10 +67,10 @@ public final class BaseMapManager {
                         indexX, indexY);
                 try {
                     Image image = tileManager.imageForTileAt(tileId);
-                    canvasGraphicsContext.drawImage(image, 256 * indexX - mapParameters.xCoordinate(),
-                             (256 * indexY - mapParameters.yCoordinate()));
+                    canvasGraphicsContext.drawImage(image, PIXELS_IN_TILE * indexX - mapParameters.xCoordinate(),
+                             (PIXELS_IN_TILE * indexY - mapParameters.yCoordinate()));
                 } catch (IOException e){
-                   continue;
+                    //What should we put here ? (To me we should left it empty...
                 }
             }
         }

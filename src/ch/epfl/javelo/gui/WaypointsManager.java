@@ -68,6 +68,7 @@ public final class WaypointsManager {
      * Position the markers at the coordinates of their corresponding waypoint
      */
     private void addSVGPaths() {
+
         int wayPointCounter = 0;
 
         for (Waypoint wayPoint : wayPoints) {

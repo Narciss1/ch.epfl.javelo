@@ -1,7 +1,6 @@
 package ch.epfl.javelo.routing;
 
-import ch.epfl.javelo.projection.Ch1903;
-import org.w3c.dom.Document;
+
 import org.w3c.dom.Element;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -22,6 +21,14 @@ public class GpxGenerator {
 
     private GpxGenerator() {}
 
+    /**
+     * Creates a GPX document
+     * @param route the itinerary for which we want a GPX document
+     * @param profile the route's profile
+     * @return the created GPX document
+     */
+    //Perso j'aurais mis cette méthode en private et pas du tout en public static.
+    //A voir donc.
     public static org.w3c.dom.Document createGpx(Route route, ElevationProfile profile) {
         org.w3c.dom.Document doc = newDocument();
 
@@ -53,20 +60,22 @@ public class GpxGenerator {
         for (int i = 0; i < route.points().size(); ++i){
 
             Element rtept = doc.createElement("rtept");
-            rtept.setAttribute("lat", String.format(Locale.ROOT, "%.5f", Math.toDegrees(route.points().get(i).lat())));
-            rtept.setAttribute("lon", String.format(Locale.ROOT, "%.5f", Math.toDegrees(route.points().get(i).lon())));
+            rtept.setAttribute("lat", String.format(Locale.ROOT,
+                    "%.5f", Math.toDegrees(route.points().get(i).lat())));
+            rtept.setAttribute("lon", String.format(Locale.ROOT,
+                    "%.5f", Math.toDegrees(route.points().get(i).lon())));
             rte.appendChild(rtept);
 
             Element ele = doc.createElement("ele");
             rtept.appendChild(ele);
-            ele.setTextContent(String.format(Locale.ROOT, "%.2f", Math.toDegrees(route.points().get(i).lon())));
+            ele.setTextContent(String.format(Locale.ROOT, "%.2f",
+                    profile.elevationAt(position)));
 
             if (i != route.points().size()- 1){
                 position += route.edges().get(i).length();
             }
 
         }
-
         return doc;
     }
 
@@ -74,9 +83,9 @@ public class GpxGenerator {
     /**
      * writes a GPX document in a file
      * @param fileName the file name
-     * @param route the itinerary for which we want
+     * @param route the itinerary for which we want a GPX document
      * @param profile the route's profile
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     public static void writeGpx(String fileName, Route route, ElevationProfile profile)
     throws IOException {
