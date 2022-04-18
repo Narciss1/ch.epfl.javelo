@@ -11,7 +11,7 @@ import javafx.geometry.Point2D;
 public record MapViewParameters(int zoomLevel, double xCoordinate, double yCoordinate) {
 
     /**
-     * creates a Point2D using the coordinates of he point in the top left of the
+     * creates a Point2D using the coordinates of the point in the top left of the
      background map is located
      * @return a Point2D located where the point in the top left of the
      * background map is located

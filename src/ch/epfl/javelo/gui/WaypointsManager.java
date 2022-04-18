@@ -10,9 +10,13 @@ import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
-
 import java.util.function.Consumer;
 
+/**
+ * Manages the display and interaction with the waypoints
+ * @author Hamane Aya (345565)
+ * @author Sadgal Lina (342075)
+ */
 public final class WaypointsManager {
 
     private final Pane pane;
@@ -20,7 +24,13 @@ public final class WaypointsManager {
     private final MapViewParameters mapViewParameters;
     private final ObservableList<Waypoint> wayPoints;
 
-    //Il faut un dernier paramètre mais c'est dans le truc de mardi
+    /**
+     * Constructor
+     * @param graph a graph of the road network,
+     * @param mapProperty a JavaFX property containing the parameters of the displayed map
+     * @param wayPoints an observable list of all the waypoints
+     * @param errorConsumer an object to report errors
+     */
     public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> mapProperty,
                             ObservableList<Waypoint> wayPoints, Consumer<String> errorConsumer) {
         pane = new Pane();
@@ -37,10 +47,19 @@ public final class WaypointsManager {
         });
     }
 
+    /**
+     * Returns the panel containing the waypoints
+     * @return a panel containing the waypoints
+     */
     public Pane pane() {
         return pane;
     }
 
+    /**
+     * Adds a new waypoint to the node of the graph that is closest to it
+     * @param x a point's x coordinate
+     * @param y a point's y coordinate
+     */
     public void addWaypoint(double x, double y) {
         double e = Ch1903.e(WebMercator.lon(x), WebMercator.lat(y));
         double n = Ch1903.n(WebMercator.lon(x), WebMercator.lat(y));
@@ -48,8 +67,10 @@ public final class WaypointsManager {
         wayPoints.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, 500)));
     }
 
+    /**
+     * Position the markers at the coordinates of their corresponding waypoint
+     */
     private void addSVGPaths() {
-
         int wayPointCounter = 0;
 
         for (Waypoint wayPoint : wayPoints) {
@@ -79,5 +100,4 @@ public final class WaypointsManager {
             ++wayPointCounter;
         }
     }
-
 }
