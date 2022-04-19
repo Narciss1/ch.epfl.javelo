@@ -54,6 +54,8 @@ public final class TileManager {
             Preconditions.checkArgument(isValid(zoomLevel, indexX, indexY));
         }
 
+
+        //Est-ce qu'il faut mettre un check sur le zoom level aussi ?
         /**
          * checks if the index X and Y of a tile are valid index according to the zoom level
          * @param zoomLevel the zoom level of the tile

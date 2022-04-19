@@ -9,6 +9,7 @@ import javafx.geometry.Point2D;
  * @author Sadgal Lina (342075)
  */
 public record MapViewParameters(int zoomLevel, double xCoordinate, double yCoordinate) {
+    //Question : est-ce que y a des conditions or sth sur ces x/yCoordinate ?
 
     /**
      * creates a Point2D using the coordinates of the point in the top left of the
@@ -16,7 +17,7 @@ public record MapViewParameters(int zoomLevel, double xCoordinate, double yCoord
      * @return a Point2D located where the point in the top left of the
      * background map is located
      */
-    public javafx.geometry.Point2D topLeft(){
+    public javafx.geometry.Point2D topLeft() {
         return new Point2D(xCoordinate, yCoordinate);
     }
 
@@ -26,9 +27,9 @@ public record MapViewParameters(int zoomLevel, double xCoordinate, double yCoord
      * @param x the coordinate x of the point in the top left corner
      * @param y the coordinate y of the point in the top left corner
      * @return an object of type MapViewParameters identical to the receptor yet the coordinates of the
-     * point in the top left corner are different
+     point in the top left corner are different
      */
-    public MapViewParameters withMinXY(double x, int y){
+    public MapViewParameters withMinXY(double x, double y) {
         return new MapViewParameters(zoomLevel, x, y);
     }
 
@@ -39,9 +40,10 @@ public record MapViewParameters(int zoomLevel, double xCoordinate, double yCoord
      in the top left corner of the map background
      * @param y the coordinate y of the point compared to the point
      in the top left corner of the map background
-     * @return an object of type PointWebMercator given its coordinates in comparison of
+     * @return an object of type PointWebMercator given its coordinates in comparison of the point
+     in the top left corner.
      */
-    public PointWebMercator pointAt(double x, double y){
+    public PointWebMercator pointAt(double x, double y) {
         return PointWebMercator.of(zoomLevel, x, y);
     }
 
