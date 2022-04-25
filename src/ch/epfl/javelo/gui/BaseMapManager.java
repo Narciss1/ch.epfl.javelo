@@ -1,7 +1,12 @@
 package ch.epfl.javelo.gui;
 
+import ch.epfl.javelo.Math2;
+import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -16,10 +21,11 @@ import java.io.IOException;
 public final class BaseMapManager {
 
     private final TileManager tileManager;
-    private final MapViewParameters mapParameters;
+    private ObjectProperty<MapViewParameters> mapProperty;
     private final Pane pane;
     private final Canvas canvas;
     private boolean redrawNeeded;
+    private WaypointsManager waypointsManager;
 
     /**
      *Number of pixels on the side of a tile
@@ -35,18 +41,69 @@ public final class BaseMapManager {
     public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager,
                           ObjectProperty<MapViewParameters> mapProperty) {
         this.tileManager = tileManager;
-        this.mapParameters = mapProperty.get();
+        this.mapProperty = mapProperty;
+        this.waypointsManager = waypointsManager;
         pane = new Pane();
         canvas = new Canvas();
         pane.getChildren().add(canvas);
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
+        SimpleLongProperty minScrollTime = new SimpleLongProperty();
+        pane.setOnScroll(e -> {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime < minScrollTime.get()) return;
+            minScrollTime.set(currentTime + 250);
+            double zoomDelta = Math.signum(e.getDeltaY());
+            int newZoom = Math2.clamp(8, (int)zoomDelta + mapProperty.get().zoomLevel(), 19);
+            double newX = mapProperty.get().pointAt(e.getX(), e.getY()).
+                    xAtZoomLevel(newZoom)
+                    - mapProperty.get().pointAt(e.getX(), e.getY()).xAtZoomLevel(mapProperty.get().zoomLevel())
+                    +  mapProperty.get().xCoordinate();
+            double newY = mapProperty.get().pointAt(e.getX(), e.getY()).
+                    yAtZoomLevel(newZoom)
+                    - mapProperty.get().pointAt(e.getX(), e.getY()).yAtZoomLevel(mapProperty.get().zoomLevel())
+                    +  mapProperty.get().yCoordinate();
+            mapProperty.setValue(new MapViewParameters (newZoom,
+                    newX, newY));
+        });
+        mapProperty.addListener((p, oldM, newM) ->
+                redrawOnNextPulse());
+        pane.setOnMouseClicked(e ->  {
+            if (e.isStillSincePress()){
+                double x = e.getX() + mapProperty.get().xCoordinate();
+                double y = e.getY() + mapProperty.get().yCoordinate();
+                PointWebMercator point = PointWebMercator.of(mapProperty.get().zoomLevel(), x, y);
+                waypointsManager.addWaypoint(point.x(), point.y());
+            }
+        });
+        ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
+        pane.setOnMousePressed(e -> {
+            mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
+        });
+        pane.setOnMouseDragged(e -> {
+            Point2D oldMousePosition = mousePositionProperty.get();
+            mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
+            Point2D oldTopLeftPosition = oldMousePosition.subtract(mousePositionProperty.get());
+            mapProperty.setValue(mapProperty.get().withMinXY
+                    (oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
+                            oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
+        });
+        pane.setOnMouseReleased(e -> {
+            Point2D oldMousePosition = mousePositionProperty.get();
+            mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
+            Point2D oldTopLeftPosition = oldMousePosition.subtract(mousePositionProperty.get());
+            mapProperty.setValue(mapProperty.get().withMinXY
+                    (oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
+                            oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
+        });
+
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
         redrawOnNextPulse();
     }
+
 
     /**
      * Generates and draws each of the visible tiles at least partially
@@ -56,19 +113,20 @@ public final class BaseMapManager {
      */
     public void tilesDraw(){
         GraphicsContext canvasGraphicsContext = canvas.getGraphicsContext2D();
-        double xTopLeft = mapParameters.xCoordinate();
-        double yTopLeft = mapParameters.yCoordinate();
+        System.out.println(mapProperty.get().zoomLevel());
+        double xTopLeft = mapProperty.get().xCoordinate();
+        double yTopLeft = mapProperty.get().yCoordinate();
         int indexX, indexY;
         for(double y = yTopLeft; y < yTopLeft + canvas.getHeight() + PIXELS_IN_TILE; y += PIXELS_IN_TILE) {
             for(double x = xTopLeft; x < xTopLeft + canvas.getWidth() + PIXELS_IN_TILE; x += PIXELS_IN_TILE) {
                 indexX = (int) Math.floor( x / PIXELS_IN_TILE);
                 indexY = (int) Math.floor( y / PIXELS_IN_TILE);
-                TileManager.TileId tileId = new TileManager.TileId(mapParameters.zoomLevel(),
+                TileManager.TileId tileId = new TileManager.TileId(mapProperty.get().zoomLevel(),
                         indexX, indexY);
                 try {
                     Image image = tileManager.imageForTileAt(tileId);
-                    canvasGraphicsContext.drawImage(image, PIXELS_IN_TILE * indexX - mapParameters.xCoordinate(),
-                             (PIXELS_IN_TILE * indexY - mapParameters.yCoordinate()));
+                    canvasGraphicsContext.drawImage(image, PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
+                            (PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate()));
                 } catch (IOException e){
                     //What should we put here ? (To me we should left it empty...
                 }

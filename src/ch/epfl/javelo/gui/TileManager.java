@@ -66,7 +66,7 @@ public final class TileManager {
          */
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
             int limit = (int)Math.pow(2,zoomLevel) - 1;
-            return (indexX <= limit && indexY <= limit);
+            return (indexX <= limit && indexY <= limit && zoomLevel >= 0);
         }
 
         //Faudra l'enlever mais permet de faire des tests sur cacheMemory
@@ -128,7 +128,7 @@ public final class TileManager {
                 cacheMemory.remove(iterator.next());
             }
             cacheMemory.put(tileId, image);
-            System.out.println(cacheMemory.keySet());
+            //System.out.println(cacheMemory.keySet());
             return image;
         }
     }

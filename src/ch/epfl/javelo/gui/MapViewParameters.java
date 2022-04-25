@@ -1,5 +1,6 @@
 package ch.epfl.javelo.gui;
 
+import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.geometry.Point2D;
 
@@ -10,6 +11,12 @@ import javafx.geometry.Point2D;
  */
 public record MapViewParameters(int zoomLevel, double xCoordinate, double yCoordinate) {
     //Question : est-ce que y a des conditions or sth sur ces x/yCoordinate ?
+
+    public MapViewParameters(int zoomLevel, double xCoordinate, double yCoordinate) {
+        this.zoomLevel = Math2.clamp(8, zoomLevel, 19);
+        this.xCoordinate = xCoordinate;
+        this.yCoordinate = yCoordinate;
+    }
 
     /**
      * creates a Point2D using the coordinates of the point in the top left of the
@@ -44,7 +51,7 @@ public record MapViewParameters(int zoomLevel, double xCoordinate, double yCoord
      in the top left corner.
      */
     public PointWebMercator pointAt(double x, double y) {
-        return PointWebMercator.of(zoomLevel, x, y);
+        return PointWebMercator.of(zoomLevel, x + xCoordinate, y + yCoordinate);
     }
 
     /**
