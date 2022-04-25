@@ -62,11 +62,11 @@ public final class TileManager {
          * @param indexX index X of a potential tile
          * @param indexY index Y of a potential tile
          * @return true if the index X and Y of a potential tile are valid index according to the zoom level,
-         false if one or both of them are not.
+        false if one or both of them are not.
          */
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
             int limit = (int)Math.pow(2,zoomLevel) - 1;
-            return (indexX <= limit && indexY <= limit);
+            return (indexX <= limit && indexY <= limit && zoomLevel >= 0);
         }
 
         //Faudra l'enlever mais permet de faire des tests sur cacheMemory
@@ -92,7 +92,7 @@ public final class TileManager {
                 .resolve(String.valueOf(tileId.indexX))
                 .resolve(tileId.indexY + ".png");
         if (Files.exists(pathImage)){
-           return imageInCacheMemory(pathImage, tileId);
+            return imageInCacheMemory(pathImage, tileId);
         }
 
         String s = "https://" + server + '/' + tileId.zoomLevel + '/' + tileId.indexX
@@ -128,7 +128,7 @@ public final class TileManager {
                 cacheMemory.remove(iterator.next());
             }
             cacheMemory.put(tileId, image);
-            System.out.println(cacheMemory.keySet());
+            //System.out.println(cacheMemory.keySet());
             return image;
         }
     }

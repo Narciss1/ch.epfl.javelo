@@ -26,7 +26,7 @@ public record PointCh(double e, double n) {
      * @param that point in the map
      * @return squared distance between two points
      */
-    public double squaredDistanceTo(PointCh that){
+    public double squaredDistanceTo(PointCh that) {
         return Math.pow(this.e - that.e, 2) + Math.pow(this.n - that.n, 2);
     }
 
@@ -35,7 +35,7 @@ public record PointCh(double e, double n) {
      * @param that point in the map
      * @return distance between two points
      */
-    public double distanceTo(PointCh that){
+    public double distanceTo(PointCh that) {
         return Math.sqrt(Math.pow(this.e - that.e, 2) + Math.pow(this.n - that.n, 2));
     }
 
@@ -47,5 +47,5 @@ public record PointCh(double e, double n) {
     /**
      * @return latitude in radians of a point in the WGS84 system
      */
-    public double lat(){ return Ch1903.lat(e, n); }
+    public double lat() { return Ch1903.lat(e, n); }
 }
