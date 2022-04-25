@@ -38,7 +38,7 @@ public class MapViewParametersTest {
     @Test
     void pointAtWorksOnNapoleon(){
             PointWebMercator expected = PointWebMercator.of(19, 69561722,47468099);
-            MapViewParameters mapViewParameters = new MapViewParameters(19, 625.512, 2625.9);
+            MapViewParameters mapViewParameters = new MapViewParameters(19, 0, 0);
             assertEquals(expected, mapViewParameters.pointAt(69561722, 47468099));
     }
 

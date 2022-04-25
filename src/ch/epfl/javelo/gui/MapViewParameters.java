@@ -11,11 +11,13 @@ import javafx.geometry.Point2D;
  */
 public record MapViewParameters(int zoomLevel, double xCoordinate, double yCoordinate) {
     //Question : est-ce que y a des conditions or sth sur ces x/yCoordinate ?
+
     public MapViewParameters(int zoomLevel, double xCoordinate, double yCoordinate) {
         this.zoomLevel = Math2.clamp(8, zoomLevel, 19);
         this.xCoordinate = xCoordinate;
         this.yCoordinate = yCoordinate;
     }
+
     /**
      * creates a Point2D using the coordinates of the point in the top left of the
      background map is located

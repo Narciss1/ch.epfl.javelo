@@ -42,6 +42,7 @@ public final class BaseMapManager {
                           ObjectProperty<MapViewParameters> mapProperty) {
         this.tileManager = tileManager;
         this.mapProperty = mapProperty;
+        this.waypointsManager = waypointsManager;
         pane = new Pane();
         canvas = new Canvas();
         pane.getChildren().add(canvas);
@@ -76,16 +77,14 @@ public final class BaseMapManager {
             }
         });
         ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
-        pane.setOnMousePressed(e ->
-                mousePositionProperty.setValue(new Point2D(e.getX(), e.getY())));
+        pane.setOnMousePressed(e -> {
+            mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
+        });
         pane.setOnMouseDragged(e -> {
             Point2D oldMousePosition = mousePositionProperty.get();
             mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
             Point2D oldTopLeftPosition = oldMousePosition.subtract(mousePositionProperty.get());
             mapProperty.setValue(mapProperty.get().withMinXY
-                    (oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
-                            oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
-            waypointsManager.setMapProperty(mapProperty.get().withMinXY
                     (oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
                             oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
         });
@@ -96,16 +95,15 @@ public final class BaseMapManager {
             mapProperty.setValue(mapProperty.get().withMinXY
                     (oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
                             oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
-            waypointsManager.setMapProperty(mapProperty.get().withMinXY
-                    (oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
-                            oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
         });
+
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
         redrawOnNextPulse();
     }
+
 
     /**
      * Generates and draws each of the visible tiles at least partially
@@ -123,15 +121,12 @@ public final class BaseMapManager {
             for(double x = xTopLeft; x < xTopLeft + canvas.getWidth() + PIXELS_IN_TILE; x += PIXELS_IN_TILE) {
                 indexX = (int) Math.floor( x / PIXELS_IN_TILE);
                 indexY = (int) Math.floor( y / PIXELS_IN_TILE);
-                //System.out.println("indexX:" + indexX);
-                //System.out.println("indexY:" + indexY);
-                //System.out.println( );
                 TileManager.TileId tileId = new TileManager.TileId(mapProperty.get().zoomLevel(),
                         indexX, indexY);
                 try {
                     Image image = tileManager.imageForTileAt(tileId);
                     canvasGraphicsContext.drawImage(image, PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
-                             (PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate()));
+                            (PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate()));
                 } catch (IOException e){
                     //What should we put here ? (To me we should left it empty...
                 }

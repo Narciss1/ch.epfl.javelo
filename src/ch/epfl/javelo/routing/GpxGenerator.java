@@ -68,7 +68,8 @@ public class GpxGenerator {
 
             Element ele = doc.createElement("ele");
             rtept.appendChild(ele);
-            ele.setTextContent(String.format(Locale.ROOT, "%.2f",
+            ele.setTextContent(
+                    String.format(Locale.ROOT, "%.2f",
                     profile.elevationAt(position)));
 
             if (i != route.points().size()- 1){

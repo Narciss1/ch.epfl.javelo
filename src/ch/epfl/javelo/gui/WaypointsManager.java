@@ -16,7 +16,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
 
-import java.awt.*;
 import java.util.function.Consumer;
 
 /**
@@ -28,9 +27,10 @@ public final class WaypointsManager {
 
     private final Pane pane;
     private final Graph graph;
-    private ObjectProperty<MapViewParameters> mapProperty;
+    private final ObjectProperty<MapViewParameters> mapProperty;
     private final ObservableList<Waypoint> wayPoints;
     private final ObservableList<Node> listOfGroups;
+    private final Consumer<String> errorConsumer;
 
     /**
      * Constructor
@@ -49,10 +49,11 @@ public final class WaypointsManager {
         this.graph = graph;
         this.mapProperty = mapProperty;
         this.wayPoints = wayPoints;
+        this.errorConsumer = errorConsumer;
         //Why should it be observable?
         listOfGroups = FXCollections.observableArrayList();
-        wayPointEvents();
         addSVGPaths();
+        wayPointEvents();  //L'ordre doit matter à ce point mdr ?
         listOfGroups.addListener((InvalidationListener) e -> wayPointEvents());
         wayPoints.addListener((InvalidationListener)  l -> addSVGPaths());
         mapProperty.addListener((p, oldM, newM) -> addSVGPaths());
@@ -75,18 +76,18 @@ public final class WaypointsManager {
         double e = Ch1903.e(WebMercator.lon(x), WebMercator.lat(y));
         double n = Ch1903.n(WebMercator.lon(x), WebMercator.lat(y));
         PointCh pointCh = new PointCh(e, n);
-        wayPoints.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, 1000)));
+        if (graph.nodeClosestTo(pointCh, 1000) == -1){
+            errorConsumer.accept("Aucune route à proximité !");
+        } else {
+            wayPoints.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, 1000)));
+        }
     }
 
-    public void setMapProperty(MapViewParameters mapViewParameters){
-        mapProperty.setValue(mapViewParameters);
-    }
 
     /**
      * Position the markers at the coordinates of their corresponding waypoint
      */
     private void addSVGPaths() {
-
         listOfGroups.clear();
         for (int i = 0; i < wayPoints.size(); ++i) {
             Group group = new Group();
@@ -130,21 +131,37 @@ public final class WaypointsManager {
             ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
             listOfGroups.get(i).setOnMousePressed(e -> {
                 if (!e.isStillSincePress()) {
-                    mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
+                    mousePositionProperty.setValue(new Point2D(e.getX(),
+                            e.getY()));
+                }
+            });
+            listOfGroups.get(i).setOnMouseDragged(e -> {
+                if (!e.isStillSincePress()) {
+                    System.out.println("dragged");
+                    System.out.println();
+                    Point2D oldMousePosition = mousePositionProperty.get();
+                    mousePositionProperty.setValue(new Point2D(e.getX() , e.getY()));
+                    Point2D gap = mousePositionProperty.get().subtract(oldMousePosition);
+                    listOfGroups.get(index).setLayoutX(listOfGroups.get(index).getLayoutX() + gap.getX());
+                    listOfGroups.get(index).setLayoutY(listOfGroups.get(index).getLayoutY() + gap.getY());
                 }
             });
             listOfGroups.get(i).setOnMouseReleased(e -> {
                 if (!e.isStillSincePress()) {
                     System.out.println("released");
-                    PointCh oldPointCh = waypoint.pointCh();
                     Point2D oldMousePosition = mousePositionProperty.get();
-                    mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
-                    Point2D gap = oldMousePosition.subtract(mousePositionProperty.get());
-                    PointWebMercator newMercatorPoint = mapProperty.get().pointAt(e.getX() + gap.getX(),
-                            e.getY() + gap.getY());
+                    mousePositionProperty.setValue(new Point2D(e.getX() , e.getY()));
+                    Point2D gap = mousePositionProperty.get().subtract(oldMousePosition);
+                    PointWebMercator newMercatorPoint = mapProperty.get().pointAt(
+                            listOfGroups.get(index).getLayoutX() + gap.getX(),
+                            listOfGroups.get(index).getLayoutY() + gap.getY());
                     PointCh newPointCh = newMercatorPoint.toPointCh();
-                    if(newPointCh != null) {
+                    if(newPointCh != null && graph.nodeClosestTo(newPointCh,1000) != -1) {
                         wayPoints.set(index, new Waypoint(newPointCh, graph.nodeClosestTo(newPointCh,1000)));
+                    } else {
+                        addSVGPaths(); //J'etais obligée de add ça, sinon y avait un tps de
+                        //latence à cause du dragged.
+                        errorConsumer.accept("Aucune route à proximité !");
                     }
                 }
             });
