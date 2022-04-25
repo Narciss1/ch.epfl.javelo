@@ -20,13 +20,13 @@ public final class TileManager {
 
     private final Path basePath;
     private final String server;
-    private final LinkedHashMap<TileId, javafx.scene.image.Image> cacheMemory =
-            new LinkedHashMap(100, 0.75f, true);
+    private final LinkedHashMap<TileId, javafx.scene.image.Image> cacheMemory;
+
 
     /**
      * represents the cache memory capacity
      */
-    private final static int CACHE_MEMORY_CAPACITY = 100;
+     private final static int CACHE_MEMORY_CAPACITY = 100;
 
     /**
      * The constructor
@@ -36,6 +36,7 @@ public final class TileManager {
     public TileManager(Path basePath, String server) {
         this.basePath = basePath;
         this.server = server;
+        cacheMemory = new LinkedHashMap(CACHE_MEMORY_CAPACITY, 0.75f, true);
     }
 
     /**
