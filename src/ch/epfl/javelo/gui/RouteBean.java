@@ -14,15 +14,15 @@ import java.util.List;
 
 public final class RouteBean {
 
-    ObservableList<Waypoint> waypoints;
-    ObjectProperty<Route> route;
-    ObjectProperty<ElevationProfile> elevationProfile;
-    DoubleProperty highlightedPosition;
+    private ObservableList<Waypoint> waypoints;
+    private ObjectProperty<Route> route;
+    private ObjectProperty<ElevationProfile> elevationProfile;
+    private DoubleProperty highlightedPosition;
 
     //Propriété ou pas propriété ?
-    RouteComputer rc;
+    private RouteComputer rc;
     //Route ou SingleRoute ???
-    LinkedHashMap<Pair<Integer, Integer>, Route> cacheMemoryRoutes;
+    private LinkedHashMap<Pair<Integer, Integer>, Route> cacheMemoryRoutes;
 
     private final static int CACHE_MEMORY_ROUTES_CAPACITY = 20;
     private final static int MAX_STEP_LENGTH = 5;
