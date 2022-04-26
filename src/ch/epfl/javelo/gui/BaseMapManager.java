@@ -10,7 +10,10 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
+
 import java.io.IOException;
 
 /**
@@ -48,62 +51,15 @@ public final class BaseMapManager {
         pane.getChildren().add(canvas);
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
-        SimpleLongProperty minScrollTime = new SimpleLongProperty();
-        pane.setOnScroll(e -> {
-            long currentTime = System.currentTimeMillis();
-            if (currentTime < minScrollTime.get()) return;
-            minScrollTime.set(currentTime + 250);
-            double zoomDelta = Math.signum(e.getDeltaY());
-            int newZoom = Math2.clamp(8, (int)zoomDelta + mapProperty.get().zoomLevel(), 19);
-            double newX = mapProperty.get().pointAt(e.getX(), e.getY()).
-                    xAtZoomLevel(newZoom)
-                    - mapProperty.get().pointAt(e.getX(), e.getY()).xAtZoomLevel(mapProperty.get().zoomLevel())
-                    +  mapProperty.get().xCoordinate();
-            double newY = mapProperty.get().pointAt(e.getX(), e.getY()).
-                    yAtZoomLevel(newZoom)
-                    - mapProperty.get().pointAt(e.getX(), e.getY()).yAtZoomLevel(mapProperty.get().zoomLevel())
-                    +  mapProperty.get().yCoordinate();
-            mapProperty.setValue(new MapViewParameters (newZoom,
-                    newX, newY));
-        });
+        baseMapEvents();
         mapProperty.addListener((p, oldM, newM) ->
                 redrawOnNextPulse());
-        pane.setOnMouseClicked(e ->  {
-            if (e.isStillSincePress()){
-                double x = e.getX() + mapProperty.get().xCoordinate();
-                double y = e.getY() + mapProperty.get().yCoordinate();
-                PointWebMercator point = PointWebMercator.of(mapProperty.get().zoomLevel(), x, y);
-                waypointsManager.addWaypoint(point.x(), point.y());
-            }
-        });
-        ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
-        pane.setOnMousePressed(e -> {
-            mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
-        });
-        pane.setOnMouseDragged(e -> {
-            Point2D oldMousePosition = mousePositionProperty.get();
-            mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
-            Point2D oldTopLeftPosition = oldMousePosition.subtract(mousePositionProperty.get());
-            mapProperty.setValue(mapProperty.get().withMinXY
-                    (oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
-                            oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
-        });
-        pane.setOnMouseReleased(e -> {
-            Point2D oldMousePosition = mousePositionProperty.get();
-            mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
-            Point2D oldTopLeftPosition = oldMousePosition.subtract(mousePositionProperty.get());
-            mapProperty.setValue(mapProperty.get().withMinXY
-                    (oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
-                            oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
-        });
-
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
         redrawOnNextPulse();
     }
-
 
     /**
      * Generates and draws each of the visible tiles at least partially
@@ -113,7 +69,6 @@ public final class BaseMapManager {
      */
     public void tilesDraw(){
         GraphicsContext canvasGraphicsContext = canvas.getGraphicsContext2D();
-        System.out.println(mapProperty.get().zoomLevel());
         double xTopLeft = mapProperty.get().xCoordinate();
         double yTopLeft = mapProperty.get().yCoordinate();
         int indexX, indexY;
@@ -128,7 +83,7 @@ public final class BaseMapManager {
                     canvasGraphicsContext.drawImage(image, PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
                             (PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate()));
                 } catch (IOException e){
-                    //What should we put here ? (To me we should left it empty...
+                    //What should we put here ? (To me we should leave it empty...
                 }
             }
         }
@@ -158,5 +113,78 @@ public final class BaseMapManager {
     private void redrawOnNextPulse() {
         redrawNeeded = true;
         Platform.requestNextPulse();
+    }
+
+    /**
+     *
+     */
+    private void baseMapEvents(){
+        SimpleLongProperty minScrollTime = new SimpleLongProperty();
+        ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
+
+        pane.setOnScroll(e ->
+                changeMapViewParametersAfterZoom(minScrollTime, e));
+
+        pane.setOnMousePressed(e ->
+                mousePositionProperty.setValue(new Point2D(e.getX(), e.getY())));
+
+        pane.setOnMouseDragged(e ->
+                changeMapViewParametersAfterSlide(mousePositionProperty, e));
+
+        pane.setOnMouseReleased(e -> {
+            if (!e.isStillSincePress()) {
+                changeMapViewParametersAfterSlide(mousePositionProperty, e);
+            } else {
+                double x = e.getX() + mapProperty.get().xCoordinate();
+                double y = e.getY() + mapProperty.get().yCoordinate();
+                PointWebMercator point = PointWebMercator.of(mapProperty.get().zoomLevel(), x, y);
+                waypointsManager.addWaypoint(point.x(), point.y());
+            }
+        });
+    }
+
+    /**
+     *
+     * @param mousePositionProperty
+     * @param e
+     */
+    private void changeMapViewParametersAfterSlide(ObjectProperty<Point2D> mousePositionProperty, MouseEvent e){
+        Point2D oldMousePosition = mousePositionProperty.get();
+        mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
+        Point2D oldTopLeftPosition = oldMousePosition.subtract(mousePositionProperty.get());
+        mapProperty.setValue(mapProperty.get().withMinXY
+                (oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
+                        oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
+    }
+
+    /**
+     *
+     * @param minScrollTime
+     * @param e
+     */
+    private void changeMapViewParametersAfterZoom(SimpleLongProperty minScrollTime, ScrollEvent e){
+        long currentTime = System.currentTimeMillis();
+        if (currentTime < minScrollTime.get()) return;
+        minScrollTime.set(currentTime + 250);
+        double zoomDelta = Math.signum(e.getDeltaY());
+        int newZoom = Math2.clamp(8, (int)zoomDelta + mapProperty.get().zoomLevel(), 19);
+        double newX = mapProperty.get()
+                .pointAt(e.getX(), e.getY())
+                .xAtZoomLevel(newZoom)
+                - mapProperty.get()
+                .pointAt(e.getX(), e.getY())
+                .xAtZoomLevel(mapProperty.get().zoomLevel())
+                +  mapProperty.get()
+                .xCoordinate();
+        double newY = mapProperty.get()
+                .pointAt(e.getX(), e.getY())
+                .yAtZoomLevel(newZoom)
+                - mapProperty.get()
+                .pointAt(e.getX(), e.getY())
+                .yAtZoomLevel(mapProperty.get().zoomLevel())
+                +  mapProperty.get()
+                .yCoordinate();
+        mapProperty.setValue(new MapViewParameters (newZoom,
+                newX, newY));
     }
 }
