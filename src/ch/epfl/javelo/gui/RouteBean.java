@@ -93,6 +93,10 @@ public final class RouteBean {
     public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty(){
         return elevationProfile;
     }
+
+    public double highlightedPosition(){
+        return highlightedPosition.get();
+    }
     
     private void checkCacheCapacity(){
         if(cacheMemoryRoutes.size() == CACHE_MEMORY_ROUTES_CAPACITY) {
