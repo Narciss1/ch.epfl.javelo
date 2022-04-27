@@ -104,6 +104,7 @@ public final class BaseMapManager {
         if (!redrawNeeded) return;
         redrawNeeded = false;
         tilesDraw();
+
     }
 
     /**
