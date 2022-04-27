@@ -19,6 +19,7 @@ public final class RouteManager {
     private ReadOnlyObjectProperty<MapViewParameters> mapProperty;
     private Consumer<String> errorConsumer;
     private Pane pane;
+    private Polyline polylineItinerary;
 
     private final static int HIGHLIGHTED_POSITION_RADIUS = 5;
 
@@ -28,37 +29,46 @@ public final class RouteManager {
         this.mapProperty = mapViewParametersProperty;
         this.errorConsumer = errorConsumer;
         pane = new Pane();
+        polylineItinerary = new Polyline();
         pane.setPickOnBounds(false);
+        createPolyline();
+        createCircle();
     }
 
     public Pane pane() {
         return pane;
     }
 
-    private void drawItinerary() {
-        //Constante ??
-        Polyline polylineItinerary = new Polyline();
+    private void createPolyline() {
         polylineItinerary.setId("route");
         pane.getChildren().add(polylineItinerary);
         if (routeBean.routeProperty().get() == null){
             polylineItinerary.setVisible(false);
+            System.out.println("elles sont invisibles ^^ hehe");
             return;
         }
         List<PointCh> pointsItinerary = routeBean.routeProperty().get().points();
         List<Double> pointsCoordinates = new ArrayList<>();
         for (PointCh point : pointsItinerary) {
-            pointsCoordinates.add(mapProperty.get().viewX(PointWebMercator.ofPointCh(point)));
-            pointsCoordinates.add(mapProperty.get().viewY(PointWebMercator.ofPointCh(point)));
 
+            pointsCoordinates.add(PointWebMercator.ofPointCh(point).x());
+            pointsCoordinates.add(PointWebMercator.ofPointCh(point).y());
         }
-        //C'est quoi son délire ??
-        polylineItinerary.setLayoutX();
-        polylineItinerary.setLayoutY();
+        System.out.println("size: "+ pointsCoordinates.size());
         polylineItinerary.getPoints().addAll(pointsCoordinates);
+        movePolyline(); //à revoir en testant
     }
 
-    private void drawHighligthedPosition() {
+    private void movePolyline() {
+        PointCh point = routeBean.routeProperty().get().points().get(0);
+        polylineItinerary.setLayoutX(mapProperty.get().viewX(PointWebMercator.ofPointCh(point)));
+        polylineItinerary.setLayoutY(mapProperty.get().viewY(PointWebMercator.ofPointCh(point)));
+    }
+
+    private void createCircle() {
+        if(routeBean.routeProperty().get() == null) return;
         Circle highlightedPosition = new Circle();
+        highlightedPosition.setId("highlight");
         pane.getChildren().add(highlightedPosition);
         double position = routeBean.highlightedPosition();
         if (isNaN(position)){
@@ -67,11 +77,10 @@ public final class RouteManager {
         }
         PointWebMercator pointWebMercatorHighlightedPosition = PointWebMercator.ofPointCh(
                 routeBean.routeProperty().get().pointAt(position));
-        //setCenter / setlayout ?
-        highlightedPosition.setCenterX(
-                mapProperty.get().viewX(pointWebMercatorHighlightedPosition));
-        highlightedPosition.setCenterY(mapProperty.get().viewY(pointWebMercatorHighlightedPosition));
+        highlightedPosition.setCenterX(pointWebMercatorHighlightedPosition.x());
+        highlightedPosition.setCenterY(pointWebMercatorHighlightedPosition.y());
         highlightedPosition.setRadius(HIGHLIGHTED_POSITION_RADIUS);
+        highlightedPosition.setLayoutX(mapProperty.get().viewX(pointWebMercatorHighlightedPosition));
+        highlightedPosition.setLayoutY(mapProperty.get().viewY(pointWebMercatorHighlightedPosition));
     }
-
 }

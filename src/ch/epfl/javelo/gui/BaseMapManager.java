@@ -52,6 +52,10 @@ public final class BaseMapManager {
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
         baseMapEvents();
+        canvas.widthProperty().addListener((p, oldM, newM) ->
+                redrawOnNextPulse());
+        canvas.heightProperty().addListener((p, oldM, newM) ->
+                redrawOnNextPulse());
         mapProperty.addListener((p, oldM, newM) ->
                 redrawOnNextPulse());
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
@@ -104,7 +108,6 @@ public final class BaseMapManager {
         if (!redrawNeeded) return;
         redrawNeeded = false;
         tilesDraw();
-
     }
 
     /**

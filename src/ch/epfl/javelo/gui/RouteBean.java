@@ -1,6 +1,7 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.*;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -44,7 +45,7 @@ public final class RouteBean {
     }
 
     public void setHighlightedPosition(double position){
-        if (!(0 <= position && position <= route.get().length())){
+        if ((route.get() != null) && !(0 <= position && position <= route.get().length())) {
             highlightedPosition.set(Double.NaN);
         } else {
             highlightedPosition.set(position);
@@ -56,17 +57,24 @@ public final class RouteBean {
         Integer startNodeId;
         Integer endNodeId;
         if (waypoints.size() < 2){
+            System.out.println("dans inf à deux cause why not");
             routeAndItineraryToNull();
             return;
         }
         for (int i = 0; i < waypoints.size() - 1; ++i){
+            System.out.println(waypoints.size());
+            System.out.println(waypoints.get(0).closestNodeId());
+            System.out.println(waypoints.get(1).closestNodeId());
             startNodeId = waypoints.get(i).closestNodeId();
+            System.out.println(startNodeId);
             endNodeId = waypoints.get(i+1).closestNodeId();
+            System.out.println(endNodeId);
             if (cacheMemoryRoutes.containsKey(new Pair<>(startNodeId, endNodeId))){
                 routes.add(cacheMemoryRoutes.get(new Pair<>(startNodeId, endNodeId)));
             } else {
                 Route routeToAdd = rc.bestRouteBetween(startNodeId, endNodeId);
                 if (routeToAdd == null){
+                    System.out.println( i + " : je suis dans routeToAdd");
                     routeAndItineraryToNull();
                     return;
                 }
@@ -76,11 +84,13 @@ public final class RouteBean {
             }
         }
         MultiRoute theRoute = new MultiRoute(routes);
+        System.out.println("je set la route");
         route.set(theRoute);
         elevationProfile.set(ElevationProfileComputer.elevationProfile(theRoute, MAX_STEP_LENGTH));
     }
 
     private void routeAndItineraryToNull(){
+        System.out.println("je ss dans toNull");
         route.set(null);
         elevationProfile.set(null);
     }
@@ -104,5 +114,4 @@ public final class RouteBean {
             cacheMemoryRoutes.remove(iterator.next());
         }
     }
-
 }
