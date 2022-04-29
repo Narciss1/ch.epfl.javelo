@@ -50,7 +50,8 @@ public final class RouteManager {
         List<PointCh> pointsItinerary = routeBean.routeProperty().get().points();
         List<Double> pointsCoordinates = new ArrayList<>();
         for (PointCh point : pointsItinerary) {
-
+            //pointsCoordinates.add(PointWebMercator.ofPointCh(point).xAtZoomLevel(mapProperty.get().zoomLevel()));
+            //pointsCoordinates.add(PointWebMercator.ofPointCh(point).yAtZoomLevel(mapProperty.get().zoomLevel()));
             pointsCoordinates.add(PointWebMercator.ofPointCh(point).x());
             pointsCoordinates.add(PointWebMercator.ofPointCh(point).y());
         }
