@@ -61,10 +61,10 @@ public final class RouteManager {
         List<Double> pointsCoordinates = new ArrayList<>();
         for (PointCh point : pointsItinerary) {
             PointWebMercator pointInMercator = PointWebMercator.ofPointCh(point);
-            pointsCoordinates.add(mapProperty.get().viewX(pointInMercator) -
-                    mapProperty.get().viewX(pointOrigin));
+            pointsCoordinates.add(mapProperty.get().viewX(pointInMercator)
+                                - mapProperty.get().viewX(pointOrigin));
             pointsCoordinates.add(mapProperty.get().viewY(pointInMercator)
-            - mapProperty.get().viewY(pointOrigin));
+                                - mapProperty.get().viewY(pointOrigin));
         }
         moveItinerary();
         polylineItinerary.getPoints().addAll(pointsCoordinates);
@@ -72,14 +72,8 @@ public final class RouteManager {
 
     private void moveItinerary() {
         pane.getChildren().clear();
-        PointWebMercator point = PointWebMercator.ofPointCh(routeBean.routeProperty().get().points().get(0));
-        //System.out.println("VIEW X : " + mapProperty.get().viewX(point));
-        //System.out.println("LAYOUTX : " + polylineItinerary.getLayoutX());
-        polylineItinerary.setLayoutX(mapProperty.get().viewX(point));
-        //polylineItinerary.setLayoutX(-mapProperty.get().xCoordinate());
-        //System.out.println("LAYOUTY : " + polylineItinerary.getLayoutY());
-        polylineItinerary.setLayoutX(mapProperty.get().viewY(point));
-        //polylineItinerary.setLayoutY(-mapProperty.get().yCoordinate());
+        polylineItinerary.setLayoutX(-mapProperty.get().xCoordinate());
+        polylineItinerary.setLayoutY(-mapProperty.get().yCoordinate());
         pane.getChildren().add(polylineItinerary);
     }
 
