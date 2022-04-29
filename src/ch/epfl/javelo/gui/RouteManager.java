@@ -34,9 +34,7 @@ public final class RouteManager {
         createPolyline();
         createCircle();
         mapProperty.addListener((p, oldM, newM) -> {
-            //createCircle();
                 if (oldM.zoomLevel() == newM.zoomLevel()) {
-                    System.out.println("che7");
                     moveItinerary();
                 } else {
                     createPolyline();
@@ -71,11 +69,13 @@ public final class RouteManager {
     private void moveItinerary() {
         pane.getChildren().clear();
         PointWebMercator point = PointWebMercator.ofPointCh(routeBean.routeProperty().get().points().get(0));
-        System.out.println("VIEW X : " + mapProperty.get().viewX(point));
-        System.out.println("LAYOUT : " + polylineItinerary.getLayoutX());
+        //System.out.println("VIEW X : " + mapProperty.get().viewX(point));
+        //System.out.println("LAYOUTX : " + polylineItinerary.getLayoutX());
         polylineItinerary.setLayoutX(mapProperty.get().viewX(point));
-        System.out.println("LAYOUT : " + polylineItinerary.getLayoutX());
-        polylineItinerary.setLayoutY(mapProperty.get().viewY(point));
+        //polylineItinerary.setLayoutX(-mapProperty.get().xCoordinate());
+        //System.out.println("LAYOUTY : " + polylineItinerary.getLayoutY());
+        polylineItinerary.setLayoutX(mapProperty.get().viewY(point));
+        //polylineItinerary.setLayoutY(-mapProperty.get().yCoordinate());
         pane.getChildren().add(polylineItinerary);
     }
 
