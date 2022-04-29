@@ -58,7 +58,7 @@ public final class Stage8Test extends Application {
         WaypointsManager waypointsManager =
                 new WaypointsManager(graph,
                         mapViewParametersP,
-                        waypoints,
+                        routeBean.waypoints(),
                         errorConsumer);
 
         BaseMapManager baseMapManager =

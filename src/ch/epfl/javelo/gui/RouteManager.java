@@ -2,15 +2,16 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.collections.ObservableList;
+import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
 import static java.lang.Double.isNaN;
 
 public final class RouteManager {
@@ -20,6 +21,7 @@ public final class RouteManager {
     private Consumer<String> errorConsumer;
     private Pane pane;
     private Polyline polylineItinerary;
+    private Circle circle;
 
     private final static int HIGHLIGHTED_POSITION_RADIUS = 5;
 
@@ -30,6 +32,7 @@ public final class RouteManager {
         this.errorConsumer = errorConsumer;
         pane = new Pane();
         polylineItinerary = new Polyline();
+        circle = new Circle();
         pane.setPickOnBounds(false);
         createPolyline();
         createCircle();
@@ -40,7 +43,15 @@ public final class RouteManager {
                     createPolyline();
                 }
                 createCircle();
-                });
+        });
+        routeBean.routeProperty().addListener((InvalidationListener) l -> {
+            createPolyline();
+            createCircle();
+        });
+        routeBean.highlightedPositionProperty().addListener((InvalidationListener) l -> {
+            createCircle();
+        });
+        routeEvents();
     }
 
     public Pane pane() {
@@ -57,7 +68,6 @@ public final class RouteManager {
             return;
         }
         List<PointCh> pointsItinerary = routeBean.routeProperty().get().points();
-        PointWebMercator pointOrigin = PointWebMercator.ofPointCh(pointsItinerary.get(0));
         List<Double> pointsCoordinates = new ArrayList<>();
         for (PointCh point : pointsItinerary) {
             PointWebMercator pointMercator = PointWebMercator.ofPointCh(point);
@@ -77,20 +87,46 @@ public final class RouteManager {
 
     private void createCircle() {
         if(routeBean.routeProperty().get() == null) return;
-        Circle highlightedPosition = new Circle();
-        highlightedPosition.setId("highlight");
-        pane.getChildren().add(highlightedPosition);
+        circle.setId("highlight");
+        pane.getChildren().add(circle);
         double position = routeBean.highlightedPosition();
         if (isNaN(position)){
-            highlightedPosition.setVisible(false);
+            circle.setVisible(false);
             return;
         }
         PointWebMercator pointWebMercatorHighlightedPosition = PointWebMercator.ofPointCh(
                 routeBean.routeProperty().get().pointAt(position));
-        highlightedPosition.setCenterX(pointWebMercatorHighlightedPosition.x());
-        highlightedPosition.setCenterY(pointWebMercatorHighlightedPosition.y());
-        highlightedPosition.setRadius(HIGHLIGHTED_POSITION_RADIUS);
-        highlightedPosition.setLayoutX(mapProperty.get().viewX(pointWebMercatorHighlightedPosition));
-        highlightedPosition.setLayoutY(mapProperty.get().viewY(pointWebMercatorHighlightedPosition));
+        circle.setCenterX(pointWebMercatorHighlightedPosition.x());
+        circle.setCenterY(pointWebMercatorHighlightedPosition.y());
+        circle.setRadius(HIGHLIGHTED_POSITION_RADIUS);
+        circle.setLayoutX(mapProperty.get().viewX(pointWebMercatorHighlightedPosition));
+        circle.setLayoutY(mapProperty.get().viewY(pointWebMercatorHighlightedPosition));
+    }
+
+    public void routeEvents(){
+        circle.setOnMouseClicked(e -> {
+            if(routeBean.routeProperty().get() != null && !isNaN(routeBean.highlightedPosition())) {
+                Point2D position = circle.localToParent(new Point2D(e.getX(), e.getY()));
+                PointWebMercator pointMercator = mapProperty.get().pointAt(position.getX(), position.getY());
+                PointCh pointCh = pointMercator.toPointCh();
+                int closestNode = routeBean.routeProperty().get().nodeClosestTo(routeBean.highlightedPosition());
+                Waypoint wayPoint = new Waypoint(pointCh, closestNode);
+                ObservableList<Waypoint> newList = routeBean.waypoints();
+                int index = routeBean.routeProperty().get().indexOfSegmentAt(routeBean.highlightedPosition()) + 1;
+                boolean canAdd = true;
+                int count = 0;
+                while(canAdd && count < newList.size()){
+                    if(newList.get(count).closestNodeId() == closestNode) {
+                        canAdd = false;
+                    }
+                    ++count;
+                }
+                if(canAdd && !newList.contains(wayPoint)) {
+                    newList.add(index, wayPoint);
+                } else {
+                    errorConsumer.accept("Un point de passage est déjà présent à cet endroit !");
+                }
+            }
+        });
     }
 }

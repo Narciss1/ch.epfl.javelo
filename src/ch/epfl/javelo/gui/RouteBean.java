@@ -36,12 +36,15 @@ public final class RouteBean {
         route = new SimpleObjectProperty<>();
         elevationProfile = new SimpleObjectProperty<>();
         highlightedPosition = new SimpleDoubleProperty();
-        waypoints.addListener((InvalidationListener) l -> computingItineraryAndProfile());
+        waypoints.addListener((InvalidationListener) l -> {
+            //Should be done this way?
+            if(!waypoints.isEmpty())  computingItineraryAndProfile();
+        });
     }
 
     public void setWaypoints(ObservableList<Waypoint> listOfWaypoints){
         waypoints.clear();
-        waypoints.setAll(listOfWaypoints);
+        waypoints.addAll(listOfWaypoints);
     }
 
     public void setHighlightedPosition(double position){
@@ -58,17 +61,21 @@ public final class RouteBean {
         Integer endNodeId;
         if (waypoints.size() < 2){
             routeAndItineraryToNull();
+            System.out.println("mini size");
             return;
         }
         for (int i = 0; i < waypoints.size() - 1; ++i){
             startNodeId = waypoints.get(i).closestNodeId();
             endNodeId = waypoints.get(i+1).closestNodeId();
+            System.out.println("startNodeId: " + startNodeId);
+            System.out.println("endNodeId: "+ endNodeId);
             if (cacheMemoryRoutes.containsKey(new Pair<>(startNodeId, endNodeId))){
                 routes.add(cacheMemoryRoutes.get(new Pair<>(startNodeId, endNodeId)));
             } else {
                 Route routeToAdd = rc.bestRouteBetween(startNodeId, endNodeId);
                 if (routeToAdd == null){
                     routeAndItineraryToNull();
+                    System.out.println("routeToAdd null");
                     return;
                 }
                 checkCacheCapacity();
@@ -87,18 +94,27 @@ public final class RouteBean {
     }
 
     //Est-ce que c'est suffisant ?
+    //Should we add la méthode route()?
     public ReadOnlyObjectProperty<Route> routeProperty(){
         return route;
+    }
+
+    public DoubleProperty highlightedPositionProperty(){
+        return highlightedPosition;
     }
 
     public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty(){
         return elevationProfile;
     }
 
-    public double highlightedPosition(){
+    public double highlightedPosition() {
         return highlightedPosition.get();
     }
-    
+
+    public ObservableList<Waypoint> waypoints() {
+        return waypoints;
+    }
+
     private void checkCacheCapacity(){
         if(cacheMemoryRoutes.size() == CACHE_MEMORY_ROUTES_CAPACITY) {
             Iterator<Pair<Integer, Integer>> iterator = cacheMemoryRoutes.keySet().iterator();

@@ -52,6 +52,7 @@ public final class WaypointsManager {
         addSVGPaths();
         wayPointsEvents();
         wayPoints.addListener((InvalidationListener)  l -> {
+            System.out.println("listener dans la classe WayPointsManager");
                 addSVGPaths();
                 wayPointsEvents();
         });
