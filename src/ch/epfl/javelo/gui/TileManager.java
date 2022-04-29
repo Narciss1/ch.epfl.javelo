@@ -129,7 +129,6 @@ public final class TileManager {
                 cacheMemory.remove(iterator.next());
             }
             cacheMemory.put(tileId, image);
-            //System.out.println(cacheMemory.keySet());
             return image;
         }
     }

@@ -8,14 +8,12 @@ import ch.epfl.javelo.projection.WebMercator;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
-
 import java.util.function.Consumer;
 
 /**
@@ -29,7 +27,6 @@ public final class WaypointsManager {
     private final Graph graph;
     private final ObjectProperty<MapViewParameters> mapProperty;
     private final ObservableList<Waypoint> wayPoints;
-    private final ObservableList<Node> listOfGroups;
     private final Consumer<String> errorConsumer;
 
     /**
@@ -52,11 +49,8 @@ public final class WaypointsManager {
         this.mapProperty = mapProperty;
         this.wayPoints = wayPoints;
         this.errorConsumer = errorConsumer;
-        //Better to be observable?
-        listOfGroups = FXCollections.observableArrayList();
         addSVGPaths();
-        wayPointsEvents();  //L'ordre doit matter à ce point mdr ?
-        //listOfGroups.addListener((InvalidationListener) e -> wayPointsEvents());
+        wayPointsEvents();
         wayPoints.addListener((InvalidationListener)  l -> {
                 addSVGPaths();
                 wayPointsEvents();
@@ -92,8 +86,8 @@ public final class WaypointsManager {
      * Position the markers at the coordinates of their corresponding waypoint
      */
     private void addSVGPaths() {
-        listOfGroups.clear();
-        //A améliorer
+        //A améliorer et diviser en deux méthodes
+        pane.getChildren().clear();
         for (int i = 0; i < wayPoints.size(); ++i) {
             Group group = new Group();
             group.getStyleClass().add("pin");
@@ -122,19 +116,20 @@ public final class WaypointsManager {
                           new PointCh(wayPoints.get(i).pointCh().e(), wayPoints.get(i).pointCh().n())));
             group.setLayoutX(newX);
             group.setLayoutY(newY);
-            listOfGroups.add(group);
+            pane.getChildren().add(group);
         }
-        pane.getChildren().setAll(listOfGroups);
     }
 
     /**
      *
      */
     private void wayPointsEvents(){
-        for(int i = 0; i < listOfGroups.size(); ++i) {
+        ObservableList<Node> list = pane.getChildren();
+
+        for(int i = 0; i < list.size(); ++i) {
             Waypoint waypoint = wayPoints.get(i);
             int index = i;
-            Node group = listOfGroups.get(index);
+            Node group = list.get(index);
             ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
 
             group.setOnMousePressed(e ->
@@ -161,7 +156,8 @@ public final class WaypointsManager {
                     if(newPointCh != null && graph.nodeClosestTo(newPointCh, CIRCLE_RADIUS) != -1) {
                         wayPoints.set(index, new Waypoint(newPointCh, graph.nodeClosestTo(newPointCh, CIRCLE_RADIUS)));
                     } else {
-                        addSVGPaths(); //J'etais obligée de add ça, sinon y avait un tps de latence à cause du dragged.
+                        //remplacer par méthode de repositionnement
+                        addSVGPaths();
                         errorConsumer.accept("Aucune route à proximité !");
                     }
                 } else {

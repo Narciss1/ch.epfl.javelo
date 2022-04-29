@@ -57,24 +57,17 @@ public final class RouteBean {
         Integer startNodeId;
         Integer endNodeId;
         if (waypoints.size() < 2){
-            System.out.println("dans inf à deux cause why not");
             routeAndItineraryToNull();
             return;
         }
         for (int i = 0; i < waypoints.size() - 1; ++i){
-            System.out.println(waypoints.size());
-            System.out.println(waypoints.get(0).closestNodeId());
-            System.out.println(waypoints.get(1).closestNodeId());
             startNodeId = waypoints.get(i).closestNodeId();
-            System.out.println(startNodeId);
             endNodeId = waypoints.get(i+1).closestNodeId();
-            System.out.println(endNodeId);
             if (cacheMemoryRoutes.containsKey(new Pair<>(startNodeId, endNodeId))){
                 routes.add(cacheMemoryRoutes.get(new Pair<>(startNodeId, endNodeId)));
             } else {
                 Route routeToAdd = rc.bestRouteBetween(startNodeId, endNodeId);
                 if (routeToAdd == null){
-                    System.out.println( i + " : je suis dans routeToAdd");
                     routeAndItineraryToNull();
                     return;
                 }
@@ -84,13 +77,11 @@ public final class RouteBean {
             }
         }
         MultiRoute theRoute = new MultiRoute(routes);
-        System.out.println("je set la route");
         route.set(theRoute);
         elevationProfile.set(ElevationProfileComputer.elevationProfile(theRoute, MAX_STEP_LENGTH));
     }
 
     private void routeAndItineraryToNull(){
-        System.out.println("je ss dans toNull");
         route.set(null);
         elevationProfile.set(null);
     }
