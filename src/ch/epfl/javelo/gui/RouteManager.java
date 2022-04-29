@@ -40,7 +40,7 @@ public final class RouteManager {
                     createPolyline();
                 }
                 createCircle();
-                });
+        });
     }
 
     public Pane pane() {
@@ -60,11 +60,9 @@ public final class RouteManager {
         PointWebMercator pointOrigin = PointWebMercator.ofPointCh(pointsItinerary.get(0));
         List<Double> pointsCoordinates = new ArrayList<>();
         for (PointCh point : pointsItinerary) {
-            PointWebMercator pointInMercator = PointWebMercator.ofPointCh(point);
-            pointsCoordinates.add(mapProperty.get().viewX(pointInMercator)
-                                - mapProperty.get().viewX(pointOrigin));
-            pointsCoordinates.add(mapProperty.get().viewY(pointInMercator)
-                                - mapProperty.get().viewY(pointOrigin));
+            PointWebMercator pointMercator = PointWebMercator.ofPointCh(point);
+            pointsCoordinates.add(pointMercator.xAtZoomLevel(mapProperty.get().zoomLevel()));
+            pointsCoordinates.add(pointMercator.yAtZoomLevel(mapProperty.get().zoomLevel()));
         }
         moveItinerary();
         polylineItinerary.getPoints().addAll(pointsCoordinates);
