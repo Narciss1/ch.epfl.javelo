@@ -33,6 +33,14 @@ public final class RouteManager {
         pane.setPickOnBounds(false);
         createPolyline();
         createCircle();
+        mapProperty.addListener((p, oldM, newM) -> {
+                if (oldM.zoomLevel() == newM.zoomLevel()) {
+                    System.out.println("che7");
+                    moveItinerary();
+                } else {
+                    createPolyline();
+                }
+                });
     }
 
     public Pane pane() {
@@ -40,29 +48,31 @@ public final class RouteManager {
     }
 
     private void createPolyline() {
+        pane.getChildren().clear();
+        polylineItinerary.getPoints().clear();
         polylineItinerary.setId("route");
         pane.getChildren().add(polylineItinerary);
         if (routeBean.routeProperty().get() == null){
             polylineItinerary.setVisible(false);
-            System.out.println("elles sont invisibles ^^ hehe");
             return;
         }
         List<PointCh> pointsItinerary = routeBean.routeProperty().get().points();
         List<Double> pointsCoordinates = new ArrayList<>();
         for (PointCh point : pointsItinerary) {
-
-            pointsCoordinates.add(PointWebMercator.ofPointCh(point).x());
-            pointsCoordinates.add(PointWebMercator.ofPointCh(point).y());
+            PointWebMercator pointInMercator = PointWebMercator.ofPointCh(point);
+            pointsCoordinates.add(mapProperty.get().viewX(pointInMercator));
+            pointsCoordinates.add(mapProperty.get().viewY(pointInMercator));
         }
-        System.out.println("size: "+ pointsCoordinates.size());
         polylineItinerary.getPoints().addAll(pointsCoordinates);
-        movePolyline(); //à revoir en testant
     }
 
-    private void movePolyline() {
-        PointCh point = routeBean.routeProperty().get().points().get(0);
-        polylineItinerary.setLayoutX(mapProperty.get().viewX(PointWebMercator.ofPointCh(point)));
-        polylineItinerary.setLayoutY(mapProperty.get().viewY(PointWebMercator.ofPointCh(point)));
+    private void moveItinerary() {
+        PointWebMercator point = PointWebMercator.ofPointCh(routeBean.routeProperty().get().points().get(0));
+        System.out.println("VIEW X : " + mapProperty.get().viewX(point));
+        System.out.println("LAYOUT : " + polylineItinerary.getLayoutX());
+        polylineItinerary.setLayoutX(mapProperty.get().viewX(point));
+        System.out.println("LAYOUT : " + polylineItinerary.getLayoutX());
+        polylineItinerary.setLayoutY(mapProperty.get().viewY(point));
     }
 
     private void createCircle() {

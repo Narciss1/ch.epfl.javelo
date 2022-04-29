@@ -56,8 +56,11 @@ public final class WaypointsManager {
         listOfGroups = FXCollections.observableArrayList();
         addSVGPaths();
         wayPointsEvents();  //L'ordre doit matter à ce point mdr ?
-        listOfGroups.addListener((InvalidationListener) e -> wayPointsEvents());
-        wayPoints.addListener((InvalidationListener)  l -> addSVGPaths());
+        //listOfGroups.addListener((InvalidationListener) e -> wayPointsEvents());
+        wayPoints.addListener((InvalidationListener)  l -> {
+                addSVGPaths();
+                wayPointsEvents();
+        });
         mapProperty.addListener((p, oldM, newM) -> addSVGPaths());
     }
 
