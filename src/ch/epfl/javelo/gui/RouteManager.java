@@ -34,7 +34,6 @@ public final class RouteManager {
         createPolyline();
         createCircle();
         mapProperty.addListener((p, oldM, newM) -> {
-            //createCircle();
                 if (oldM.zoomLevel() == newM.zoomLevel()) {
                     System.out.println("che7");
                     moveItinerary();
@@ -53,7 +52,7 @@ public final class RouteManager {
         pane.getChildren().clear();
         polylineItinerary.getPoints().clear();
         polylineItinerary.setId("route");
-        pane.getChildren().add(polylineItinerary);
+        //pane.getChildren().add(polylineItinerary);
         if (routeBean.routeProperty().get() == null){
             polylineItinerary.setVisible(false);
             return;
@@ -63,23 +62,24 @@ public final class RouteManager {
         List<Double> pointsCoordinates = new ArrayList<>();
         for (PointCh point : pointsItinerary) {
             PointWebMercator pointInMercator = PointWebMercator.ofPointCh(point);
-            pointsCoordinates.add(mapProperty.get().viewX(pointInMercator) -
-                    mapProperty.get().viewX(pointOrigin));
-            pointsCoordinates.add(mapProperty.get().viewY(pointInMercator)
-            - mapProperty.get().viewY(pointOrigin));
+//            pointsCoordinates.add(mapProperty.get().viewX(pointInMercator) -
+//                    mapProperty.get().viewX(pointOrigin));
+//            pointsCoordinates.add(mapProperty.get().viewY(pointInMercator)
+//            - mapProperty.get().viewY(pointOrigin));
+            pointsCoordinates.add(PointWebMercator.ofPointCh(point).xAtZoomLevel(mapProperty.get().zoomLevel()));
+            pointsCoordinates.add(PointWebMercator.ofPointCh(point).yAtZoomLevel(mapProperty.get().zoomLevel()));
         }
-        moveItinerary();
         polylineItinerary.getPoints().addAll(pointsCoordinates);
+        moveItinerary();
     }
 
     private void moveItinerary() {
         pane.getChildren().clear();
         PointWebMercator point = PointWebMercator.ofPointCh(routeBean.routeProperty().get().points().get(0));
-        System.out.println("VIEW X : " + mapProperty.get().viewX(point));
-        System.out.println("LAYOUT : " + polylineItinerary.getLayoutX());
-        polylineItinerary.setLayoutX(mapProperty.get().viewX(point));
-        System.out.println("LAYOUT : " + polylineItinerary.getLayoutX());
-        polylineItinerary.setLayoutY(mapProperty.get().viewY(point));
+//        polylineItinerary.setLayoutX(mapProperty.get().viewX(point));
+//        polylineItinerary.setLayoutY(mapProperty.get().viewY(point));
+        polylineItinerary.setLayoutX(- mapProperty.get().xCoordinate());
+        polylineItinerary.setLayoutY(- mapProperty.get().yCoordinate());
         pane.getChildren().add(polylineItinerary);
     }
 
