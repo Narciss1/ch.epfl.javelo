@@ -40,7 +40,7 @@ public final class RouteManager {
                     createPolyline();
                 }
                 createCircle();
-        });
+                });
     }
 
     public Pane pane() {
@@ -64,8 +64,8 @@ public final class RouteManager {
             pointsCoordinates.add(pointMercator.xAtZoomLevel(mapProperty.get().zoomLevel()));
             pointsCoordinates.add(pointMercator.yAtZoomLevel(mapProperty.get().zoomLevel()));
         }
-        moveItinerary();
         polylineItinerary.getPoints().addAll(pointsCoordinates);
+        moveItinerary();
     }
 
     private void moveItinerary() {
