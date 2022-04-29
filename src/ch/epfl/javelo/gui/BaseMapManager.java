@@ -155,8 +155,7 @@ public final class BaseMapManager {
         Point2D oldMousePosition = mousePositionProperty.get();
         mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
         Point2D oldTopLeftPosition = oldMousePosition.subtract(mousePositionProperty.get());
-        mapProperty.setValue(mapProperty.get().withMinXY
-                (oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
+        mapProperty.setValue(mapProperty.get().withMinXY( oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
                         oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
     }
 
