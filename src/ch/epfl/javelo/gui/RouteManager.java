@@ -57,12 +57,16 @@ public final class RouteManager {
             return;
         }
         List<PointCh> pointsItinerary = routeBean.routeProperty().get().points();
+        PointWebMercator pointOrigin = PointWebMercator.ofPointCh(pointsItinerary.get(0));
         List<Double> pointsCoordinates = new ArrayList<>();
         for (PointCh point : pointsItinerary) {
             PointWebMercator pointInMercator = PointWebMercator.ofPointCh(point);
-            pointsCoordinates.add(mapProperty.get().viewX(pointInMercator));
-            pointsCoordinates.add(mapProperty.get().viewY(pointInMercator));
+            pointsCoordinates.add(mapProperty.get().viewX(pointInMercator) -
+                    mapProperty.get().viewX(pointOrigin));
+            pointsCoordinates.add(mapProperty.get().viewY(pointInMercator)
+            - mapProperty.get().viewY(pointOrigin));
         }
+        moveItinerary();
         polylineItinerary.getPoints().addAll(pointsCoordinates);
     }
 
