@@ -73,22 +73,21 @@ public final class BaseMapManager {
      */
     public void tilesDraw(){
         GraphicsContext canvasGraphicsContext = canvas.getGraphicsContext2D();
+        canvasGraphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         double xTopLeft = mapProperty.get().xCoordinate();
         double yTopLeft = mapProperty.get().yCoordinate();
         int indexX, indexY;
         for(double y = yTopLeft; y < yTopLeft + canvas.getHeight() + PIXELS_IN_TILE; y += PIXELS_IN_TILE) {
             for(double x = xTopLeft; x < xTopLeft + canvas.getWidth() + PIXELS_IN_TILE; x += PIXELS_IN_TILE) {
-                indexX = (int) Math.floor( x / PIXELS_IN_TILE);
-                indexY = (int) Math.floor( y / PIXELS_IN_TILE);
+                indexX = (int) (x / PIXELS_IN_TILE);
+                indexY = (int) (y / PIXELS_IN_TILE);
                 TileManager.TileId tileId = new TileManager.TileId(mapProperty.get().zoomLevel(),
                         indexX, indexY);
                 try {
                     Image image = tileManager.imageForTileAt(tileId);
                     canvasGraphicsContext.drawImage(image, PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
                             (PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate()));
-                } catch (IOException e){
-                    //What should we put here ? (To me we should leave it empty...
-                }
+                } catch (IOException e) {}
             }
         }
     }

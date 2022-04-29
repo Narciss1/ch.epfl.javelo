@@ -34,6 +34,7 @@ public final class RouteManager {
         createPolyline();
         createCircle();
         mapProperty.addListener((p, oldM, newM) -> {
+            //createCircle();
                 if (oldM.zoomLevel() == newM.zoomLevel()) {
                     System.out.println("che7");
                     moveItinerary();
