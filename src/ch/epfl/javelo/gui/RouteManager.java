@@ -40,6 +40,7 @@ public final class RouteManager {
                 } else {
                     createPolyline();
                 }
+                createCircle();
                 });
     }
 
@@ -67,12 +68,14 @@ public final class RouteManager {
     }
 
     private void moveItinerary() {
+        pane.getChildren().clear();
         PointWebMercator point = PointWebMercator.ofPointCh(routeBean.routeProperty().get().points().get(0));
         System.out.println("VIEW X : " + mapProperty.get().viewX(point));
         System.out.println("LAYOUT : " + polylineItinerary.getLayoutX());
         polylineItinerary.setLayoutX(mapProperty.get().viewX(point));
         System.out.println("LAYOUT : " + polylineItinerary.getLayoutX());
         polylineItinerary.setLayoutY(mapProperty.get().viewY(point));
+        pane.getChildren().add(polylineItinerary);
     }
 
     private void createCircle() {

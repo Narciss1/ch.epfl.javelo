@@ -52,7 +52,7 @@ public final class WaypointsManager {
         this.mapProperty = mapProperty;
         this.wayPoints = wayPoints;
         this.errorConsumer = errorConsumer;
-        //Why should it be observable?
+        //Better to be observable?
         listOfGroups = FXCollections.observableArrayList();
         addSVGPaths();
         wayPointsEvents();  //L'ordre doit matter à ce point mdr ?
