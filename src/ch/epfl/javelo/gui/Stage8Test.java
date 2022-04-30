@@ -78,10 +78,15 @@ public final class Stage8Test extends Application {
         primaryStage.setMinWidth(600);
         primaryStage.setMinHeight(300);
         primaryStage.setScene(new Scene(mainPane));
-        primaryStage.setFullScreen(true);
         primaryStage.setFullScreenExitHint("Press echap to exit full screen ta race");
         primaryStage.setFullScreenExitKeyCombination(KeyCombination.valueOf(KeyCode.ESCAPE.getName()));
         primaryStage.show();
+        mainPane.requestFocus();
+        mainPane.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.F){
+                primaryStage.setFullScreen(true);
+            }
+        });
     }
 
     private static final class ErrorConsumer
