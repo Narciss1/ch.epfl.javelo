@@ -50,6 +50,7 @@ public final class RouteManager {
         });
         routeBean.highlightedPositionProperty().addListener((InvalidationListener) l -> {
             createCircle();
+            createPolyline();
         });
         routeEvents();
     }
