@@ -45,6 +45,7 @@ public final class RouteManager {
                 createCircle();
         });
         routeBean.routeProperty().addListener((InvalidationListener) l -> {
+            System.out.println("Je recrée une route hehe");
             createPolyline();
             createCircle();
         });
@@ -63,9 +64,12 @@ public final class RouteManager {
         polylineItinerary.getPoints().clear();
         polylineItinerary.setId("route");
         pane.getChildren().add(polylineItinerary);
+        //Opérateur ternaire à conseiller ?
         if (routeBean.routeProperty().get() == null){
             polylineItinerary.setVisible(false);
             return;
+        } else {
+            polylineItinerary.setVisible(true);
         }
         List<PointCh> pointsItinerary = routeBean.routeProperty().get().points();
         List<Double> pointsCoordinates = new ArrayList<>();
@@ -96,6 +100,7 @@ public final class RouteManager {
         }
         PointWebMercator pointWebMercatorHighlightedPosition = PointWebMercator.ofPointCh(
                 routeBean.routeProperty().get().pointAt(position));
+        //do we rly need all those center machin etc ?
         circle.setCenterX(pointWebMercatorHighlightedPosition.x());
         circle.setCenterY(pointWebMercatorHighlightedPosition.y());
         circle.setRadius(HIGHLIGHTED_POSITION_RADIUS);
@@ -111,6 +116,8 @@ public final class RouteManager {
                 PointCh pointCh = pointMercator.toPointCh();
                 int closestNode = routeBean.routeProperty().get().nodeClosestTo(routeBean.highlightedPosition());
                 Waypoint wayPoint = new Waypoint(pointCh, closestNode);
+                //J'ai pas trop l'impression que c'est legit de jouer sur les références pour modifier
+                //la liste de l'autre conne de RouteBean là. Faut revoir ça.
                 ObservableList<Waypoint> newList = routeBean.waypoints();
                 int index = routeBean.routeProperty().get().indexOfSegmentAt(routeBean.highlightedPosition()) + 1;
                 boolean canAdd = true;

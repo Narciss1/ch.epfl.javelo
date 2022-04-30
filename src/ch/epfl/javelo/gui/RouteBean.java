@@ -61,21 +61,17 @@ public final class RouteBean {
         Integer endNodeId;
         if (waypoints.size() < 2){
             routeAndItineraryToNull();
-            System.out.println("mini size");
             return;
         }
         for (int i = 0; i < waypoints.size() - 1; ++i){
             startNodeId = waypoints.get(i).closestNodeId();
             endNodeId = waypoints.get(i+1).closestNodeId();
-            System.out.println("startNodeId: " + startNodeId);
-            System.out.println("endNodeId: "+ endNodeId);
             if (cacheMemoryRoutes.containsKey(new Pair<>(startNodeId, endNodeId))){
                 routes.add(cacheMemoryRoutes.get(new Pair<>(startNodeId, endNodeId)));
             } else {
                 Route routeToAdd = rc.bestRouteBetween(startNodeId, endNodeId);
                 if (routeToAdd == null){
                     routeAndItineraryToNull();
-                    System.out.println("routeToAdd null");
                     return;
                 }
                 checkCacheCapacity();
@@ -89,6 +85,7 @@ public final class RouteBean {
     }
 
     private void routeAndItineraryToNull(){
+        System.out.println("Route est null");
         route.set(null);
         elevationProfile.set(null);
     }

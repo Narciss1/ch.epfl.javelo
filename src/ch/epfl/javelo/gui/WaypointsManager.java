@@ -54,9 +54,10 @@ public final class WaypointsManager {
         wayPoints.addListener((InvalidationListener)  l -> {
             System.out.println("listener dans la classe WayPointsManager");
                 addSVGPaths();
-                wayPointsEvents();
         });
-        mapProperty.addListener((p, oldM, newM) -> addSVGPaths());
+        mapProperty.addListener((p, oldM, newM) -> {
+            addSVGPaths(); //A remplacer par la méthode de repositionnement.
+        });
     }
 
     /**
@@ -119,6 +120,7 @@ public final class WaypointsManager {
             group.setLayoutY(newY);
             pane.getChildren().add(group);
         }
+        wayPointsEvents();
     }
 
     /**
@@ -130,7 +132,7 @@ public final class WaypointsManager {
         for(int i = 0; i < list.size(); ++i) {
             Waypoint waypoint = wayPoints.get(i);
             int index = i;
-            Node group = list.get(index);
+            Node group = list.get(i);
             ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
 
             group.setOnMousePressed(e ->
@@ -144,6 +146,7 @@ public final class WaypointsManager {
             });
 
             group.setOnMouseReleased(e -> {
+                System.out.println("coucou");
                 if (!e.isStillSincePress()) {
                     Point2D oldMousePosition = mousePositionProperty.get();
                     mousePositionProperty.setValue(new Point2D(e.getX() , e.getY()));
