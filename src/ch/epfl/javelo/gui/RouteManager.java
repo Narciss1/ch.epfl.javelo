@@ -20,7 +20,7 @@ public final class RouteManager {
     private ReadOnlyObjectProperty<MapViewParameters> mapProperty;
     private Consumer<String> errorConsumer;
     private Pane pane;
-    private Polyline polylineItinerary;
+    private final Polyline polylineItinerary;
     private Circle circle;
 
     private final static int HIGHLIGHTED_POSITION_RADIUS = 5;

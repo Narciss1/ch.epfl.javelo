@@ -85,7 +85,6 @@ public final class RouteBean {
     }
 
     private void routeAndItineraryToNull(){
-        System.out.println("Route est null");
         route.set(null);
         elevationProfile.set(null);
     }

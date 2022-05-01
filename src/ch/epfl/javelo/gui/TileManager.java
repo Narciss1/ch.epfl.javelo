@@ -36,6 +36,7 @@ public final class TileManager {
     public TileManager(Path basePath, String server) {
         this.basePath = basePath;
         this.server = server;
+        //Question: est-ce que je mets à 0?
         cacheMemory = new LinkedHashMap(CACHE_MEMORY_CAPACITY, 0.75f, true);
     }
 
