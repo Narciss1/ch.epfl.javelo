@@ -45,7 +45,6 @@ public final class RouteManager {
                 createCircle();
         });
         routeBean.routeProperty().addListener((InvalidationListener) l -> {
-            System.out.println("Je recrée une route hehe");
             createPolyline();
             createCircle();
         });

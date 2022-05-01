@@ -52,7 +52,6 @@ public final class WaypointsManager {
         addSVGPaths();
         wayPointsEvents();
         wayPoints.addListener((InvalidationListener)  l -> {
-            System.out.println("listener dans la classe WayPointsManager");
                 addSVGPaths();
         });
         mapProperty.addListener((p, oldM, newM) -> {
@@ -146,7 +145,6 @@ public final class WaypointsManager {
             });
 
             group.setOnMouseReleased(e -> {
-                System.out.println("coucou");
                 if (!e.isStillSincePress()) {
                     Point2D oldMousePosition = mousePositionProperty.get();
                     mousePositionProperty.setValue(new Point2D(e.getX() , e.getY()));

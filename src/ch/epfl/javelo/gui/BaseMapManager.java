@@ -76,11 +76,14 @@ public final class BaseMapManager {
         canvasGraphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         double xTopLeft = mapProperty.get().xCoordinate();
         double yTopLeft = mapProperty.get().yCoordinate();
+        int xNumberTiles = ((int) canvas.getWidth() / PIXELS_IN_TILE) + 1;
+        int yNumberTiles = ((int) canvas.getHeight() / PIXELS_IN_TILE) + 1;
         int indexX, indexY;
-        for(double y = yTopLeft; y < yTopLeft + canvas.getHeight() + PIXELS_IN_TILE; y += PIXELS_IN_TILE) {
-            for(double x = xTopLeft; x < xTopLeft + canvas.getWidth() + PIXELS_IN_TILE; x += PIXELS_IN_TILE) {
-                indexX = (int) (x / PIXELS_IN_TILE);
-                indexY = (int) (y / PIXELS_IN_TILE);
+        for(double y = 0; y <= yNumberTiles; ++y) {
+            double newXTopLeft = xTopLeft;
+            for(double x = 0; x <= xNumberTiles; ++x) {
+                indexX = (int) (newXTopLeft / PIXELS_IN_TILE);
+                indexY = (int) (yTopLeft / PIXELS_IN_TILE);
                 TileManager.TileId tileId = new TileManager.TileId(mapProperty.get().zoomLevel(),
                         indexX, indexY);
                 try {
@@ -88,8 +91,27 @@ public final class BaseMapManager {
                     canvasGraphicsContext.drawImage(image, PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
                             (PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate()));
                 } catch (IOException e) {}
+                newXTopLeft += PIXELS_IN_TILE;
             }
+            yTopLeft += PIXELS_IN_TILE;
         }
+        /*for(double y = yTopLeft; y < yTopLeft + canvas.getHeight() + PIXELS_IN_TILE; y += PIXELS_IN_TILE) {
+            System.out.println("Dans la boucle");
+            for(double x = xTopLeft; x < xTopLeft + canvas.getWidth() + PIXELS_IN_TILE; x += PIXELS_IN_TILE) {
+                indexX = (int) (x / PIXELS_IN_TILE);
+                indexY = (int) (y / PIXELS_IN_TILE);
+                System.out.println("indexX: " + indexX);
+                System.out.println("indexY: " + indexY);
+                TileManager.TileId tileId = new TileManager.TileId(mapProperty.get().zoomLevel(),
+                        indexX, indexY);
+
+                try {
+                    Image image = tileManager.imageForTileAt(tileId);
+                    canvasGraphicsContext.drawImage(image, PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
+                            (PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate()));
+                } catch (IOException e) {}
+            }
+        }*/
     }
 
     /**
