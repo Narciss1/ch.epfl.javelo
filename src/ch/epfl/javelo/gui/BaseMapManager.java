@@ -62,7 +62,6 @@ public final class BaseMapManager {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
-        //redrawOnNextPulse();
     }
 
     /**
@@ -95,26 +94,7 @@ public final class BaseMapManager {
                 newXTopLeft += PIXELS_IN_TILE;
             }
             yTopLeft += PIXELS_IN_TILE;
-            System.out.println(canvas.getHeight());
-            System.out.println(canvas.getWidth());
         }
-        /*for(double y = yTopLeft; y < yTopLeft + canvas.getHeight() + PIXELS_IN_TILE; y += PIXELS_IN_TILE) {
-            System.out.println("Dans la boucle");
-            for(double x = xTopLeft; x < xTopLeft + canvas.getWidth() + PIXELS_IN_TILE; x += PIXELS_IN_TILE) {
-                indexX = (int) (x / PIXELS_IN_TILE);
-                indexY = (int) (y / PIXELS_IN_TILE);
-                System.out.println("indexX: " + indexX);
-                System.out.println("indexY: " + indexY);
-                TileManager.TileId tileId = new TileManager.TileId(mapProperty.get().zoomLevel(),
-                        indexX, indexY);
-
-                try {
-                    Image image = tileManager.imageForTileAt(tileId);
-                    canvasGraphicsContext.drawImage(image, PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
-                            (PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate()));
-                } catch (IOException e) {}
-            }
-        }*/
     }
 
     /**
@@ -179,10 +159,10 @@ public final class BaseMapManager {
         (ObjectProperty<Point2D> mousePositionProperty, MouseEvent e) {
         Point2D oldMousePosition = mousePositionProperty.get();
         mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
-        Point2D oldTopLeftPosition = oldMousePosition.subtract(mousePositionProperty.get());
+        Point2D gap = oldMousePosition.subtract(mousePositionProperty.get());
         mapProperty.setValue(mapProperty.get().withMinXY(
-                oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
-                oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
+                mapProperty.get().xCoordinate() + gap.getX(),
+                mapProperty.get().yCoordinate() + gap.getY()));
     }
 
     /**

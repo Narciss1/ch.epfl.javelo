@@ -65,13 +65,13 @@ public final class RouteManager {
         polylineItinerary.setId("route");
         pane.getChildren().add(polylineItinerary);
         //Opérateur ternaire à conseiller ?
-        if (routeBean.routeProperty().get() == null){
+        if (routeBean.route() == null){
             polylineItinerary.setVisible(false);
             return;
         } else {
             polylineItinerary.setVisible(true);
         }
-        List<PointCh> pointsItinerary = routeBean.routeProperty().get().points();
+        List<PointCh> pointsItinerary = routeBean.route().points();
         List<Double> pointsCoordinates = new ArrayList<>();
         for (PointCh point : pointsItinerary) {
             PointWebMercator pointMercator = PointWebMercator.ofPointCh(point);
@@ -90,7 +90,7 @@ public final class RouteManager {
     }
 
     private void createCircle() {
-        if(routeBean.routeProperty().get() == null) return;
+        if(routeBean.route() == null) return;
         circle.setId("highlight");
         pane.getChildren().add(circle);
         double position = routeBean.highlightedPosition();
@@ -99,7 +99,7 @@ public final class RouteManager {
             return;
         }
         PointWebMercator pointWebMercatorHighlightedPosition = PointWebMercator.ofPointCh(
-                routeBean.routeProperty().get().pointAt(position));
+                routeBean.route().pointAt(position));
         //do we rly need all those center machin etc ?
         circle.setCenterX(pointWebMercatorHighlightedPosition.x());
         circle.setCenterY(pointWebMercatorHighlightedPosition.y());
@@ -110,16 +110,14 @@ public final class RouteManager {
 
     public void routeEvents(){
         circle.setOnMouseClicked(e -> {
-            if(routeBean.routeProperty().get() != null && !isNaN(routeBean.highlightedPosition())) {
+            if(routeBean.route() != null && !isNaN(routeBean.highlightedPosition())) {
                 Point2D position = circle.localToParent(new Point2D(e.getX(), e.getY()));
                 PointWebMercator pointMercator = mapProperty.get().pointAt(position.getX(), position.getY());
                 PointCh pointCh = pointMercator.toPointCh();
-                int closestNode = routeBean.routeProperty().get().nodeClosestTo(routeBean.highlightedPosition());
+                int closestNode = routeBean.route().nodeClosestTo(routeBean.highlightedPosition());
                 Waypoint wayPoint = new Waypoint(pointCh, closestNode);
-                //J'ai pas trop l'impression que c'est legit de jouer sur les références pour modifier
-                //la liste de l'autre conne de RouteBean là. Faut revoir ça.
                 ObservableList<Waypoint> newList = routeBean.waypoints();
-                int index = routeBean.routeProperty().get().indexOfSegmentAt(routeBean.highlightedPosition()) + 1;
+                int index = routeBean.route().indexOfSegmentAt(routeBean.highlightedPosition()) + 1;
                 boolean canAdd = true;
                 int count = 0;
                 while(canAdd && count < newList.size()){

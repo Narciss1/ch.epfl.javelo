@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-
 import ch.epfl.javelo.Preconditions;
 import javafx.scene.image.Image;
 
@@ -36,7 +35,6 @@ public final class TileManager {
     public TileManager(Path basePath, String server) {
         this.basePath = basePath;
         this.server = server;
-        //Question: est-ce que je mets à 0?
         cacheMemory = new LinkedHashMap(CACHE_MEMORY_CAPACITY, 0.75f, true);
     }
 
@@ -56,8 +54,6 @@ public final class TileManager {
             Preconditions.checkArgument(isValid(zoomLevel, indexX, indexY));
         }
 
-
-        //Est-ce qu'il faut mettre un check sur le zoom level aussi ?
         /**
          * checks if the index X and Y of a tile are valid index according to the zoom level
          * @param zoomLevel the zoom level of the tile
@@ -70,12 +66,6 @@ public final class TileManager {
             int limit = (int)Math.pow(2,zoomLevel) - 1;
             return (indexX <= limit && indexY <= limit && zoomLevel >= 0);
         }
-
-        //Faudra l'enlever mais permet de faire des tests sur cacheMemory
-        public String toString(){
-            return (zoomLevel) + String.valueOf(indexX) + (indexY);
-        }
-
     }
 
     /**

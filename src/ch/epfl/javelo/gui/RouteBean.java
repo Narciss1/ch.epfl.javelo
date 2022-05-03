@@ -1,7 +1,6 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.*;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -19,10 +18,7 @@ public final class RouteBean {
     private ObjectProperty<Route> route;
     private ObjectProperty<ElevationProfile> elevationProfile;
     private DoubleProperty highlightedPosition;
-
-    //Propriété ou pas propriété ?
     private RouteComputer rc;
-    //Route ou SingleRoute ???
     private LinkedHashMap<Pair<Integer, Integer>, Route> cacheMemoryRoutes;
 
     private final static int CACHE_MEMORY_ROUTES_CAPACITY = 20;
@@ -30,16 +26,12 @@ public final class RouteBean {
 
     public RouteBean (RouteComputer rc){
         this.rc = rc;
-        //pr la initial capacity, à vérifier.
         cacheMemoryRoutes = new LinkedHashMap<>(CACHE_MEMORY_ROUTES_CAPACITY, 0.75f, true);
         waypoints = FXCollections.observableArrayList();
         route = new SimpleObjectProperty<>();
         elevationProfile = new SimpleObjectProperty<>();
         highlightedPosition = new SimpleDoubleProperty();
-        waypoints.addListener((InvalidationListener) l -> {
-            //Should be done this way?
-            if(!waypoints.isEmpty())  computingItineraryAndProfile();
-        });
+        waypoints.addListener((InvalidationListener) l -> computingItineraryAndProfile());
     }
 
     public void setWaypoints(ObservableList<Waypoint> listOfWaypoints){
@@ -59,7 +51,7 @@ public final class RouteBean {
         List<Route> routes = new ArrayList<>();
         Integer startNodeId;
         Integer endNodeId;
-        if (waypoints.size() < 2){
+        if (waypoints.size() < 2 || waypoints.isEmpty()){
             routeAndItineraryToNull();
             return;
         }
@@ -89,8 +81,6 @@ public final class RouteBean {
         elevationProfile.set(null);
     }
 
-    //Est-ce que c'est suffisant ?
-    //Should we add la méthode route()?
     public ReadOnlyObjectProperty<Route> routeProperty(){
         return route;
     }
@@ -102,6 +92,8 @@ public final class RouteBean {
     public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty(){
         return elevationProfile;
     }
+
+    public Route route() { return route.get();}
 
     public double highlightedPosition() {
         return highlightedPosition.get();
