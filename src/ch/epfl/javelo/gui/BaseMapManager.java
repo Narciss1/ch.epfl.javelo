@@ -24,11 +24,11 @@ import java.io.IOException;
 public final class BaseMapManager {
 
     private final TileManager tileManager;
-    private ObjectProperty<MapViewParameters> mapProperty;
+    private final ObjectProperty<MapViewParameters> mapProperty;
     private final Pane pane;
     private final Canvas canvas;
     private boolean redrawNeeded;
-    private WaypointsManager waypointsManager;
+    private final WaypointsManager waypointsManager;
 
     /**
      *Number of pixels on the side of a tile
@@ -62,7 +62,7 @@ public final class BaseMapManager {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
-        redrawOnNextPulse();
+        //redrawOnNextPulse();
     }
 
     /**
@@ -88,12 +88,15 @@ public final class BaseMapManager {
                         indexX, indexY);
                 try {
                     Image image = tileManager.imageForTileAt(tileId);
-                    canvasGraphicsContext.drawImage(image, PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
-                            (PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate()));
+                    canvasGraphicsContext.drawImage(image,
+                            PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
+                            PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate());
                 } catch (IOException e) {}
                 newXTopLeft += PIXELS_IN_TILE;
             }
             yTopLeft += PIXELS_IN_TILE;
+            System.out.println(canvas.getHeight());
+            System.out.println(canvas.getWidth());
         }
         System.out.println(canvas.getWidth());
         System.out.println(canvas.getHeight());
@@ -148,7 +151,6 @@ public final class BaseMapManager {
     private void baseMapEvents(){
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
         ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
-
         pane.setOnScroll(e ->
                 changeMapViewParametersAfterZoom(minScrollTime, e));
 
@@ -175,12 +177,14 @@ public final class BaseMapManager {
      * @param mousePositionProperty
      * @param e
      */
-    private void changeMapViewParametersAfterSlide(ObjectProperty<Point2D> mousePositionProperty, MouseEvent e){
+    private void changeMapViewParametersAfterSlide
+        (ObjectProperty<Point2D> mousePositionProperty, MouseEvent e) {
         Point2D oldMousePosition = mousePositionProperty.get();
         mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
         Point2D oldTopLeftPosition = oldMousePosition.subtract(mousePositionProperty.get());
-        mapProperty.setValue(mapProperty.get().withMinXY( oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
-                        oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
+        mapProperty.setValue(mapProperty.get().withMinXY(
+                oldTopLeftPosition.getX() + mapProperty.get().xCoordinate(),
+                oldTopLeftPosition.getY() + mapProperty.get().yCoordinate()));
     }
 
     /**
@@ -188,29 +192,25 @@ public final class BaseMapManager {
      * @param minScrollTime
      * @param e
      */
-    private void changeMapViewParametersAfterZoom(SimpleLongProperty minScrollTime, ScrollEvent e){
+    private void changeMapViewParametersAfterZoom
+    (SimpleLongProperty minScrollTime, ScrollEvent e) {
         long currentTime = System.currentTimeMillis();
         if (currentTime < minScrollTime.get()) return;
         minScrollTime.set(currentTime + 250);
         double zoomDelta = Math.signum(e.getDeltaY());
         int newZoom = Math2.clamp(8, (int)zoomDelta + mapProperty.get().zoomLevel(), 19);
-        double newX = mapProperty.get()
-                .pointAt(e.getX(), e.getY())
-                .xAtZoomLevel(newZoom)
-                - mapProperty.get()
-                .pointAt(e.getX(), e.getY())
-                .xAtZoomLevel(mapProperty.get().zoomLevel())
-                +  mapProperty.get()
-                .xCoordinate();
-        double newY = mapProperty.get()
-                .pointAt(e.getX(), e.getY())
-                .yAtZoomLevel(newZoom)
-                - mapProperty.get()
-                .pointAt(e.getX(), e.getY())
-                .yAtZoomLevel(mapProperty.get().zoomLevel())
-                +  mapProperty.get()
-                .yCoordinate();
-        mapProperty.setValue(new MapViewParameters (newZoom,
-                newX, newY));
+        PointWebMercator pointUnderMouse =  mapProperty.get().pointAt(e.getX(), e.getY());
+        //This calculus is due to the fact that, since the point under the mouse does not
+        //change after the zooming; therefore its distance to the old top left corner point
+        //of the map regarding the old zoom level should be the same as its distance to the
+        //new top left corner point  regarding the new zoom level.
+        double newTopLeftX = pointUnderMouse.xAtZoomLevel(newZoom)
+                - pointUnderMouse.xAtZoomLevel(mapProperty.get().zoomLevel())
+                +  mapProperty.get().xCoordinate();
+        double newTopLeftY = pointUnderMouse.yAtZoomLevel(newZoom)
+                - pointUnderMouse.yAtZoomLevel(mapProperty.get().zoomLevel())
+                +  mapProperty.get().yCoordinate();
+        mapProperty.setValue(new MapViewParameters (newZoom, newTopLeftX, newTopLeftY));
     }
+
 }
