@@ -1,10 +1,8 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.data.Graph;
-import ch.epfl.javelo.projection.Ch1903;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
-import ch.epfl.javelo.projection.WebMercator;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -70,11 +68,8 @@ public final class WaypointsManager {
      * @param y a point's y coordinate
      */
     public void addWaypoint(double x, double y) {
-        //Le passage est vraimnt aussi indirect que ça ? Si oui,
-        //créer une méthode publique dans PointCh qui permet de faire ça mdr.
-        double e = Ch1903.e(WebMercator.lon(x), WebMercator.lat(y));
-        double n = Ch1903.n(WebMercator.lon(x), WebMercator.lat(y));
-        PointCh pointCh = new PointCh(e, n);
+        PointWebMercator pointWebMercator = new PointWebMercator(x, y);
+        PointCh pointCh = pointWebMercator.toPointCh();
         if (graph.nodeClosestTo(pointCh, SQUARE_RADIUS) == -1){
             java.awt.Toolkit.getDefaultToolkit().beep();
             errorConsumer.accept("Aucune route à proximité !");
@@ -87,7 +82,6 @@ public final class WaypointsManager {
      * Position the markers at the coordinates of their corresponding waypoint
      */
     private void addSVGPaths() {
-        //A améliorer et diviser en deux méthodes
         pane.getChildren().clear();
         int counting = 0;
         for (Waypoint waypoint : wayPoints) {
@@ -99,7 +93,6 @@ public final class WaypointsManager {
             interior.getStyleClass().add("pin_inside");
             exterior.setContent("M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20");
             interior.setContent("M0-23A1 1 0 000-29 1 1 0 000-23");
-            //Existe-il une manière d'éviter ces enchainements de if ?
             if (counting == 0) {
                 group.getStyleClass().add("first");
             } else if (counting == wayPoints.size() - 1) {
@@ -160,8 +153,7 @@ public final class WaypointsManager {
                             new PointCh(eWaypoint, nWaypoint)));
             double newY = mapProperty.get().viewY(PointWebMercator.ofPointCh(
                     new PointCh(eWaypoint, nWaypoint)));
-            groupsList.get(i).setLayoutX(newX);
-            groupsList.get(i).setLayoutY(newY);
+            relocateGroup(groupsList.get(i), newX, newY);
         }
     }
 
@@ -175,13 +167,10 @@ public final class WaypointsManager {
      */
     private void wayPointsEvents(){
         ObservableList<Node> list = pane.getChildren();
-
         for(int i = 0; i < list.size(); ++i) {
             Waypoint waypoint = wayPoints.get(i);
-            int index = i;  //Legit de faire ça pr l'index ?
+            int index = i;
             Node group = list.get(i);
-            double groupOriginalX = group.getLayoutX();
-            double groupOriginalY = group.getLayoutY();
             ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
 
             group.setOnMousePressed(e ->
@@ -190,9 +179,9 @@ public final class WaypointsManager {
             group.setOnMouseDragged(e -> {
                 Point2D oldMousePosition = mousePositionProperty.get();
                 Point2D gap = new Point2D(e.getX() , e.getY()).subtract(oldMousePosition);
-                //relocateGroup(group, groupOriginalX + gap.getX(),groupOriginalY + gap.getY());
-                group.setLayoutX(group.getLayoutX() + gap.getX());
-                group.setLayoutY(group.getLayoutY() + gap.getY());
+                double groupOriginalX = group.getLayoutX();
+                double groupOriginalY = group.getLayoutY();
+                relocateGroup(group, groupOriginalX + gap.getX(),groupOriginalY + gap.getY());
             });
 
             group.setOnMouseReleased(e -> {
@@ -210,7 +199,7 @@ public final class WaypointsManager {
                         wayPoints.set(index,
                                 new Waypoint(newPointCh, graph.nodeClosestTo(newPointCh, SQUARE_RADIUS)));
                     } else {
-                        //Juste pour le son!
+                        //For the sound
                         java.awt.Toolkit.getDefaultToolkit().beep();
                         //addSVGPaths();
                         relocateSVGPaths();
