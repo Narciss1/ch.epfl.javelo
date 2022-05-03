@@ -2,19 +2,23 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
-import ch.epfl.javelo.routing.CityBikeCF;
-import ch.epfl.javelo.routing.CostFunction;
-import ch.epfl.javelo.routing.RouteComputer;
+import ch.epfl.javelo.routing.*;
 import javafx.application.Application;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+
+import java.awt.*;
 import java.nio.file.Path;
+
+import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 
 import java.util.function.Consumer;
@@ -68,11 +72,21 @@ public final class Stage8Test extends Application {
                         waypointsManager,
                         mapViewParametersP);
 
+        Polygon polygon = new Polygon();
+        polygon.getPoints().addAll(new Double[]{
+                0.0, 300.0,
+                5.0, 340.0,
+                10.0, 400.0 });
+        Pane pane = new Pane();
+        pane.getChildren().add(polygon);
+
+        ElevationProfile ec =ElevationProfileComputer.elevationProfile(routeBean.route(), 5);
+        ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty = new SimpleObjectProperty<>(ec);
+        ElevationProfileManager em = new ElevationProfileManager(elevationProfileProperty, routeBean.highlightedPositionProperty());
         StackPane mainPane =
-                new StackPane(baseMapManager.pane(),
+                new StackPane( baseMapManager.pane(),
                         waypointsManager.pane()
-                        , routeManager.pane()
-                );
+                        , routeManager.pane(), em.pane());
 
         mainPane.getStylesheets().add("map.css");
         primaryStage.setMinWidth(600);
