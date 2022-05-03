@@ -84,8 +84,6 @@ public final class WaypointsManager {
     private void addSVGPaths() {
         pane.getChildren().clear();
         int counting = 0;
-        //Hmm... Cette boucle seems useless tbh.. We don't need les waypoints
-        //we only need a specific number of groups to be add as children to the pane...
         for (Waypoint waypoint : wayPoints) {
             Group group = new Group();
             group.getStyleClass().add("pin");
@@ -152,12 +150,11 @@ public final class WaypointsManager {
             double eWaypoint = groupWaypoint.pointCh().e();
             double nWaypoint = groupWaypoint.pointCh().n();
             double newX = mapProperty.get().viewX(PointWebMercator.ofPointCh(
-                            new PointCh(eWaypoint, nWaypoint)));
+                    new PointCh(eWaypoint, nWaypoint)));
             double newY = mapProperty.get().viewY(PointWebMercator.ofPointCh(
                     new PointCh(eWaypoint, nWaypoint)));
             relocateGroup(groupsList.get(i), newX, newY);
         }
-        //pane.getChildren().stream(); idée ?
     }
 
     private void relocateGroup(Node group, double x, double y) {
@@ -174,12 +171,10 @@ public final class WaypointsManager {
             Waypoint waypoint = wayPoints.get(i);
             int index = i;
             Node group = list.get(i);
-            double groupOriginalX = group.getLayoutX();
-            double groupOriginalY = group.getLayoutY();
             ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
 
             group.setOnMousePressed(e ->
-                mousePositionProperty.setValue(new Point2D(e.getX(), e.getY())));
+                    mousePositionProperty.setValue(new Point2D(e.getX(), e.getY())));
 
             group.setOnMouseDragged(e -> {
                 Point2D oldMousePosition = mousePositionProperty.get();
