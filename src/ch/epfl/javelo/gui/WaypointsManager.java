@@ -90,6 +90,8 @@ public final class WaypointsManager {
         //A améliorer et diviser en deux méthodes
         pane.getChildren().clear();
         int counting = 0;
+        //Hmm... Cette boucle seems useless tbh.. We don't need les waypoints
+        //we only need a specific number of groups to be add as children to the pane...
         for (Waypoint waypoint : wayPoints) {
             Group group = new Group();
             group.getStyleClass().add("pin");
@@ -163,6 +165,7 @@ public final class WaypointsManager {
             groupsList.get(i).setLayoutX(newX);
             groupsList.get(i).setLayoutY(newY);
         }
+        //pane.getChildren().stream(); idée ?
     }
 
     private void relocateGroup(Node group, double x, double y) {
@@ -180,8 +183,8 @@ public final class WaypointsManager {
             Waypoint waypoint = wayPoints.get(i);
             int index = i;  //Legit de faire ça pr l'index ?
             Node group = list.get(i);
-            double groupOriginalX = group.getLayoutX();
-            double groupOriginalY = group.getLayoutY();
+//            double groupOriginalX = group.getLayoutX();
+//            double groupOriginalY = group.getLayoutY();
             ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
 
             group.setOnMousePressed(e ->
