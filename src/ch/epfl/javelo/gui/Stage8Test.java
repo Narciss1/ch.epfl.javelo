@@ -72,26 +72,19 @@ public final class Stage8Test extends Application {
                         waypointsManager,
                         mapViewParametersP);
 
-        Polygon polygon = new Polygon();
-        polygon.getPoints().addAll(new Double[]{
-                0.0, 300.0,
-                5.0, 340.0,
-                10.0, 400.0 });
-        Pane pane = new Pane();
-        pane.getChildren().add(polygon);
-
         ElevationProfile ec =ElevationProfileComputer.elevationProfile(routeBean.route(), 5);
         ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty = new SimpleObjectProperty<>(ec);
         ElevationProfileManager em = new ElevationProfileManager(elevationProfileProperty, routeBean.highlightedPositionProperty());
         StackPane mainPane =
                 new StackPane( baseMapManager.pane(),
                         waypointsManager.pane()
-                        , routeManager.pane(), em.pane());
+                        , routeManager.pane());
 
+        StackPane emPane = new StackPane(em.pane());
         mainPane.getStylesheets().add("map.css");
         primaryStage.setMinWidth(600);
         primaryStage.setMinHeight(300);
-        primaryStage.setScene(new Scene(mainPane));
+        primaryStage.setScene(new Scene(emPane));
         primaryStage.setFullScreenExitHint("Press echap to exit full screen ta race");
         primaryStage.setFullScreenExitKeyCombination(KeyCombination.valueOf(KeyCode.ESCAPE.getName()));
         primaryStage.show();
