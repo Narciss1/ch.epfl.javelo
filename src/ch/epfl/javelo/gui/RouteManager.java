@@ -117,7 +117,7 @@ public final class RouteManager {
                 int closestNode = routeBean.routeProperty().get().nodeClosestTo(routeBean.highlightedPosition());
                 Waypoint wayPoint = new Waypoint(pointCh, closestNode);
                 //J'ai pas trop l'impression que c'est legit de jouer sur les références pour modifier
-                //la liste de l'autre conne de RouteBean là. Faut revoir ça.
+                //la liste de RouteBean là.
                 ObservableList<Waypoint> newList = routeBean.waypoints();
                 int index = routeBean.routeProperty().get().indexOfSegmentAt(routeBean.highlightedPosition()) + 1;
                 boolean canAdd = true;

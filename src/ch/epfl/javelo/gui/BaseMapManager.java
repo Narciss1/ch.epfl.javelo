@@ -95,6 +95,8 @@ public final class BaseMapManager {
             }
             yTopLeft += PIXELS_IN_TILE;
         }
+        System.out.println(canvas.getWidth());
+        System.out.println(canvas.getHeight());
         /*for(double y = yTopLeft; y < yTopLeft + canvas.getHeight() + PIXELS_IN_TILE; y += PIXELS_IN_TILE) {
             System.out.println("Dans la boucle");
             for(double x = xTopLeft; x < xTopLeft + canvas.getWidth() + PIXELS_IN_TILE; x += PIXELS_IN_TILE) {
