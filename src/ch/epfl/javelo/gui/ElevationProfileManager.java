@@ -1,6 +1,7 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.ElevationProfile;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -8,6 +9,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polygon;
@@ -24,52 +26,51 @@ public final class ElevationProfileManager {
     private ReadOnlyDoubleProperty highlightedPositionProperty; //nan
     private BorderPane borderPane;
     private Pane pane;
-    private ObjectProperty<Rectangle2D> rectangleProfile;
-    private Insets rectangleInsets;
+    private ObjectProperty<Rectangle2D> rectangleProperty;
+    private Insets insets;
     private ObjectProperty<Transform> worldToScreen;
     private ObjectProperty<Transform> screenToWorld;
     private double xUnit;
-    private double yUnit;
+    //private double yUnit;
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty,
                                    ReadOnlyDoubleProperty highlightedPositionProperty) {
         this.elevationProfileProperty = elevationProfileProperty;
         this.highlightedPositionProperty = highlightedPositionProperty;
-        borderPane = new BorderPane();
-        pane = new Pane();
-        System.out.println(pane.widthProperty().get());
-        borderPane.getStylesheets().add("elevation_profile.css");
-        pane.getStylesheets().add("elevation_profile.css");
-        borderPane.getChildren().add(pane);
-        pane.widthProperty().addListener(l -> {
-                    if (pane.getHeight() != 0) {
-                        changeUnits();
-                        changeConversion();
-                        createPolygone();
-                    }
-                });
-        pane.heightProperty().addListener(l -> {
-                changeUnits();
-                changeConversion();
-                createPolygone();});
+        insets = new Insets(10, 10, 20, 40);
+        rectangleProperty = new SimpleObjectProperty<>();
+        screenToWorld = new SimpleObjectProperty<>();
         worldToScreen = new SimpleObjectProperty<>();
-        rectangleProfile = new SimpleObjectProperty<>();
-        rectangleInsets = new Insets(10, 10, 20, 40);
+        pane = new Pane();
+        borderPane = new BorderPane();
 
+        borderPane.getStylesheets().add("elevation_profile.css");
+        borderPane.getChildren().add(pane);
 
-        worldToScreen.addListener(l -> {
-            try {
-                screenToWorld.setValue(worldToScreen.get().createInverse());
-            } catch (NonInvertibleTransformException exception) {
-                throw new Error (exception);
+        //Il faut utiliser des bindings ici et non des listener pour que le rectangle bleu soit toujours
+        // redimensionné en fonction du borderPane
+        rectangleProperty.bind(Bindings.createObjectBinding((() -> {
+            System.out.println("dans bind");
+            if(borderPane.getWidth() > 0 && borderPane.getHeight() > 0) {
+                return new Rectangle2D(insets.getLeft(), insets.getTop(),
+                        borderPane.getWidth() - insets.getRight() - insets.getLeft(),
+                        borderPane.getHeight() - insets.getTop() - insets.getBottom());
+            } else {
+                return new Rectangle2D(insets.getLeft(), insets.getTop(),
+                        0,0);
             }
-        });
-        comprendreWhatTheHeckIsGoingOn();
+        })));
+
+        //Succession d'appels comme expliqué dans le post piazza que j'ai send sur le groupe
+        rectangleProperty.addListener(l -> {
+            System.out.println("listener de rectangle property");
+            transformations();});
+        worldToScreen.addListener(l -> createPolygone());
+        screenToWorld.addListener(l -> createPolygone());
     }
 
-    //remettre BorderPane
     public Pane pane() {
-        return pane;
+        return borderPane;
     }
 
     public ReadOnlyDoubleProperty mousePositionOnProfileProperty(){
@@ -77,69 +78,71 @@ public final class ElevationProfileManager {
         return null;
     }
 
-    private void changeUnits() {
-        xUnit = elevationProfileProperty.get().length() / pane.getWidth();
-        System.out.println("elevationProfileLength: " + elevationProfileProperty.get().length());
-        System.out.println("width: " + pane.getWidth());
-        yUnit = elevationProfileProperty.get().maxElevation() / pane.getHeight();
-        System.out.println("elevationProfileMax: " + elevationProfileProperty.get().maxElevation());
-        System.out.println("height: " + pane.getHeight());
-        System.out.println(yUnit);
-    }
-
-    private void changeConversion() {
+    private void transformations() {
         Affine affine = new Affine();
-        //affine.prependTranslation(rectangleInsets.getLeft(), rectangleInsets.getBottom());
         ElevationProfile elevationProfile = elevationProfileProperty.get();
-//        affine.prependScale(elevationProfile.length() /
-//                (pane.getWidth() - rectangleInsets.getLeft() - rectangleInsets.getRight()),
-//                elevationProfile.maxElevation() /
-//                        (pane.getHeight() -  rectangleInsets.getBottom() - rectangleInsets.getTop()));
-        //affine.prependTranslation(0, elevationProfile.minElevation());
-        affine.prependScale(pane.getWidth() / elevationProfile.length(),
-                 pane.getHeight() / (elevationProfile.maxElevation()));
-        //affine.prependTranslation(0, pane.getHeight());
-        System.out.println("SX : " + pane.getWidth() / elevationProfile.length());
-        System.out.println("SY : " + pane.getHeight() / (elevationProfile.maxElevation()));
-        worldToScreen.setValue(affine);
+        //Première translation qui permet de passer du pane à l'intérieur du rectangle bleu
+        affine.prependTranslation(-insets.getLeft(), -insets.getTop());
+        //Scaling par rapport à la taille du rectangle bleu (le "-" avant celui du y permet d'appliquer directly
+        //la deuxième translation sur la valeur donnée par le scaling)
+        affine.prependScale(
+                elevationProfile.length() / rectangleProperty.get().getWidth(),
+                - elevationProfile.maxElevation() / rectangleProperty.get().getHeight());
+        //Deuxième translation permettant d'inverser le y
+        affine.prependTranslation(0, rectangleProperty.get().getHeight());
+        screenToWorld.setValue(affine);
+        try {
+            worldToScreen.setValue(screenToWorld.get().createInverse());
+        } catch (NonInvertibleTransformException exception) {
+            throw new Error (exception);
+        }
     }
 
     private void createPolygone() {
         List<Double> listPoints = new ArrayList<>();
-        double position = 0;
-        listPoints.add(0.0);
-        listPoints.add(0.0);
-        while (position <= elevationProfileProperty.get().length()) {
-            Point2D pointToTransform = new Point2D(position, elevationProfileProperty.get().elevationAt(position));
-            Point2D pointToAdd = worldToScreen.get().transform(pointToTransform);
-            listPoints. add(pointToAdd.getX());
-            listPoints. add(pointToAdd.getY());
-            position += xUnit;
+        Rectangle2D rectangle = rectangleProperty.get();
+        double height = rectangle.getHeight();
+        double width = rectangle.getWidth();
+        double minX = rectangle.getMinX();
+        double minY = rectangle.getMinY();
+        double maxX = rectangle.getMaxX();
+        double maxY = rectangle.getMaxY();
+        //4 points du rectangle pour voir déjà/debugger si son affichage se fait bien comme il faut
+        /*listPoints.add(minX);
+        listPoints.add(minY + height);
+        listPoints.add(minX);
+        listPoints.add(minY);
+        listPoints.add(minX + width);
+        listPoints.add(minY);
+        listPoints.add(maxX);
+        listPoints.add(maxY);*/
+        ElevationProfile elevationProfile = elevationProfileProperty.get();
+        double positionP = 0;
+        //Valeurs récupérées directement à partir du rectangle
+        listPoints.add(minX);
+        listPoints.add(minY + height);
+        if(worldToScreen.get() != null) {
+            while (positionP <= rectangleProperty.get().getWidth()) {
+                //Ces deux variables permettent de convertir la position des pxels aux mètres pour use cette value
+                //dans le pointToTransform
+                //Le 0 est une valeur par défaut mais inévitable pour le passage d'un système de coordo à un autre
+                Point2D pointP = new Point2D(positionP, 0);
+                Point2D pointM = screenToWorld.get().transform(pointP);
+                Point2D pointToTransform = new Point2D(pointM.getX(), elevationProfile.elevationAt(pointM.getX()));
+                Point2D pointToAdd = worldToScreen.get().transform(pointToTransform);
+                listPoints.add(pointToAdd.getX());
+                listPoints.add(pointToAdd.getY());
+                //Il ne faut incrémenter que d'une seule unité (un pixel)
+                positionP += 1;
+            }
         }
-        listPoints.add((position - xUnit) / xUnit);
-        listPoints.add(0.0);
-        //System.out.println(listPoints);
+        //Valeurs récupérées directement à partir du rectangle
+        listPoints.add(maxX);
+        listPoints.add(maxY);
         Polygon profile = new Polygon();
         profile.setId("profile");
         profile.getPoints().addAll(listPoints);
         pane.getChildren().clear();
         pane.getChildren().add(profile);
-    }
-
-
-    private void comprendreWhatTheHeckIsGoingOn() {
-        Point2D test = new Point2D(100, 100);
-
-        Affine affine1 = new Affine();
-        affine1.prependScale(0.5, 2);
-        System.out.println(affine1.transform(test));
-
-        Affine affine2 = new Affine();
-        affine2.prependTranslation(10,-10);
-        System.out.println(affine2.transform(test));
-
-        Point2D firstPoint = new Point2D(0, 663);
-        System.out.println(firstPoint);
-
     }
 }
