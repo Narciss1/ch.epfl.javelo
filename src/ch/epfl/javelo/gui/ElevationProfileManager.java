@@ -110,13 +110,13 @@ public final class ElevationProfileManager {
         affine.prependTranslation(-insets.getLeft(), -insets.getTop());
         //2e translation pr faire en sorte que la elevation minimale apparaisse sur le bas de l'écran
         //mm si elle est de 300 et qlq
-        affine.prependTranslation(0, elevationProfile.minElevation() - elevationProfile.maxElevation());
+        //affine.prependTranslation(0, elevationProfile.minElevation() - elevationProfile.maxElevation());
         //Scaling par rapport à la taille du rectangle bleu (le "-" avant celui du y permet d'appliquer directly
         //la deuxième translation sur la valeur donnée par le scaling)
         affine.prependScale(
                 elevationProfile.length() / rectangleProperty.get().getWidth(),
-                - elevationProfile.maxElevation() / rectangleProperty.get().getHeight());
-        System.out.println(elevationProfile.maxElevation());
+                (elevationProfile.minElevation() - elevationProfile.maxElevation()) / rectangleProperty.get().getHeight());
+        System.out.println();
         Point2D test = new Point2D(
                 elevationProfile.length(),
                 elevationProfile.elevationAt(elevationProfile.minElevation()));
