@@ -12,6 +12,9 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 import javafx.scene.shape.Polygon;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
@@ -27,9 +30,15 @@ public final class ElevationProfileManager {
     private Pane pane;
     private VBox routeProperties;
     private ObjectProperty<Rectangle2D> rectangleProperty;
+    private Path grid;
     private Insets insets;
     private ObjectProperty<Transform> worldToScreen;
     private ObjectProperty<Transform> screenToWorld;
+
+    private final static int[] POS_STEPS =
+            { 1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000 };
+    private final static int[] ELE_STEPS =
+            { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
 
     //Question : rectangle pas bien dimensionné au départ. Chelou.
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty,
@@ -38,6 +47,8 @@ public final class ElevationProfileManager {
         this.highlightedPositionProperty = highlightedPositionProperty;
         insets = new Insets(10, 10, 20, 40);
         rectangleProperty = new SimpleObjectProperty<>();
+        grid = new Path();
+        grid.setId("grid");
         screenToWorld = new SimpleObjectProperty<>();
         worldToScreen = new SimpleObjectProperty<>();
         pane = new Pane();
@@ -53,8 +64,12 @@ public final class ElevationProfileManager {
         pane.heightProperty().addListener(l -> bindRectangleProperty());
         rectangleProperty.addListener(l -> {
             transformations();});
-        worldToScreen.addListener(l -> createPolygone());
-        screenToWorld.addListener(l -> createPolygone());
+        worldToScreen.addListener(l -> {
+            createGrid();
+            createPolygone();});
+        screenToWorld.addListener(l -> {
+            createGrid();
+            createPolygone();});
     }
 
     public Pane pane() {
@@ -64,6 +79,38 @@ public final class ElevationProfileManager {
     public ReadOnlyDoubleProperty mousePositionOnProfileProperty(){
         //ToDo
         return null;
+    }
+
+    private void createGrid() {
+        int posStep = 0;
+        int eleStep = 0;
+        double posSpacing, eleSpacing;
+        System.out.println("NEW");
+        for (int i = 0; i < POS_STEPS.length; ++i) {
+            posSpacing = worldToScreen.get().deltaTransform(POS_STEPS[i], 0).getX();
+            System.out.println("SPACING " + posSpacing);
+            //posStep = POS_STEPS[i];   //Horrible façon de faire.
+            if (posSpacing >= 25) {
+                break;
+            }
+        }
+        System.out.println(posStep);
+        for (int i = 0; i < ELE_STEPS.length; ++i) {
+            eleSpacing = rectangleProperty.get().getHeight() / ((elevationProfileProperty.get().maxElevation() -
+                    elevationProfileProperty.get().minElevation()) / ELE_STEPS[i]);
+            eleStep = ELE_STEPS[i];
+            if (eleSpacing >= 50) {
+                break;
+            }
+        }
+        double xPosition = insets.getLeft();
+//        for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
+//            xPosition += 25;
+//                    //worldToScreen.get().deltaTransform(posStep.to);
+//            System.out.println(new MoveTo(xPosition, insets.getTop()));
+//            grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
+//            grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
+//        }
     }
 
     private void bindRectangleProperty() {
@@ -123,5 +170,6 @@ public final class ElevationProfileManager {
         profile.getPoints().addAll(listPoints);
         pane.getChildren().clear();
         pane.getChildren().add(profile);
+        pane.getChildren().add(grid);
     }
 }
