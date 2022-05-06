@@ -1,7 +1,6 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.ElevationProfile;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -33,7 +32,7 @@ public final class ElevationProfileManager {
     private ReadOnlyDoubleProperty highlightedPositionProperty; //nan to add
     private BorderPane borderPane;
     private Pane pane;
-    private VBox routeProperties;
+    private VBox routeStatistics;
     private ObjectProperty<Rectangle2D> rectangleProperty;
     private Path grid;
     private Insets insets;
@@ -55,14 +54,16 @@ public final class ElevationProfileManager {
         grid.setId("grid");
         screenToWorld = new SimpleObjectProperty<>();
         worldToScreen = new SimpleObjectProperty<>();
-        pane = new Pane();
-        routeProperties = new VBox();
         borderPane = new BorderPane();
-        routeProperties.setId("profile_data");
+        pane = new Pane();
+        routeStatistics = new VBox();
+        routeStatistics.setId("profile_data");
         borderPane.getStylesheets().add("elevation_profile.css");
+        createStatistics();
+        borderPane.setBottom(routeStatistics);
         borderPane.setCenter(pane);
-        //borderPane.setBottom(routeProperties);
-
+        //borderPane.setBottom(routeStatistics);
+        elevationProfileProperty.addListener(l -> createStatistics());
         //StartY and EndY
         pane.widthProperty().addListener(l -> bindRectangleProperty());
         pane.heightProperty().addListener(l -> bindRectangleProperty());
@@ -213,5 +214,21 @@ public final class ElevationProfileManager {
         profile.getPoints().addAll(listPoints);
         pane.getChildren().clear();
         pane.getChildren().add(profile);
+    }
+
+    private void createStatistics() {
+        routeStatistics.getChildren().clear();
+        Text stats = new Text();
+        ElevationProfile elevationProfile = elevationProfileProperty.get();
+        stats.setText(String.format("Longueur : %.1f km" +
+                        "     Montée : %.0f m" +
+                        "     Descente : %.0f m" +
+                        "     Altitude : de %.0f m à %.0f m",
+                elevationProfile.length() / 1000,
+                elevationProfile.totalAscent(),
+                elevationProfile.totalDescent(),
+                elevationProfile.minElevation(),
+                elevationProfile.maxElevation()));
+        routeStatistics.getChildren().add(stats);
     }
 }
