@@ -37,7 +37,7 @@ public final class Stage10Test extends Application {
                         highlightProperty);
 
         //highlightProperty.bind(
-                //profileManager.mousePositionOnProfileProperty());
+        //profileManager.mousePositionOnProfileProperty());
 
         Scene scene = new Scene(profileManager.pane());
 
