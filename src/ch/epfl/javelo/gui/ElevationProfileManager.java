@@ -1,6 +1,7 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.ElevationProfile;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -9,6 +10,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.geometry.VPos;
+import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -16,6 +19,7 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
@@ -40,7 +44,6 @@ public final class ElevationProfileManager {
     private final static int[] ELE_STEPS =
             { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
 
-    //Question : rectangle pas bien dimensionné au départ. Chelou.
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty,
                                    ReadOnlyDoubleProperty highlightedPositionProperty) {
         this.elevationProfileProperty = elevationProfileProperty;
@@ -59,15 +62,14 @@ public final class ElevationProfileManager {
         borderPane.setCenter(pane);
         borderPane.setBottom(routeProperties);
 
-        //IMPORTANT: ADD LA TECHNIQUE STARTY AND ENDY ASSISTANT
+        //StartY and EndY
         pane.widthProperty().addListener(l -> bindRectangleProperty());
         pane.heightProperty().addListener(l -> bindRectangleProperty());
         rectangleProperty.addListener(l -> {
             transformations();});
         worldToScreen.addListener(l -> {
             createPolygone();
-            createGrid();
-        });
+            createGrid();});
         screenToWorld.addListener(l -> {
             createPolygone();
             createGrid();
@@ -84,17 +86,16 @@ public final class ElevationProfileManager {
     }
 
     private void createGrid() {
+        Group texts = new Group();
         grid.getElements().clear();
         int posStep = 0;
         int eleStep = 0;
         double posSpacing = 0;
         double eleSpacing = 0;
         if(worldToScreen.get() != null) {
-            System.out.println("NEW");
             for (int i = 0; i < POS_STEPS.length; ++i) {
                 posSpacing = worldToScreen.get().deltaTransform(POS_STEPS[i], 0).getX();
                 posStep = POS_STEPS[i];
-                System.out.println("posSpacing: " + posSpacing);
                 if (posSpacing >= 25) {
                     break;
                 }
@@ -102,32 +103,42 @@ public final class ElevationProfileManager {
             for (int i = 0; i < ELE_STEPS.length; ++i) {
                 eleSpacing = worldToScreen.get().deltaTransform(0, -ELE_STEPS[i]).getY();
                 eleStep = ELE_STEPS[i];
-                System.out.println("eleSpacing: " + eleSpacing);
                 if (eleSpacing >= 50) {
                     break;
                 }
             }
             double xPosition = insets.getLeft();
+            int positionInText = 0;
             if (posStep != 0) {
                 for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
                     grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
                     grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
+                    Text posText = new Text();
+                    posText.getStyleClass().add("grid_label");
+                    posText.getStyleClass().add("horizontal");
+                    posText.textOriginProperty().setValue(VPos.TOP);
+                    posText.setLayoutX(xPosition - posText.prefWidth(0) / 2);
+                    posText.setLayoutY(insets.getTop() + rectangleProperty.get().getHeight());
+                    posText.setText(String.valueOf(positionInText));
+                    texts.getChildren().add(posText);
+                    positionInText += posStep / 1000;
                     xPosition += posSpacing;
                 }
             }
-            double gapM = elevationProfileProperty.get().maxElevation() % eleStep;
+            double gapM = elevationProfileProperty.get().minElevation() % eleStep;
             double gapP = worldToScreen.get().deltaTransform(0, gapM).getY();
-            double yPosition = insets.getTop() + gapP;
+            double yPosition = insets.getTop() + rectangleProperty.get().getHeight() + gapP;
             if (eleStep != 0) {
-                for (int i = 0; i < Math.ceil(elevationProfileProperty.get().maxElevation() - elevationProfileProperty.get().maxElevation()
+                for (int i = 0; i < Math.ceil(elevationProfileProperty.get().maxElevation() - elevationProfileProperty.get().minElevation()
                         / eleStep); ++i) {
                     grid.getElements().add(new MoveTo(insets.getLeft(), yPosition));
                     grid.getElements().add(new LineTo(insets.getLeft() + rectangleProperty.get().getWidth(), yPosition));
-                    yPosition += eleSpacing;
+                    yPosition -= eleSpacing;
                 }
             }
         }
         pane.getChildren().add(grid);
+        pane.getChildren().add(texts);
     }
 
     private void bindRectangleProperty() {
