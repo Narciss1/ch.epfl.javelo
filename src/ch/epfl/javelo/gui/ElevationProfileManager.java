@@ -84,33 +84,37 @@ public final class ElevationProfileManager {
     private void createGrid() {
         int posStep = 0;
         int eleStep = 0;
-        double posSpacing, eleSpacing;
-        System.out.println("NEW");
-        for (int i = 0; i < POS_STEPS.length; ++i) {
-            posSpacing = worldToScreen.get().deltaTransform(POS_STEPS[i], 0).getX();
-            System.out.println("SPACING " + posSpacing);
-            //posStep = POS_STEPS[i];   //Horrible façon de faire.
-            if (posSpacing >= 25) {
-                break;
+        double posSpacing = 0;
+        double eleSpacing = 0;
+        if(worldToScreen.get() != null) {
+            System.out.println("NEW");
+            for (int i = 0; i < POS_STEPS.length; ++i) {
+                posSpacing = worldToScreen.get().deltaTransform(POS_STEPS[i], 0).getX();
+                posStep = POS_STEPS[i];
+                System.out.println("posSpacing: " + posSpacing);
+                if (posSpacing >= 25) {
+                    break;
+                }
             }
-        }
-        System.out.println(posStep);
-        for (int i = 0; i < ELE_STEPS.length; ++i) {
-            eleSpacing = rectangleProperty.get().getHeight() / ((elevationProfileProperty.get().maxElevation() -
-                    elevationProfileProperty.get().minElevation()) / ELE_STEPS[i]);
-            eleStep = ELE_STEPS[i];
-            if (eleSpacing >= 50) {
-                break;
+            for (int i = 0; i < ELE_STEPS.length; ++i) {
+                eleSpacing = worldToScreen.get().deltaTransform(0, -ELE_STEPS[i]).getY();
+                eleStep = ELE_STEPS[i];
+                System.out.println("eleSpacing: " + eleSpacing);
+                if (eleSpacing >= 50) {
+                    break;
+                }
             }
         }
         double xPosition = insets.getLeft();
-//        for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
-//            xPosition += 25;
-//                    //worldToScreen.get().deltaTransform(posStep.to);
-//            System.out.println(new MoveTo(xPosition, insets.getTop()));
-//            grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
-//            grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
-//        }
+        if(posStep != 0) {
+            for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
+                xPosition += posSpacing;
+                //worldToScreen.get().deltaTransform(posStep.to);
+                System.out.println(new MoveTo(xPosition, insets.getTop()));
+                grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
+                grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
+            }
+        }
     }
 
     private void bindRectangleProperty() {
