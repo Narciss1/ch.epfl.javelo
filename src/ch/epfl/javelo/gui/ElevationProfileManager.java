@@ -9,6 +9,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.geometry.VPos;
+import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -16,6 +18,7 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
@@ -81,6 +84,7 @@ public final class ElevationProfileManager {
     }
 
     private void createGrid() {
+        Group texts = new Group();
         grid.getElements().clear();
         int posStep = 0;
         int eleStep = 0;
@@ -102,10 +106,20 @@ public final class ElevationProfileManager {
                 }
             }
             double xPosition = insets.getLeft();
+            int positionInText = 0;
             if (posStep != 0) {
                 for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
                     grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
                     grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
+                    Text posText = new Text();
+                    posText.getStyleClass().add("grid_label");
+                    posText.getStyleClass().add("horizontal");
+                    posText.textOriginProperty().setValue(VPos.TOP);
+                    posText.setLayoutX(xPosition - posText.prefWidth(0) / 2);
+                    posText.setLayoutY(insets.getTop() + rectangleProperty.get().getHeight());
+                    posText.setText(String.valueOf(positionInText));
+                    texts.getChildren().add(posText);
+                    positionInText += posStep / 1000;
                     xPosition += posSpacing;
                 }
             }
@@ -122,6 +136,7 @@ public final class ElevationProfileManager {
             }
         }
         pane.getChildren().add(grid);
+        pane.getChildren().add(texts);
     }
 
     private void bindRectangleProperty() {
