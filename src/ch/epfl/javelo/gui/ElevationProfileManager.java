@@ -29,12 +29,14 @@ import java.util.List;
 public final class ElevationProfileManager {
 
     private ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty; //null to add
-    private ReadOnlyDoubleProperty highlightedPositionProperty; //nan to add
+    private ReadOnlyDoubleProperty mousePositionProperty; //Nan To add
     private BorderPane borderPane;
     private Pane pane;
     private VBox routeStatistics;
     private ObjectProperty<Rectangle2D> rectangleProperty;
     private Path grid;
+    private Polygon profile;
+    private Group texts;
     private Insets insets;
     private ObjectProperty<Transform> worldToScreen;
     private ObjectProperty<Transform> screenToWorld;
@@ -45,24 +47,26 @@ public final class ElevationProfileManager {
             { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty,
-                                   ReadOnlyDoubleProperty highlightedPositionProperty) {
+                                   ReadOnlyDoubleProperty mousePositionProperty) {
         this.elevationProfileProperty = elevationProfileProperty;
-        this.highlightedPositionProperty = highlightedPositionProperty;
+        this.mousePositionProperty = mousePositionProperty;
         insets = new Insets(10, 10, 20, 40);
         rectangleProperty = new SimpleObjectProperty<>();
+        profile = new Polygon();
         grid = new Path();
-        grid.setId("grid");
+        texts = new Group();
         screenToWorld = new SimpleObjectProperty<>();
         worldToScreen = new SimpleObjectProperty<>();
-        borderPane = new BorderPane();
         pane = new Pane();
         routeStatistics = new VBox();
+        borderPane = new BorderPane();
+        profile.setId("profile");
+        grid.setId("grid");
         routeStatistics.setId("profile_data");
         borderPane.getStylesheets().add("elevation_profile.css");
         createStatistics();
         borderPane.setBottom(routeStatistics);
         borderPane.setCenter(pane);
-        //borderPane.setBottom(routeStatistics);
         elevationProfileProperty.addListener(l -> createStatistics());
         //StartY and EndY
         pane.widthProperty().addListener(l -> bindRectangleProperty());
@@ -72,7 +76,7 @@ public final class ElevationProfileManager {
         worldToScreen.addListener(l -> {
             createPolygone();
             createGrid();
-            });
+        });
         screenToWorld.addListener(l -> {
             createPolygone();
             createGrid();
@@ -83,13 +87,19 @@ public final class ElevationProfileManager {
         return borderPane;
     }
 
-    public ReadOnlyDoubleProperty mousePositionOnProfileProperty(){
-        //ToDo
-        return null;
+    public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {
+        return mousePositionOnProfileProperty();
+    }
+
+    private void events() {
+        pane.setOnMouseMoved(e ->
+                createPolygone());
+
+
     }
 
     private void createGrid() {
-        Group texts = new Group();
+        texts.getChildren().clear();
         grid.getElements().clear();
         int posStep = 0;
         int eleStep = 0;
@@ -209,9 +219,7 @@ public final class ElevationProfileManager {
             listPoints.add(insets.getLeft() + rectangle.getWidth());
             listPoints.add(insets.getTop() + rectangle.getHeight());
         }
-        Polygon profile = new Polygon();
-        profile.setId("profile");
-        profile.getPoints().addAll(listPoints);
+        profile.getPoints().setAll(listPoints);
         pane.getChildren().clear();
         pane.getChildren().add(profile);
     }
