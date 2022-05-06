@@ -108,11 +108,11 @@ public final class ElevationProfileManager {
         double xPosition = insets.getLeft();
         if(posStep != 0) {
             for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
-                xPosition += posSpacing;
                 //worldToScreen.get().deltaTransform(posStep.to);
                 System.out.println(new MoveTo(xPosition, insets.getTop()));
                 grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
                 grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
+                xPosition += posSpacing;
             }
         }
     }
