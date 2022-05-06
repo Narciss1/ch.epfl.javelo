@@ -107,15 +107,24 @@ public final class ElevationProfileManager {
                     break;
                 }
             }
-        }
-        double xPosition = insets.getLeft();
-        if(posStep != 0) {
-            for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
-                //worldToScreen.get().deltaTransform(posStep.to);
-                System.out.println(new MoveTo(xPosition, insets.getTop()));
-                grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
-                grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
-                xPosition += posSpacing;
+            double xPosition = insets.getLeft();
+            if (posStep != 0) {
+                for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
+                    grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
+                    grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
+                    xPosition += posSpacing;
+                }
+            }
+            double gapM = elevationProfileProperty.get().maxElevation() % eleStep;
+            double gapP = worldToScreen.get().deltaTransform(0, gapM).getY();
+            double yPosition = insets.getTop() + gapP;
+            if (eleStep != 0) {
+                for (int i = 0; i < Math.ceil(elevationProfileProperty.get().maxElevation() - elevationProfileProperty.get().maxElevation()
+                        / eleStep); ++i) {
+                    grid.getElements().add(new MoveTo(insets.getLeft(), yPosition));
+                    grid.getElements().add(new LineTo(insets.getLeft() + rectangleProperty.get().getWidth(), yPosition));
+                    yPosition += eleSpacing;
+                }
             }
         }
         pane.getChildren().add(grid);
