@@ -1,7 +1,6 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.ElevationProfile;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -65,11 +64,11 @@ public final class ElevationProfileManager {
         rectangleProperty.addListener(l -> {
             transformations();});
         worldToScreen.addListener(l -> {
-            createGrid();
-            createPolygone();});
+            createPolygone();
+            createGrid();});
         screenToWorld.addListener(l -> {
-            createGrid();
-            createPolygone();});
+            createPolygone();
+            createGrid();});
     }
 
     public Pane pane() {
@@ -122,6 +121,7 @@ public final class ElevationProfileManager {
                 }
             }
         }
+        pane.getChildren().add(grid);
     }
 
     private void bindRectangleProperty() {
@@ -181,6 +181,5 @@ public final class ElevationProfileManager {
         profile.getPoints().addAll(listPoints);
         pane.getChildren().clear();
         pane.getChildren().add(profile);
-        pane.getChildren().add(grid);
     }
 }
