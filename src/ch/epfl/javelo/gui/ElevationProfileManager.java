@@ -104,22 +104,23 @@ public final class ElevationProfileManager {
 
     private void lineBindings() {
         line.visibleProperty().bind(highlightedPositionProperty.greaterThanOrEqualTo(0));
-        line.startXProperty().bind(Bindings.createDoubleBinding( () ->
-                    worldToScreen.get().transform(new Point2D(highlightedPositionProperty.get(), 0)).getX(), worldToScreen, highlightedPositionProperty));
-        line.endXProperty().bind(Bindings.createDoubleBinding( () ->
-                worldToScreen.get().transform(new Point2D(highlightedPositionProperty.get(), 0)).getX(), worldToScreen, highlightedPositionProperty));
+        line.layoutXProperty().bind(Bindings.createDoubleBinding( () ->
+                        worldToScreen.get().transform(new Point2D(highlightedPositionProperty.get(), 0)).getX(),
+                worldToScreen, highlightedPositionProperty));
         line.startYProperty().bind(Bindings.select(rectangleProperty, "minY"));
         line.endYProperty().bind(Bindings.select(rectangleProperty, "maxY"));
     }
 
     private void events() {
         pane.setOnMouseMoved(e -> {
-            mousePositionProperty.set(screenToWorld.get().transform(new Point2D(e.getX(), 0)).getX());
-            System.out.println(line);
+            if (rectangleProperty.get().contains(new Point2D(e.getX(), e.getY()))) {
+                mousePositionProperty.set(screenToWorld.get().transform(new Point2D(e.getX(), 0)).getX());
+            } else {
+                mousePositionProperty.set(Double.NaN);
+            }
                 });
         pane.setOnMouseExited(e -> {
             mousePositionProperty.set(Double.NaN);
-            System.out.println("Outside");
                 });
     }
 
