@@ -1,6 +1,7 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.ElevationProfile;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -40,7 +41,6 @@ public final class ElevationProfileManager {
     private final static int[] ELE_STEPS =
             { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
 
-    //Question : rectangle pas bien dimensionné au départ. Chelou.
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty,
                                    ReadOnlyDoubleProperty highlightedPositionProperty) {
         this.elevationProfileProperty = elevationProfileProperty;
@@ -59,7 +59,7 @@ public final class ElevationProfileManager {
         borderPane.setCenter(pane);
         borderPane.setBottom(routeProperties);
 
-        //IMPORTANT: ADD LA TECHNIQUE STARTY AND ENDY ASSISTANT
+        //StartY and EndY
         pane.widthProperty().addListener(l -> bindRectangleProperty());
         pane.heightProperty().addListener(l -> bindRectangleProperty());
         rectangleProperty.addListener(l -> {
@@ -88,11 +88,9 @@ public final class ElevationProfileManager {
         double posSpacing = 0;
         double eleSpacing = 0;
         if(worldToScreen.get() != null) {
-            System.out.println("NEW");
             for (int i = 0; i < POS_STEPS.length; ++i) {
                 posSpacing = worldToScreen.get().deltaTransform(POS_STEPS[i], 0).getX();
                 posStep = POS_STEPS[i];
-                System.out.println("posSpacing: " + posSpacing);
                 if (posSpacing >= 25) {
                     break;
                 }
@@ -100,7 +98,6 @@ public final class ElevationProfileManager {
             for (int i = 0; i < ELE_STEPS.length; ++i) {
                 eleSpacing = worldToScreen.get().deltaTransform(0, -ELE_STEPS[i]).getY();
                 eleStep = ELE_STEPS[i];
-                System.out.println("eleSpacing: " + eleSpacing);
                 if (eleSpacing >= 50) {
                     break;
                 }
@@ -113,15 +110,15 @@ public final class ElevationProfileManager {
                     xPosition += posSpacing;
                 }
             }
-            double gapM = elevationProfileProperty.get().maxElevation() % eleStep;
+            double gapM = elevationProfileProperty.get().minElevation() % eleStep;
             double gapP = worldToScreen.get().deltaTransform(0, gapM).getY();
-            double yPosition = insets.getTop() + gapP;
+            double yPosition = insets.getTop() + rectangleProperty.get().getHeight() + gapP;
             if (eleStep != 0) {
-                for (int i = 0; i < Math.ceil(elevationProfileProperty.get().maxElevation() - elevationProfileProperty.get().maxElevation()
+                for (int i = 0; i < Math.ceil(elevationProfileProperty.get().maxElevation() - elevationProfileProperty.get().minElevation()
                         / eleStep); ++i) {
                     grid.getElements().add(new MoveTo(insets.getLeft(), yPosition));
                     grid.getElements().add(new LineTo(insets.getLeft() + rectangleProperty.get().getWidth(), yPosition));
-                    yPosition += eleSpacing;
+                    yPosition -= eleSpacing;
                 }
             }
         }
