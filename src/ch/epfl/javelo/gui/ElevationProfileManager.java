@@ -19,6 +19,7 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
@@ -60,7 +61,7 @@ public final class ElevationProfileManager {
         routeProperties.setId("profile_data");
         borderPane.getStylesheets().add("elevation_profile.css");
         borderPane.setCenter(pane);
-        borderPane.setBottom(routeProperties);
+        //borderPane.setBottom(routeProperties);
 
         //StartY and EndY
         pane.widthProperty().addListener(l -> bindRectangleProperty());
@@ -69,7 +70,8 @@ public final class ElevationProfileManager {
             transformations();});
         worldToScreen.addListener(l -> {
             createPolygone();
-            createGrid();});
+            createGrid();
+            });
         screenToWorld.addListener(l -> {
             createPolygone();
             createGrid();
@@ -117,9 +119,10 @@ public final class ElevationProfileManager {
                     posText.getStyleClass().add("grid_label");
                     posText.getStyleClass().add("horizontal");
                     posText.textOriginProperty().setValue(VPos.TOP);
+                    posText.setText(String.valueOf(positionInText));
+                    posText.setFont(Font.font("Avenir", 10));
                     posText.setLayoutX(xPosition - posText.prefWidth(0) / 2);
                     posText.setLayoutY(insets.getTop() + rectangleProperty.get().getHeight());
-                    posText.setText(String.valueOf(positionInText));
                     texts.getChildren().add(posText);
                     positionInText += posStep / 1000;
                     xPosition += posSpacing;
@@ -128,11 +131,23 @@ public final class ElevationProfileManager {
             double gapM = elevationProfileProperty.get().minElevation() % eleStep;
             double gapP = worldToScreen.get().deltaTransform(0, gapM).getY();
             double yPosition = insets.getTop() + rectangleProperty.get().getHeight() + gapP;
+            int elevationInText = (int) Math.ceil(elevationProfileProperty.get().minElevation() / eleStep)
+                    * eleStep;
             if (eleStep != 0) {
                 for (int i = 0; i < Math.ceil(elevationProfileProperty.get().maxElevation() - elevationProfileProperty.get().minElevation()
                         / eleStep); ++i) {
                     grid.getElements().add(new MoveTo(insets.getLeft(), yPosition));
                     grid.getElements().add(new LineTo(insets.getLeft() + rectangleProperty.get().getWidth(), yPosition));
+                    Text eleText = new Text();
+                    eleText.getStyleClass().add("grid_label");
+                    eleText.getStyleClass().add("verticale");
+                    eleText.textOriginProperty().setValue(VPos.CENTER);
+                    eleText.setText(String.valueOf(elevationInText));
+                    eleText.setFont(Font.font("Avenir", 10));
+                    eleText.setLayoutX(insets.getLeft() - eleText.prefWidth(0) - 2);
+                    eleText.setLayoutY(yPosition);
+                    texts.getChildren().add(eleText);
+                    elevationInText += eleStep;
                     yPosition -= eleSpacing;
                 }
             }
