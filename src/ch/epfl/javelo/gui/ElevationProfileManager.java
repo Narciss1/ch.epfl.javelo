@@ -2,10 +2,7 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.ElevationProfile;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -14,10 +11,7 @@ import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Polygon;
+import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
@@ -29,12 +23,16 @@ import java.util.List;
 public final class ElevationProfileManager {
 
     private ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty; //null to add
-    private ReadOnlyDoubleProperty highlightedPositionProperty; //nan to add
+    private DoubleProperty mousePositionProperty; //Nan To add
+    private ReadOnlyDoubleProperty highlightedPositionProperty;
     private BorderPane borderPane;
     private Pane pane;
     private VBox routeStatistics;
     private ObjectProperty<Rectangle2D> rectangleProperty;
     private Path grid;
+    private Line line;
+    private Polygon profile;
+    private Group texts;
     private Insets insets;
     private ObjectProperty<Transform> worldToScreen;
     private ObjectProperty<Transform> screenToWorld;
@@ -48,25 +46,42 @@ public final class ElevationProfileManager {
                                    ReadOnlyDoubleProperty highlightedPositionProperty) {
         this.elevationProfileProperty = elevationProfileProperty;
         this.highlightedPositionProperty = highlightedPositionProperty;
+        mousePositionProperty = new SimpleDoubleProperty();
         insets = new Insets(10, 10, 20, 40);
         rectangleProperty = new SimpleObjectProperty<>();
+        profile = new Polygon();
         grid = new Path();
-        grid.setId("grid");
+        line = new Line();
+        texts = new Group();
         screenToWorld = new SimpleObjectProperty<>();
         worldToScreen = new SimpleObjectProperty<>();
-        borderPane = new BorderPane();
+        Affine first = new Affine();
+        first.prependTranslation(10,10);
+        screenToWorld.setValue(first);
+        try {
+            worldToScreen.setValue(screenToWorld.get().createInverse());
+        } catch (NonInvertibleTransformException exception){
+            throw new Error(exception);
+        }
         pane = new Pane();
         routeStatistics = new VBox();
+        borderPane = new BorderPane();
+        profile.setId("profile");
+        grid.setId("grid");
         routeStatistics.setId("profile_data");
         borderPane.getStylesheets().add("elevation_profile.css");
         createStatistics();
         borderPane.setBottom(routeStatistics);
         borderPane.setCenter(pane);
-        //borderPane.setBottom(routeStatistics);
+        lineBindings();
+        events();
         elevationProfileProperty.addListener(l -> createStatistics());
-        //StartY and EndY
-        pane.widthProperty().addListener(l -> bindRectangleProperty());
-        pane.heightProperty().addListener(l -> bindRectangleProperty());
+        pane.widthProperty().addListener(l -> {
+            bindRectangle();
+        });
+        pane.heightProperty().addListener(l -> {
+            bindRectangle();
+        });
         rectangleProperty.addListener(l -> {
             transformations();});
         worldToScreen.addListener(l -> {
@@ -83,20 +98,33 @@ public final class ElevationProfileManager {
         return borderPane;
     }
 
-    public ReadOnlyDoubleProperty mousePositionOnProfileProperty(){
-        return null;
+    public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {
+        return mousePositionProperty;
+    }
+
+    private void lineBindings() {
+        line.visibleProperty().bind(highlightedPositionProperty.greaterThanOrEqualTo(0));
+        line.startXProperty().bind(Bindings.createDoubleBinding( () ->
+                    worldToScreen.get().transform(new Point2D(highlightedPositionProperty.get(), 0)).getX(), worldToScreen, highlightedPositionProperty));
+        line.endXProperty().bind(Bindings.createDoubleBinding( () ->
+                worldToScreen.get().transform(new Point2D(highlightedPositionProperty.get(), 0)).getX(), worldToScreen, highlightedPositionProperty));
+        line.startYProperty().bind(Bindings.select(rectangleProperty, "minY"));
+        line.endYProperty().bind(Bindings.select(rectangleProperty, "maxY"));
     }
 
     private void events() {
-        ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
-        pane.setOnMouseMoved(e ->
-                createPolygone());
-
-
+        pane.setOnMouseMoved(e -> {
+            mousePositionProperty.set(screenToWorld.get().transform(new Point2D(e.getX(), 0)).getX());
+            System.out.println(line);
+                });
+        pane.setOnMouseExited(e -> {
+            mousePositionProperty.set(Double.NaN);
+            System.out.println("Outside");
+                });
     }
 
     private void createGrid() {
-        Group texts = new Group();
+        texts.getChildren().clear();
         grid.getElements().clear();
         int posStep = 0;
         int eleStep = 0;
@@ -164,7 +192,7 @@ public final class ElevationProfileManager {
         pane.getChildren().add(texts);
     }
 
-    private void bindRectangleProperty() {
+    private void bindRectangle() {
         rectangleProperty.bind(Bindings.createObjectBinding((() -> {
             if(pane.getWidth() > 0 && pane.getHeight() > 0) {
                 return new Rectangle2D(
@@ -216,11 +244,10 @@ public final class ElevationProfileManager {
             listPoints.add(insets.getLeft() + rectangle.getWidth());
             listPoints.add(insets.getTop() + rectangle.getHeight());
         }
-        Polygon profile = new Polygon();
-        profile.setId("profile");
-        profile.getPoints().addAll(listPoints);
+        profile.getPoints().setAll(listPoints);
         pane.getChildren().clear();
         pane.getChildren().add(profile);
+        pane.getChildren().add(line);
     }
 
     private void createStatistics() {
