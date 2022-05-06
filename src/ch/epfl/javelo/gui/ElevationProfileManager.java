@@ -65,11 +65,13 @@ public final class ElevationProfileManager {
         rectangleProperty.addListener(l -> {
             transformations();});
         worldToScreen.addListener(l -> {
+            createPolygone();
             createGrid();
-            createPolygone();});
+        });
         screenToWorld.addListener(l -> {
+            createPolygone();
             createGrid();
-            createPolygone();});
+        });
     }
 
     public Pane pane() {
@@ -82,6 +84,7 @@ public final class ElevationProfileManager {
     }
 
     private void createGrid() {
+        grid.getElements().clear();
         int posStep = 0;
         int eleStep = 0;
         double posSpacing = 0;
@@ -115,6 +118,7 @@ public final class ElevationProfileManager {
                 xPosition += posSpacing;
             }
         }
+        pane.getChildren().add(grid);
     }
 
     private void bindRectangleProperty() {
@@ -174,6 +178,5 @@ public final class ElevationProfileManager {
         profile.getPoints().addAll(listPoints);
         pane.getChildren().clear();
         pane.getChildren().add(profile);
-        pane.getChildren().add(grid);
     }
 }
