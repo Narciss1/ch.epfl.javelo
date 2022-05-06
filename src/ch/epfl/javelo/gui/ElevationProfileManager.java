@@ -30,10 +30,9 @@ public final class ElevationProfileManager {
 
     private ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty; //null to add
     private ReadOnlyDoubleProperty highlightedPositionProperty; //nan to add
-    private ReadOnlyDoubleProperty mousePositionOnProfileProperty;
     private BorderPane borderPane;
     private Pane pane;
-    private VBox routeProperties;
+    private VBox routeStatistics;
     private ObjectProperty<Rectangle2D> rectangleProperty;
     private Path grid;
     private Insets insets;
@@ -55,14 +54,16 @@ public final class ElevationProfileManager {
         grid.setId("grid");
         screenToWorld = new SimpleObjectProperty<>();
         worldToScreen = new SimpleObjectProperty<>();
-        pane = new Pane();
-        routeProperties = new VBox();
         borderPane = new BorderPane();
-        routeProperties.setId("profile_data");
+        pane = new Pane();
+        routeStatistics = new VBox();
+        routeStatistics.setId("profile_data");
         borderPane.getStylesheets().add("elevation_profile.css");
+        createStatistics();
+        borderPane.setBottom(routeStatistics);
         borderPane.setCenter(pane);
-        borderPane.setBottom(routeProperties);
-
+        //borderPane.setBottom(routeStatistics);
+        elevationProfileProperty.addListener(l -> createStatistics());
         //StartY and EndY
         pane.widthProperty().addListener(l -> bindRectangleProperty());
         pane.heightProperty().addListener(l -> bindRectangleProperty());
@@ -70,10 +71,12 @@ public final class ElevationProfileManager {
             transformations();});
         worldToScreen.addListener(l -> {
             createPolygone();
-            createGrid();});
+            createGrid();
+            });
         screenToWorld.addListener(l -> {
             createPolygone();
-            createGrid();});
+            createGrid();
+        });
     }
 
     public Pane pane() {
@@ -125,9 +128,9 @@ public final class ElevationProfileManager {
                     posText.getStyleClass().add("horizontal");
                     posText.textOriginProperty().setValue(VPos.TOP);
                     posText.setText(String.valueOf(positionInText));
+                    posText.setFont(Font.font("Avenir", 10));
                     posText.setLayoutX(xPosition - posText.prefWidth(0) / 2);
                     posText.setLayoutY(insets.getTop() + rectangleProperty.get().getHeight());
-                    posText.setFont(Font.font("Avenir", 10));
                     texts.getChildren().add(posText);
                     positionInText += posStep / 1000;
                     xPosition += posSpacing;
@@ -148,9 +151,9 @@ public final class ElevationProfileManager {
                     eleText.getStyleClass().add("verticale");
                     eleText.textOriginProperty().setValue(VPos.CENTER);
                     eleText.setText(String.valueOf(elevationInText));
+                    eleText.setFont(Font.font("Avenir", 10));
                     eleText.setLayoutX(insets.getLeft() - eleText.prefWidth(0) - 2);
                     eleText.setLayoutY(yPosition);
-                    eleText.setFont(Font.font("Avenir", 10));
                     texts.getChildren().add(eleText);
                     elevationInText += eleStep;
                     yPosition -= eleSpacing;
@@ -218,5 +221,21 @@ public final class ElevationProfileManager {
         profile.getPoints().addAll(listPoints);
         pane.getChildren().clear();
         pane.getChildren().add(profile);
+    }
+
+    private void createStatistics() {
+        routeStatistics.getChildren().clear();
+        Text stats = new Text();
+        ElevationProfile elevationProfile = elevationProfileProperty.get();
+        stats.setText(String.format("Longueur : %.1f km" +
+                        "     Montée : %.0f m" +
+                        "     Descente : %.0f m" +
+                        "     Altitude : de %.0f m à %.0f m",
+                elevationProfile.length() / 1000,
+                elevationProfile.totalAscent(),
+                elevationProfile.totalDescent(),
+                elevationProfile.minElevation(),
+                elevationProfile.maxElevation()));
+        routeStatistics.getChildren().add(stats);
     }
 }
