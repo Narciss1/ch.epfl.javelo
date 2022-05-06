@@ -60,18 +60,16 @@ public final class ElevationProfileManager {
         borderPane.setBottom(routeProperties);
 
         //IMPORTANT: ADD LA TECHNIQUE STARTY AND ENDY ASSISTANT
-        pane.widthProperty().addListener(l -> {
-            if (pane.getHeight() > 0) {
-                bindRectangleProperty();
-            }});
-        pane.heightProperty().addListener(l -> {
-            if (pane.getWidth() > 0) {
-                bindRectangleProperty();
-            }});
+        pane.widthProperty().addListener(l -> bindRectangleProperty());
+        pane.heightProperty().addListener(l -> bindRectangleProperty());
         rectangleProperty.addListener(l -> {
             transformations();});
-        worldToScreen.addListener(l -> createPolygone());
-        screenToWorld.addListener(l -> createPolygone());
+        worldToScreen.addListener(l -> {
+            createGrid();
+            createPolygone();});
+        screenToWorld.addListener(l -> {
+            createGrid();
+            createPolygone();});
     }
 
     public Pane pane() {
@@ -86,27 +84,36 @@ public final class ElevationProfileManager {
     private void createGrid() {
         int posStep = 0;
         int eleStep = 0;
-        double posSpacing, eleSpacing;
-        for (int i = 0; i < POS_STEPS.length; ++i) {
-            posSpacing = rectangleProperty.get().getWidth() / (elevationProfileProperty.get().length() / POS_STEPS[i]);
-            posStep = POS_STEPS[i];   //Horrible façon de faire.
-            if (posSpacing >= 25) {
-                break;
+        double posSpacing = 0;
+        double eleSpacing = 0;
+        if(worldToScreen.get() != null) {
+            System.out.println("NEW");
+            for (int i = 0; i < POS_STEPS.length; ++i) {
+                posSpacing = worldToScreen.get().deltaTransform(POS_STEPS[i], 0).getX();
+                posStep = POS_STEPS[i];
+                System.out.println("posSpacing: " + posSpacing);
+                if (posSpacing >= 25) {
+                    break;
+                }
             }
-        }
-        for (int i = 0; i < ELE_STEPS.length; ++i) {
-            eleSpacing = rectangleProperty.get().getHeight() / ((elevationProfileProperty.get().maxElevation() -
-                    elevationProfileProperty.get().minElevation()) / ELE_STEPS[i]);
-            eleStep = ELE_STEPS[i];
-            if (eleSpacing >= 50) {
-                break;
+            for (int i = 0; i < ELE_STEPS.length; ++i) {
+                eleSpacing = worldToScreen.get().deltaTransform(0, -ELE_STEPS[i]).getY();
+                eleStep = ELE_STEPS[i];
+                System.out.println("eleSpacing: " + eleSpacing);
+                if (eleSpacing >= 50) {
+                    break;
+                }
             }
         }
         double xPosition = insets.getLeft();
-        for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
-            xPosition += posStep;
-            grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
-            grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
+        if(posStep != 0) {
+            for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
+                //worldToScreen.get().deltaTransform(posStep.to);
+                System.out.println(new MoveTo(xPosition, insets.getTop()));
+                grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
+                grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
+                xPosition += posSpacing;
+            }
         }
     }
 
@@ -126,21 +133,19 @@ public final class ElevationProfileManager {
     }
 
     private void transformations() {
-       if (rectangleProperty.get() != null) {
-           Affine affine = new Affine();
-           ElevationProfile elevationProfile = elevationProfileProperty.get();
-           affine.prependTranslation(-insets.getLeft(), -insets.getTop());
-           affine.prependScale(
-                   elevationProfile.length() / rectangleProperty.get().getWidth(),
-                   (elevationProfile.minElevation() - elevationProfile.maxElevation()) / rectangleProperty.get().getHeight());
-           affine.prependTranslation(0, elevationProfile.maxElevation());
-           screenToWorld.setValue(affine);
-           try {
-               worldToScreen.setValue(screenToWorld.get().createInverse());
-           } catch (NonInvertibleTransformException exception) {
-               throw new Error (exception);
-           }
-       }
+        Affine affine = new Affine();
+        ElevationProfile elevationProfile = elevationProfileProperty.get();
+        affine.prependTranslation(-insets.getLeft(), -insets.getTop());
+        affine.prependScale(
+                elevationProfile.length() / rectangleProperty.get().getWidth(),
+                (elevationProfile.minElevation() - elevationProfile.maxElevation()) / rectangleProperty.get().getHeight());
+        affine.prependTranslation(0, elevationProfile.maxElevation());
+        screenToWorld.setValue(affine);
+        try {
+            worldToScreen.setValue(screenToWorld.get().createInverse());
+        } catch (NonInvertibleTransformException exception) {
+            throw new Error (exception);
+        }
     }
 
     private void createPolygone() {
@@ -169,7 +174,6 @@ public final class ElevationProfileManager {
         profile.getPoints().addAll(listPoints);
         pane.getChildren().clear();
         pane.getChildren().add(profile);
-        //createGrid();
-        //pane.getChildren().add(grid);
+        pane.getChildren().add(grid);
     }
 }
