@@ -31,6 +31,7 @@ public final class ElevationProfileManager {
     private ObjectProperty<Rectangle2D> rectangleProperty;
     private Path grid;
     private Line line;
+    private Text stats;
     private Polygon profile;
     private Group texts;
     private Insets insets;
@@ -48,10 +49,11 @@ public final class ElevationProfileManager {
         this.highlightedPositionProperty = highlightedPositionProperty;
         mousePositionProperty = new SimpleDoubleProperty();
         insets = new Insets(10, 10, 20, 40);
-        rectangleProperty = new SimpleObjectProperty<>();
+        rectangleProperty = new SimpleObjectProperty<>(new Rectangle2D(0,0,0,0)); //ADD CTS
         profile = new Polygon();
         grid = new Path();
         line = new Line();
+        stats = new Text();
         texts = new Group();
         screenToWorld = new SimpleObjectProperty<>();
         worldToScreen = new SimpleObjectProperty<>();
@@ -66,15 +68,25 @@ public final class ElevationProfileManager {
         pane = new Pane();
         routeStatistics = new VBox();
         borderPane = new BorderPane();
+
         profile.setId("profile");
         grid.setId("grid");
         routeStatistics.setId("profile_data");
         borderPane.getStylesheets().add("elevation_profile.css");
+
         createStatistics();
         borderPane.setBottom(routeStatistics);
         borderPane.setCenter(pane);
+
+        pane.getChildren().add(profile);
+        pane.getChildren().add(line);
+        pane.getChildren().add(grid);
+        pane.getChildren().add(texts);
+        routeStatistics.getChildren().add(stats);
+
         lineBindings();
         events();
+
         elevationProfileProperty.addListener(l -> createStatistics());
         pane.widthProperty().addListener(l -> {
             bindRectangle();
@@ -189,22 +201,15 @@ public final class ElevationProfileManager {
                 }
             }
         }
-        pane.getChildren().add(grid);
-        pane.getChildren().add(texts);
     }
 
     private void bindRectangle() {
         rectangleProperty.bind(Bindings.createObjectBinding((() -> {
-            if(pane.getWidth() > 0 && pane.getHeight() > 0) {
                 return new Rectangle2D(
                         insets.getLeft(),
                         insets.getTop(),
-                        pane.getWidth() - insets.getRight() - insets.getLeft(),
-                        pane.getHeight() - insets.getTop() - insets.getBottom());
-            } else {
-                return new Rectangle2D(insets.getLeft(), insets.getTop(),
-                        0,0);
-            }
+                        Math.max(pane.getWidth() - insets.getRight() - insets.getLeft(),0),
+                        Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0));
         })));
     }
 
@@ -246,14 +251,9 @@ public final class ElevationProfileManager {
             listPoints.add(insets.getTop() + rectangle.getHeight());
         }
         profile.getPoints().setAll(listPoints);
-        pane.getChildren().clear();
-        pane.getChildren().add(profile);
-        pane.getChildren().add(line);
     }
 
     private void createStatistics() {
-        routeStatistics.getChildren().clear();
-        Text stats = new Text();
         ElevationProfile elevationProfile = elevationProfileProperty.get();
         stats.setText(String.format("Longueur : %.1f km" +
                         "     Montée : %.0f m" +
@@ -264,6 +264,5 @@ public final class ElevationProfileManager {
                 elevationProfile.totalDescent(),
                 elevationProfile.minElevation(),
                 elevationProfile.maxElevation()));
-        routeStatistics.getChildren().add(stats);
     }
 }
