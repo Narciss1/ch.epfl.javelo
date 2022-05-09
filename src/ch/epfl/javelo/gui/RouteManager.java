@@ -31,9 +31,11 @@ public final class RouteManager {
         this.mapProperty = mapViewParametersProperty;
         this.errorConsumer = errorConsumer;
         pane = new Pane();
-        polylineItinerary = new Polyline();
-        circle = new Circle();
         pane.setPickOnBounds(false);
+        polylineItinerary = new Polyline();
+        polylineItinerary.setId("route");
+        circle = new Circle();
+        circle.setId("highlight");
         createPolyline();
         createCircle();
         mapProperty.addListener((p, oldM, newM) -> {
@@ -44,11 +46,11 @@ public final class RouteManager {
                 }
                 createCircle();
         });
-        routeBean.routeProperty().addListener((InvalidationListener) l -> {
+        routeBean.routeProperty().addListener( l -> {
             createPolyline();
             createCircle();
         });
-        routeBean.highlightedPositionProperty().addListener((InvalidationListener) l -> {
+        routeBean.highlightedPositionProperty().addListener( l -> {
             createCircle();
             createPolyline();
         });
@@ -60,10 +62,7 @@ public final class RouteManager {
     }
 
     private void createPolyline() {
-        pane.getChildren().clear();
         polylineItinerary.getPoints().clear();
-        polylineItinerary.setId("route");
-        pane.getChildren().add(polylineItinerary);
         //Opérateur ternaire à conseiller ?
         if (routeBean.route() == null){
             polylineItinerary.setVisible(false);
@@ -90,14 +89,14 @@ public final class RouteManager {
     }
 
     private void createCircle() {
-        if(routeBean.route() == null) return;
-        circle.setId("highlight");
-        pane.getChildren().add(circle);
         double position = routeBean.highlightedPosition();
-        if (isNaN(position)){
+        if(routeBean.route() == null || isNaN(position)) {
             circle.setVisible(false);
             return;
+        } else {
+            circle.setVisible(true);
         }
+        pane.getChildren().add(circle);
         PointWebMercator pointWebMercatorHighlightedPosition = PointWebMercator.ofPointCh(
                 routeBean.route().pointAt(position));
         //do we rly need all those center machin etc ?
@@ -117,6 +116,7 @@ public final class RouteManager {
                 int closestNode = routeBean.route().nodeClosestTo(routeBean.highlightedPosition());
                 Waypoint wayPoint = new Waypoint(pointCh, closestNode);
                 ObservableList<Waypoint> newList = routeBean.waypoints();
+                //attention magic number.
                 int index = routeBean.route().indexOfSegmentAt(routeBean.highlightedPosition()) + 1;
                 boolean canAdd = true;
                 int count = 0;

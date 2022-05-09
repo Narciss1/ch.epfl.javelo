@@ -80,11 +80,10 @@ public final class Stage8Test extends Application {
                         waypointsManager.pane()
                         , routeManager.pane());
 
-        StackPane emPane = new StackPane(em.pane());
         mainPane.getStylesheets().add("map.css");
         primaryStage.setMinWidth(600);
         primaryStage.setMinHeight(300);
-        primaryStage.setScene(new Scene(emPane));
+        primaryStage.setScene(new Scene(mainPane));
         primaryStage.setFullScreenExitHint("Press echap to exit full screen ta race");
         primaryStage.setFullScreenExitKeyCombination(KeyCombination.valueOf(KeyCode.ESCAPE.getName()));
         primaryStage.show();

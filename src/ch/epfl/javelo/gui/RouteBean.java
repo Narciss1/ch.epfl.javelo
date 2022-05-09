@@ -21,7 +21,7 @@ public final class RouteBean {
     private RouteComputer rc;
     private LinkedHashMap<Pair<Integer, Integer>, Route> cacheMemoryRoutes;
 
-    private final static int CACHE_MEMORY_ROUTES_CAPACITY = 20;
+    private final static int CACHE_MEMORY_ROUTES_CAPACITY = 25;
     private final static int MAX_STEP_LENGTH = 5;
 
     public RouteBean (RouteComputer rc){
@@ -34,9 +34,8 @@ public final class RouteBean {
         waypoints.addListener((InvalidationListener) l -> computingItineraryAndProfile());
     }
 
-    public void setWaypoints(ObservableList<Waypoint> listOfWaypoints){
-        waypoints.clear();
-        waypoints.addAll(listOfWaypoints);
+    public void setWaypoints(ObservableList<Waypoint> listOfWaypoints) {
+        waypoints.setAll(listOfWaypoints);
     }
 
     public void setHighlightedPosition(double position){
@@ -49,15 +48,15 @@ public final class RouteBean {
 
     private void computingItineraryAndProfile(){
         List<Route> routes = new ArrayList<>();
-        Integer startNodeId;
-        Integer endNodeId;
-        if (waypoints.size() < 2 || waypoints.isEmpty()){
+        if (waypoints.size() < 2){
             routeAndItineraryToNull();
             return;
         }
+        Integer startNodeId;
+        Integer endNodeId;
         for (int i = 0; i < waypoints.size() - 1; ++i){
             startNodeId = waypoints.get(i).closestNodeId();
-            endNodeId = waypoints.get(i+1).closestNodeId();
+            endNodeId = waypoints.get(i + 1).closestNodeId();
             if (cacheMemoryRoutes.containsKey(new Pair<>(startNodeId, endNodeId))){
                 routes.add(cacheMemoryRoutes.get(new Pair<>(startNodeId, endNodeId)));
             } else {
@@ -109,4 +108,5 @@ public final class RouteBean {
             cacheMemoryRoutes.remove(iterator.next());
         }
     }
+
 }
