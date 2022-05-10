@@ -172,11 +172,12 @@ public final class BaseMapManager {
      */
     private void changeMapViewParametersAfterZoom
     (SimpleLongProperty minScrollTime, ScrollEvent e) {
+        if (e.getDeltaY() == 0d) return;
         long currentTime = System.currentTimeMillis();
         if (currentTime < minScrollTime.get()) return;
-        minScrollTime.set(currentTime + 250);
-        double zoomDelta = Math.signum(e.getDeltaY());
-        int newZoom = Math2.clamp(8, (int)zoomDelta + mapProperty.get().zoomLevel(), 19);
+        minScrollTime.set(currentTime + 200);
+        int zoomDelta = (int)Math.signum(e.getDeltaY());
+        int newZoom = Math2.clamp(8, zoomDelta + mapProperty.get().zoomLevel(), 19);
         PointWebMercator pointUnderMouse =  mapProperty.get().pointAt(e.getX(), e.getY());
         //This calculus is due to the fact that, since the point under the mouse does not
         //change after the zooming; therefore its distance to the old top left corner point
