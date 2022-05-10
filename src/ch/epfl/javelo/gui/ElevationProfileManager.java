@@ -97,11 +97,11 @@ public final class ElevationProfileManager {
         rectangleProperty.addListener(l -> {
             transformations();});
         worldToScreen.addListener(l -> {
-            createPolygone();
+            createPolygon();
             createGrid();
             });
         screenToWorld.addListener(l -> {
-            createPolygone();
+            createPolygon();
             createGrid();
         });
     }
@@ -131,9 +131,8 @@ public final class ElevationProfileManager {
                 mousePositionProperty.set(Double.NaN);
             }
                 });
-        pane.setOnMouseExited(e -> {
-            mousePositionProperty.set(Double.NaN);
-                });
+        pane.setOnMouseExited(e ->
+            mousePositionProperty.set(Double.NaN));
     }
 
     private void createGrid() {
@@ -229,7 +228,7 @@ public final class ElevationProfileManager {
         }
     }
 
-    private void createPolygone() {
+    private void createPolygon() {
         List<Double> listPoints = new ArrayList<>();
         Rectangle2D rectangle = rectangleProperty.get();
         ElevationProfile elevationProfile = elevationProfileProperty.get();
