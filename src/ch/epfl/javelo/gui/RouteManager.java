@@ -34,7 +34,7 @@ public final class RouteManager {
         pane.setPickOnBounds(false);
         polylineItinerary = new Polyline();
         polylineItinerary.setId("route");
-        circle = new Circle();
+        circle = new Circle(HIGHLIGHTED_POSITION_RADIUS);
         circle.setId("highlight");
         createPolyline();
         createCircle();
@@ -51,6 +51,7 @@ public final class RouteManager {
             createCircle();
         });
         routeBean.highlightedPositionProperty().addListener( l -> {
+            // Est-ce qu'on doit createPolyline quand la position change?
             createCircle();
             createPolyline();
         });
@@ -93,16 +94,16 @@ public final class RouteManager {
         if(routeBean.route() == null || isNaN(position)) {
             circle.setVisible(false);
             return;
-        } else {
-            circle.setVisible(true);
         }
+        circle.setVisible(true);
+
         pane.getChildren().add(circle);
         PointWebMercator pointWebMercatorHighlightedPosition = PointWebMercator.ofPointCh(
                 routeBean.route().pointAt(position));
         //do we rly need all those center machin etc ?
-        circle.setCenterX(pointWebMercatorHighlightedPosition.x());
+        /*circle.setCenterX(pointWebMercatorHighlightedPosition.x());
         circle.setCenterY(pointWebMercatorHighlightedPosition.y());
-        circle.setRadius(HIGHLIGHTED_POSITION_RADIUS);
+        circle.setRadius(HIGHLIGHTED_POSITION_RADIUS);*/
         circle.setLayoutX(mapProperty.get().viewX(pointWebMercatorHighlightedPosition));
         circle.setLayoutY(mapProperty.get().viewY(pointWebMercatorHighlightedPosition));
     }

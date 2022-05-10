@@ -8,6 +8,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -51,7 +52,9 @@ public final class ElevationProfileManager {
         insets = new Insets(10, 10, 20, 40);
         rectangleProperty = new SimpleObjectProperty<>(new Rectangle2D(0,0,0,0)); //ADD CTS
         profile = new Polygon();
+        profile.setId("profile");
         grid = new Path();
+        grid.setId("grid");
         line = new Line();
         stats = new Text();
         texts = new Group();
@@ -65,35 +68,31 @@ public final class ElevationProfileManager {
         } catch (NonInvertibleTransformException exception){
             throw new Error(exception);
         }
-        pane = new Pane();
-        routeStatistics = new VBox();
-        borderPane = new BorderPane();
 
-        profile.setId("profile");
-        grid.setId("grid");
+        routeStatistics = new VBox(stats);
         routeStatistics.setId("profile_data");
+        // bind stats avec proriete du profile change
+        createStatistics();
+        stats.bind(Bindings.createStringBinding((() -> {
+            return new Rectangle2D(
+                    insets.getLeft(),
+                    insets.getTop(),
+                    Math.max(pane.getWidth() - insets.getRight() - insets.getLeft(),0),
+                    Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0));
+        }), pane.widthProperty(), pane.heightProperty()));
+        
+
+
+
+
+        pane = new Pane(profile
+                , line, grid, texts
+        );
+        borderPane = new BorderPane(pane, null, null, routeStatistics, null);
         borderPane.getStylesheets().add("elevation_profile.css");
 
-        createStatistics();
-        borderPane.setBottom(routeStatistics);
-        borderPane.setCenter(pane);
-
-        pane.getChildren().add(profile);
-        pane.getChildren().add(line);
-        pane.getChildren().add(grid);
-        pane.getChildren().add(texts);
-        routeStatistics.getChildren().add(stats);
-
-        lineBindings();
-        events();
-
         elevationProfileProperty.addListener(l -> createStatistics());
-        pane.widthProperty().addListener(l -> {
-            bindRectangle();
-        });
-        pane.heightProperty().addListener(l -> {
-            bindRectangle();
-        });
+        bindRectangle();
         rectangleProperty.addListener(l -> {
             transformations();});
         worldToScreen.addListener(l -> {
@@ -104,6 +103,8 @@ public final class ElevationProfileManager {
             createPolygon();
             createGrid();
         });
+        lineBindings();
+        events();
     }
 
     public Pane pane() {
@@ -209,7 +210,7 @@ public final class ElevationProfileManager {
                         insets.getTop(),
                         Math.max(pane.getWidth() - insets.getRight() - insets.getLeft(),0),
                         Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0));
-        })));
+        }), pane.widthProperty(), pane.heightProperty()));
     }
 
     private void transformations() {
