@@ -18,18 +18,17 @@ public final class RouteManager {
 
     private RouteBean routeBean;
     private ReadOnlyObjectProperty<MapViewParameters> mapProperty;
-    private Consumer<String> errorConsumer;
+//    private Consumer<String> errorConsumer;
     private Pane pane;
     private final Polyline polylineItinerary;
     private Circle circle;
 
     private final static int HIGHLIGHTED_POSITION_RADIUS = 5;
 
-    public RouteManager(RouteBean routeBean, ReadOnlyObjectProperty<MapViewParameters> mapViewParametersProperty,
-                        Consumer<String> errorConsumer) {
+    public RouteManager(RouteBean routeBean, ReadOnlyObjectProperty<MapViewParameters> mapViewParametersProperty) {
         this.routeBean = routeBean;
         this.mapProperty = mapViewParametersProperty;
-        this.errorConsumer = errorConsumer;
+        //this.errorConsumer = errorConsumer;
         pane = new Pane();
         pane.setPickOnBounds(false);
         polylineItinerary = new Polyline();
@@ -114,20 +113,23 @@ public final class RouteManager {
                 Waypoint wayPoint = new Waypoint(pointCh, closestNode);
                 ObservableList<Waypoint> newList = routeBean.waypoints();
                 //attention magic number.
-                int index = routeBean.route().indexOfSegmentAt(routeBean.highlightedPosition()) + 1;
-                boolean canAdd = true;
-                int count = 0;
-                while(canAdd && count < newList.size()){
-                    if(newList.get(count).closestNodeId() == closestNode) {
-                        canAdd = false;
-                    }
-                    ++count;
-                }
-                if(canAdd && !newList.contains(wayPoint)) {
-                    newList.add(index, wayPoint);
-                } else {
+                int index = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition()) + 1;
+                //boolean canAdd = true;
+                newList.add(index, wayPoint);
+/*                if (! (newList.get(index - 1).closestNodeId() == closestNode
+                || newList.get(index).closestNodeId() == closestNode)) {
+                    //newList.add(index, wayPoint);
+                }  else {
                     errorConsumer.accept("Un point de passage est déjà présent à cet endroit !");
-                }
+                }*/
+//                while(canAdd && count < newList.size()){
+//                    if(newList.get(count).closestNodeId() == closestNode) {
+//                        canAdd = false;
+//                    }
+//                    ++count;
+//                }
+//                if(canAdd && !newList.contains(wayPoint)) {
+//                    newList.add(index, wayPoint);
             }
         });
     }
