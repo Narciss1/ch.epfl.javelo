@@ -62,7 +62,7 @@ public final class RouteBean {
                 routes.add(cacheMemoryRoutes.get(new Pair<>(startNodeId, endNodeId)));
             } else {
                 Route routeToAdd = rc.bestRouteBetween(startNodeId, endNodeId);
-                if (routeToAdd == null){
+                if (routeToAdd == null) {
                     routeAndItineraryToNull();
                     return;
                 }
