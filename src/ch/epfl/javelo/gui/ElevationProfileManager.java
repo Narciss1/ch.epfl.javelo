@@ -8,7 +8,6 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -38,6 +37,7 @@ public final class ElevationProfileManager {
     private Insets insets;
     private ObjectProperty<Transform> worldToScreen;
     private ObjectProperty<Transform> screenToWorld;
+    long t0;
 
     private final static int[] POS_STEPS =
             { 1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000 };
@@ -46,6 +46,7 @@ public final class ElevationProfileManager {
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty,
                                    ReadOnlyDoubleProperty highlightedPositionProperty) {
+        t0 = System.nanoTime();
         this.elevationProfileProperty = elevationProfileProperty;
         this.highlightedPositionProperty = highlightedPositionProperty;
         mousePositionProperty = new SimpleDoubleProperty();
@@ -58,6 +59,16 @@ public final class ElevationProfileManager {
         line = new Line();
         stats = new Text();
         texts = new Group();
+
+        pane = new Pane(profile
+                , line
+                , grid
+                , texts
+        );
+        borderPane = new BorderPane(pane, null, null, routeStatistics, null);
+        borderPane.getStylesheets().add("elevation_profile.css");
+
+
         screenToWorld = new SimpleObjectProperty<>();
         worldToScreen = new SimpleObjectProperty<>();
         Affine first = new Affine();
@@ -68,40 +79,40 @@ public final class ElevationProfileManager {
         } catch (NonInvertibleTransformException exception){
             throw new Error(exception);
         }
-
+        System.out.printf("Début avant createStats\n",
+                (System.nanoTime() - t0) / 1_000_000);
         routeStatistics = new VBox(stats);
         routeStatistics.setId("profile_data");
         // bind stats avec proriete du profile change
-        createStatistics();
-        stats.bind(Bindings.createStringBinding((() -> {
-            return new Rectangle2D(
-                    insets.getLeft(),
-                    insets.getTop(),
-                    Math.max(pane.getWidth() - insets.getRight() - insets.getLeft(),0),
-                    Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0));
-        }), pane.widthProperty(), pane.heightProperty()));
+        //createStatistics();
+//        stats.bind(Bindings.createStringBinding((() -> {
+//            return new Rectangle2D(
+//                    insets.getLeft(),
+//                    insets.getTop(),
+//                    Math.max(pane.getWidth() - insets.getRight() - insets.getLeft(),0),
+//                    Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0));
+//        }), pane.widthProperty(), pane.heightProperty()));
         
 
 
-
-
-        pane = new Pane(profile
-                , line, grid, texts
-        );
-        borderPane = new BorderPane(pane, null, null, routeStatistics, null);
-        borderPane.getStylesheets().add("elevation_profile.css");
 
         elevationProfileProperty.addListener(l -> createStatistics());
         bindRectangle();
         rectangleProperty.addListener(l -> {
             transformations();});
         worldToScreen.addListener(l -> {
-            createPolygon();
-            createGrid();
+            if (rectangleProperty.get().getHeight() != 0) {
+                createPolygon();
+                createGrid();
+                createStatistics();
+            }
             });
         screenToWorld.addListener(l -> {
-            createPolygon();
-            createGrid();
+            if (rectangleProperty.get().getHeight() != 0) {
+                createPolygon();
+                createGrid();
+                createStatistics();
+            }
         });
         lineBindings();
         events();
@@ -137,6 +148,7 @@ public final class ElevationProfileManager {
     }
 
     private void createGrid() {
+        System.out.println("grid");
         texts.getChildren().clear();
         grid.getElements().clear();
         int posStep = 0;
@@ -214,6 +226,7 @@ public final class ElevationProfileManager {
     }
 
     private void transformations() {
+        System.out.println(rectangleProperty.get());
         Affine affine = new Affine();
         ElevationProfile elevationProfile = elevationProfileProperty.get();
         affine.prependTranslation(-insets.getLeft(), -insets.getTop());
@@ -230,6 +243,8 @@ public final class ElevationProfileManager {
     }
 
     private void createPolygon() {
+        System.out.printf("Polygon\n",
+                (System.nanoTime() - t0) / 1_000_000);
         List<Double> listPoints = new ArrayList<>();
         Rectangle2D rectangle = rectangleProperty.get();
         ElevationProfile elevationProfile = elevationProfileProperty.get();
