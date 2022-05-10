@@ -64,7 +64,6 @@ public final class ElevationProfileManager {
         //routeStatistics = new VBox(statsProperty.get());
         routeStatistics = new VBox(stats);
         routeStatistics.setId("profile_data");
-        createStatistics();
         screenToWorld = new SimpleObjectProperty<>();
         worldToScreen = new SimpleObjectProperty<>();
         Affine first = new Affine();
@@ -75,32 +74,17 @@ public final class ElevationProfileManager {
         } catch (NonInvertibleTransformException exception){
             throw new Error(exception);
         }
-
         pane = new Pane(profile, line, grid, texts);
         borderPane = new BorderPane(pane, null, null, routeStatistics, null);
         borderPane.getStylesheets().add("elevation_profile.css");
 
-        //statsBinding();
-        rectangleBinding();
-        lineBindings();
-        events();
+
         System.out.printf("Début avant createStats\n",
                 (System.nanoTime() - t0) / 1_000_000);
-        routeStatistics = new VBox(stats);
-        routeStatistics.setId("profile_data");
-        // bind stats avec proriete du profile change
-        //createStatistics();
-//        stats.bind(Bindings.createStringBinding((() -> {
-//            return new Rectangle2D(
-//                    insets.getLeft(),
-//                    insets.getTop(),
-//                    Math.max(pane.getWidth() - insets.getRight() - insets.getLeft(),0),
-//                    Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0));
-//        }), pane.widthProperty(), pane.heightProperty()));
 
 
-
-
+        //statsBinding();
+        rectangleBinding();
         elevationProfileProperty.addListener(l -> createStatistics());
         rectangleProperty.addListener(l -> {
             transformations();});
@@ -163,14 +147,14 @@ public final class ElevationProfileManager {
             for (int i = 0; i < POS_STEPS.length; ++i) {
                 posSpacing = worldToScreen.get().deltaTransform(POS_STEPS[i], 0).getX();
                 posStep = POS_STEPS[i];
-                if (posSpacing >= 25) {
+                if (posSpacing >= 50) {
                     break;
                 }
             }
             for (int i = 0; i < ELE_STEPS.length; ++i) {
                 eleSpacing = worldToScreen.get().deltaTransform(0, -ELE_STEPS[i]).getY();
                 eleStep = ELE_STEPS[i];
-                if (eleSpacing >= 50) {
+                if (eleSpacing >= 25) {
                     break;
                 }
             }
