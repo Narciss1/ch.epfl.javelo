@@ -8,7 +8,6 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -32,6 +31,7 @@ public final class ElevationProfileManager {
     private ObjectProperty<Rectangle2D> rectangleProperty;
     private Path grid;
     private Line line;
+    //private ObjectProperty<Text> statsProperty;
     private Text stats;
     private Polygon profile;
     private Group texts;
@@ -55,9 +55,14 @@ public final class ElevationProfileManager {
         profile.setId("profile");
         grid = new Path();
         grid.setId("grid");
-        line = new Line();
-        stats = new Text();
         texts = new Group();
+        line = new Line();
+        //statsProperty = new SimpleObjectProperty<>(new Text());
+        stats = new Text();
+        //routeStatistics = new VBox(statsProperty.get());
+        routeStatistics = new VBox(stats);
+        routeStatistics.setId("profile_data");
+        createStatistics();
         screenToWorld = new SimpleObjectProperty<>();
         worldToScreen = new SimpleObjectProperty<>();
         Affine first = new Affine();
@@ -69,30 +74,15 @@ public final class ElevationProfileManager {
             throw new Error(exception);
         }
 
-        routeStatistics = new VBox(stats);
-        routeStatistics.setId("profile_data");
-        // bind stats avec proriete du profile change
-        createStatistics();
-        stats.bind(Bindings.createStringBinding((() -> {
-            return new Rectangle2D(
-                    insets.getLeft(),
-                    insets.getTop(),
-                    Math.max(pane.getWidth() - insets.getRight() - insets.getLeft(),0),
-                    Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0));
-        }), pane.widthProperty(), pane.heightProperty()));
-        
-
-
-
-
-        pane = new Pane(profile
-                , line, grid, texts
-        );
+        pane = new Pane(profile, line, grid, texts);
         borderPane = new BorderPane(pane, null, null, routeStatistics, null);
         borderPane.getStylesheets().add("elevation_profile.css");
 
+        //statsBinding();
+        rectangleBinding();
+        lineBindings();
+        events();
         elevationProfileProperty.addListener(l -> createStatistics());
-        bindRectangle();
         rectangleProperty.addListener(l -> {
             transformations();});
         worldToScreen.addListener(l -> {
@@ -103,8 +93,6 @@ public final class ElevationProfileManager {
             createPolygon();
             createGrid();
         });
-        lineBindings();
-        events();
     }
 
     public Pane pane() {
@@ -203,7 +191,7 @@ public final class ElevationProfileManager {
         }
     }
 
-    private void bindRectangle() {
+    private void rectangleBinding() {
         rectangleProperty.bind(Bindings.createObjectBinding((() -> {
                 return new Rectangle2D(
                         insets.getLeft(),
@@ -212,6 +200,22 @@ public final class ElevationProfileManager {
                         Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0));
         }), pane.widthProperty(), pane.heightProperty()));
     }
+
+/*
+    private void statsBinding() {
+        statsProperty.bind(Bindings.createStringBinding((() -> {
+            return String.format("Longueur : %.1f km" +
+                            "     Montée : %.0f m" +
+                            "     Descente : %.0f m" +
+                            "     Altitude : de %.0f m à %.0f m",
+                    elevationProfileProperty.get().length() / 1000,
+                    elevationProfileProperty.get().totalAscent(),
+                    elevationProfileProperty.get().totalDescent(),
+                    elevationProfileProperty.get().minElevation(),
+                    elevationProfileProperty.get().maxElevation());
+        }), elevationProfileProperty));
+    }
+*/
 
     private void transformations() {
         Affine affine = new Affine();
@@ -252,7 +256,6 @@ public final class ElevationProfileManager {
         }
         profile.getPoints().setAll(listPoints);
     }
-
     private void createStatistics() {
         ElevationProfile elevationProfile = elevationProfileProperty.get();
         stats.setText(String.format("Longueur : %.1f km" +

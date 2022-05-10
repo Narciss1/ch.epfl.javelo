@@ -100,10 +100,6 @@ public final class RouteManager {
         pane.getChildren().add(circle);
         PointWebMercator pointWebMercatorHighlightedPosition = PointWebMercator.ofPointCh(
                 routeBean.route().pointAt(position));
-        //do we rly need all those center machin etc ?
-        /*circle.setCenterX(pointWebMercatorHighlightedPosition.x());
-        circle.setCenterY(pointWebMercatorHighlightedPosition.y());
-        circle.setRadius(HIGHLIGHTED_POSITION_RADIUS);*/
         circle.setLayoutX(mapProperty.get().viewX(pointWebMercatorHighlightedPosition));
         circle.setLayoutY(mapProperty.get().viewY(pointWebMercatorHighlightedPosition));
     }
