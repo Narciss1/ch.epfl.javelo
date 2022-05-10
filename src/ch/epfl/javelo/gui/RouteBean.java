@@ -34,7 +34,9 @@ public final class RouteBean {
         waypoints.addListener((InvalidationListener) l -> computingItineraryAndProfile());
     }
 
+
     public void setWaypoints(ObservableList<Waypoint> listOfWaypoints) {
+        //Est-ce que setAll suffisant?
         waypoints.setAll(listOfWaypoints);
     }
 
