@@ -31,7 +31,6 @@ public final class AnnotedMapManager {
         javeloPane = new StackPane(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
         javeloPane.getStylesheets().add("map.css");
 
-
     }
 
     public Pane pane() {
