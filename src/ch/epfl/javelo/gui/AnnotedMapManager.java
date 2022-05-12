@@ -35,6 +35,7 @@ public final class AnnotedMapManager {
         mapViewParametersP = new SimpleObjectProperty<>(startMapViewParameters);
         mousePositionP = new SimpleObjectProperty<>();
         mousePositionOnRouteProperty = new SimpleDoubleProperty();
+                //routeBean.highlightedPositionProperty();
         this.routeBean = routeBean;
         waypointsManager = new WaypointsManager(graph, mapViewParametersP, routeBean.waypoints(), errorConsumer);
         baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
@@ -42,7 +43,8 @@ public final class AnnotedMapManager {
         routeManager = new RouteManager(routeBean, mapViewParametersP);
         javeloPane = new StackPane(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
         javeloPane.getStylesheets().add("map.css");
-
+        setMousePositionP();
+        mousePositionOnRouteBinding();
     }
 
     public Pane pane() {
@@ -50,33 +52,46 @@ public final class AnnotedMapManager {
     }
 
     public ReadOnlyDoubleProperty mousePositionOnRouteProperty() {
-        return null;
+        return mousePositionOnRouteProperty;
     }
 
     private void mousePositionOnRouteBinding() {
         mousePositionOnRouteProperty.bind(Bindings.createDoubleBinding((() -> {
+            System.out.println("dans le bind");
             if(mousePositionP.get() == null) {
+                System.out.println("mousePositionP null");
                 return Double.NaN;
             }
             PointWebMercator webMercatorMouse = mapViewParametersP.get().pointAt(
                     mousePositionP.get().getX(),
                     mousePositionP.get().getY());
             PointCh pointChMouse = webMercatorMouse.toPointCh();
-            RoutePoint routePointMouse = routeBean.route().pointClosestTo(pointChMouse);
-            PointWebMercator closestPoint = PointWebMercator.ofPointCh(routePointMouse.point());
-            double distance = Math2.norm(
-                    mapViewParametersP.get().viewX(closestPoint) - mapViewParametersP.get().viewX(webMercatorMouse),
-                    mapViewParametersP.get().viewY(closestPoint) - mapViewParametersP.get().viewY(webMercatorMouse));
-            if (distance <= 15) {
-                return routePointMouse.position();
+            if (routeBean.route() != null) {   //Prk c pas automatically géré ?
+                System.out.println("les calcul");
+                RoutePoint routePointMouse = routeBean.route().pointClosestTo(pointChMouse);
+                PointWebMercator closestPoint = PointWebMercator.ofPointCh(routePointMouse.point());
+                double distance = Math2.norm(
+                        mapViewParametersP.get().viewX(closestPoint) - mapViewParametersP.get().viewX(webMercatorMouse),
+                        mapViewParametersP.get().viewY(closestPoint) - mapViewParametersP.get().viewY(webMercatorMouse));
+                if (distance <= 15) {
+                    System.out.println("distance");
+                    return routePointMouse.position();
+                }
             }
-            return Double.NaN;
+            //System.out.println("apres les calcul");
+                return Double.NaN;
         }), mousePositionP, mapViewParametersP, routeBean.routeProperty()));
     }
 
     private void setMousePositionP() {
-        baseMapManager.pane().setOnMouseMoved(e ->  mousePositionP.setValue(new Point2D(e.getX(), e.getY())));
-        baseMapManager.pane().setOnMouseExited(e -> mousePositionP.set(null));
-        //Est-ce que détection legit?
+        javeloPane.setOnMouseMoved(e ->  {
+            //System.out.println("moved");
+            mousePositionP.setValue(new Point2D(e.getX(), e.getY()));
+        });
+        javeloPane.setOnMouseExited(e -> {
+            //System.out.println("exited");
+            mousePositionP.set(null);
+        });
+        //Est-ce que détection legit? genre par le null
     }
 }

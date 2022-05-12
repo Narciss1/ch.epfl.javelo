@@ -47,7 +47,6 @@ public final class ElevationProfileManager {
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty,
                                    ReadOnlyDoubleProperty highlightedPositionProperty) {
-        t0 = System.nanoTime();
         this.elevationProfileProperty = elevationProfileProperty;
         this.highlightedPositionProperty = highlightedPositionProperty;
         mousePositionProperty = new SimpleDoubleProperty();
@@ -85,9 +84,16 @@ public final class ElevationProfileManager {
 
         //statsBinding();
         rectangleBinding();
-        elevationProfileProperty.addListener(l -> createStatistics());
+        elevationProfileProperty.addListener(l -> {
+            if (elevationProfileProperty.get() != null) {
+                transformations();
+                createStatistics();
+            }});
         rectangleProperty.addListener(l -> {
-            transformations();});
+            //FIND UNE AUTRE SOLUTION
+            if(elevationProfileProperty.get() != null) {
+                 transformations();
+            }});
         worldToScreen.addListener(l -> {
             if (rectangleProperty.get().getHeight() != 0) {
                 createPolygon();
@@ -136,7 +142,6 @@ public final class ElevationProfileManager {
     }
 
     private void createGrid() {
-        System.out.println("grid");
         texts.getChildren().clear();
         grid.getElements().clear();
         int posStep = 0;
@@ -214,7 +219,6 @@ public final class ElevationProfileManager {
     }
 
     private void transformations() {
-        System.out.println(rectangleProperty.get());
         Affine affine = new Affine();
         ElevationProfile elevationProfile = elevationProfileProperty.get();
         affine.prependTranslation(-insets.getLeft(), -insets.getTop());
@@ -231,8 +235,6 @@ public final class ElevationProfileManager {
     }
 
     private void createPolygon() {
-        System.out.printf("Polygon\n",
-                (System.nanoTime() - t0) / 1_000_000);
         List<Double> listPoints = new ArrayList<>();
         Rectangle2D rectangle = rectangleProperty.get();
         ElevationProfile elevationProfile = elevationProfileProperty.get();
@@ -258,14 +260,16 @@ public final class ElevationProfileManager {
 
     private void createStatistics() {
         ElevationProfile elevationProfile = elevationProfileProperty.get();
-        stats.setText(String.format("Longueur : %.1f km" +
-                        "     Montée : %.0f m" +
-                        "     Descente : %.0f m" +
-                        "     Altitude : de %.0f m à %.0f m",
-                elevationProfile.length() / 1000,
-                elevationProfile.totalAscent(),
-                elevationProfile.totalDescent(),
-                elevationProfile.minElevation(),
-                elevationProfile.maxElevation()));
+        if (elevationProfile != null) {
+            stats.setText(String.format("Longueur : %.1f km" +
+                            "     Montée : %.0f m" +
+                            "     Descente : %.0f m" +
+                            "     Altitude : de %.0f m à %.0f m",
+                    elevationProfile.length() / 1000,
+                    elevationProfile.totalAscent(),
+                    elevationProfile.totalDescent(),
+                    elevationProfile.minElevation(),
+                    elevationProfile.maxElevation()));
+        }
     }
 }

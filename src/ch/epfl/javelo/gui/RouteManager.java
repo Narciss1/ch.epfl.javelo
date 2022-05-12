@@ -35,8 +35,11 @@ public final class RouteManager {
         polylineItinerary.setId("route");
         circle = new Circle(HIGHLIGHTED_POSITION_RADIUS);
         circle.setId("highlight");
+        pane.getChildren().add(polylineItinerary);
+        pane.getChildren().add(circle);
         createPolyline();
         createCircle();
+
         mapProperty.addListener((p, oldM, newM) -> {
                 if (oldM.zoomLevel() == newM.zoomLevel()) {
                     moveItinerary();
@@ -82,10 +85,8 @@ public final class RouteManager {
     }
 
     private void moveItinerary() {
-        pane.getChildren().clear();
         polylineItinerary.setLayoutX(-mapProperty.get().xCoordinate());
         polylineItinerary.setLayoutY(-mapProperty.get().yCoordinate());
-        pane.getChildren().add(polylineItinerary);
     }
 
     private void createCircle() {
@@ -95,8 +96,6 @@ public final class RouteManager {
             return;
         }
         circle.setVisible(true);
-
-        pane.getChildren().add(circle);
         PointWebMercator pointWebMercatorHighlightedPosition = PointWebMercator.ofPointCh(
                 routeBean.route().pointAt(position));
         circle.setLayoutX(mapProperty.get().viewX(pointWebMercatorHighlightedPosition));
