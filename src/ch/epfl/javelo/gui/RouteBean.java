@@ -97,6 +97,10 @@ public final class RouteBean {
 
     public Route route() { return route.get();}
 
+    public ElevationProfile elevationProfile() {
+        return elevationProfile.get();
+    }
+
     public double highlightedPosition() {
         return highlightedPosition.get();
     }

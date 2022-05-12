@@ -71,7 +71,6 @@ public final class WaypointsManager {
         PointWebMercator pointWebMercator = new PointWebMercator(x, y);
         PointCh pointCh = pointWebMercator.toPointCh();
         if (graph.nodeClosestTo(pointCh, SQUARE_RADIUS) == -1){
-            java.awt.Toolkit.getDefaultToolkit().beep();
             errorConsumer.accept("Aucune route à proximité !");
         } else {
             wayPoints.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, SQUARE_RADIUS)));
@@ -199,8 +198,6 @@ public final class WaypointsManager {
                         wayPoints.set(index,
                                 new Waypoint(newPointCh, graph.nodeClosestTo(newPointCh, SQUARE_RADIUS)));
                     } else {
-                        //For the sound
-                        java.awt.Toolkit.getDefaultToolkit().beep();
                         //addSVGPaths();
                         relocateSVGPaths();
                         errorConsumer.accept("Aucune route à proximité !");
