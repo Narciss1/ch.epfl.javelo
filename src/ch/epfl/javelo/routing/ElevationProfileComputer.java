@@ -24,14 +24,9 @@ public final class ElevationProfileComputer {
      * @param maxStepLength the maximum gap that could be between two samples
      * @return a new instance of type ElevationProfile
      */
-    public static ElevationProfile elevationProfile(Route route, double maxStepLength){
-
-
+    public static ElevationProfile elevationProfile(Route route, double maxStepLength) {
 
         Preconditions.checkArgument(maxStepLength > 0);
-        if(route == null) {
-            return null;
-        }
         int samplesNumber = ((int)Math.ceil(route.length() / maxStepLength)) + 1;
         double gap = route.length() / (samplesNumber - 1);
         float[] elevationSamples = new float[samplesNumber];
