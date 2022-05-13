@@ -30,12 +30,14 @@ public final class AnnotedMapManager {
 
 
 
+
+
     public AnnotedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean,
                              Consumer<String> errorConsumer) {
         mapViewParametersP = new SimpleObjectProperty<>(startMapViewParameters);
         mousePositionP = new SimpleObjectProperty<>();
         mousePositionOnRouteProperty = new SimpleDoubleProperty();
-                //routeBean.highlightedPositionProperty();
+
         this.routeBean = routeBean;
         waypointsManager = new WaypointsManager(graph, mapViewParametersP, routeBean.waypoints(), errorConsumer);
         baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
@@ -57,7 +59,6 @@ public final class AnnotedMapManager {
 
     private void mousePositionOnRouteBinding() {
         mousePositionOnRouteProperty.bind(Bindings.createDoubleBinding((() -> {
-            System.out.println("dans le bind");
             if(mousePositionP.get() == null) {
                 System.out.println("mousePositionP null");
                 return Double.NaN;
@@ -78,7 +79,7 @@ public final class AnnotedMapManager {
                     return routePointMouse.position();
                 }
             }
-            //System.out.println("apres les calcul");
+            System.out.println("apres les calcul");
                 return Double.NaN;
         }), mousePositionP, mapViewParametersP, routeBean.routeProperty()));
     }

@@ -5,10 +5,7 @@ import ch.epfl.javelo.routing.*;
 import javafx.application.Application;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
@@ -23,6 +20,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.function.Consumer;
+
+import static javafx.beans.binding.Bindings.when;
 
 public final class JaVelo extends Application {
     public static void main(String[] args) { launch(args); }
@@ -40,20 +39,29 @@ public final class JaVelo extends Application {
         RouteBean routeBean = new RouteBean(routeComputer);
         Consumer<String> errorConsumer = errorManager::displayError;
         AnnotedMapManager annotedMapManager = new AnnotedMapManager(graph, tileManager, routeBean, errorConsumer);
-
+        BooleanProperty positivemousePositionOnRoute = new SimpleBooleanProperty();
+        positivemousePositionOnRoute.bind(Bindings.createBooleanBinding(
+                () -> {
+                    if (annotedMapManager.mousePositionOnRouteProperty().get() >= 0) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }, annotedMapManager.mousePositionOnRouteProperty()
+        ));
         ElevationProfileManager profileManager =
                 new ElevationProfileManager(routeBean.elevationProfileProperty(), routeBean.highlightedPositionProperty());
 
 
         SplitPane splitPane = new SplitPane(annotedMapManager.pane());
 
-        splitPane.setOnMouseMoved(e -> {
-            if(annotedMapManager.mousePositionOnRouteProperty().get() >= 0) {
-                routeBean.highlightedPositionProperty().bind(annotedMapManager.mousePositionOnRouteProperty());
-            } else {
-                routeBean.highlightedPositionProperty().bind(profileManager.mousePositionOnProfileProperty());
-            }
-        });
+      //  splitPane.setOnMouseMoved(e -> {
+//            if(annotedMapManager.mousePositionOnRouteProperty().get() >= 0) {
+//                routeBean.highlightedPositionProperty().bind(annotedMapManager.mousePositionOnRouteProperty());
+//            } else {
+//                routeBean.highlightedPositionProperty().bind(profileManager.mousePositionOnProfileProperty());
+//            }
+      //  });
 
         routeBean.elevationProfileProperty().addListener(l -> {
             if(routeBean.elevationProfileProperty().get() == null) {
@@ -63,16 +71,20 @@ public final class JaVelo extends Application {
             }
         });
 
+        routeBean.highlightedPositionProperty().bind(
+                when(positivemousePositionOnRoute)
+                .then(annotedMapManager.mousePositionOnRouteProperty())
+                        .otherwise(profileManager.mousePositionOnProfileProperty()));
+
         splitPane.setOrientation(Orientation.VERTICAL);
         SplitPane.setResizableWithParent(profileManager.pane(), false);
 
         MenuItem gpxExporter = new MenuItem("Exporter GPX");
         MenuBar menuBar = new MenuBar(new Menu("Fichier", null, gpxExporter));
-        //menuBar.setUseSystemMenuBar(true);
 
         gpxExporter.disableProperty().bind(Bindings.createBooleanBinding(
                 () -> {
-                    if (routeBean.routeProperty() == null) {
+                    if (routeBean.route() == null) {
                         return true;
                     } else {
                         return false;   //Est-ce que ce else est nécessaire ou elle est par défaut à false ?? :aaa:

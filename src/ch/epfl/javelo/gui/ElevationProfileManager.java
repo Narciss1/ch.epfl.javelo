@@ -1,6 +1,7 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.ElevationProfile;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.geometry.Insets;
@@ -63,16 +64,16 @@ public final class ElevationProfileManager {
         //routeStatistics = new VBox(statsProperty.get());
         routeStatistics = new VBox(stats);
         routeStatistics.setId("profile_data");
-        screenToWorld = new SimpleObjectProperty<>();
-        worldToScreen = new SimpleObjectProperty<>();
-        Affine first = new Affine();
+        screenToWorld = new SimpleObjectProperty<>(new Affine());
+        worldToScreen = new SimpleObjectProperty<>(new Affine());
+       /* Affine first = new Affine();
         first.prependTranslation(10,10);
         screenToWorld.setValue(first);
         try {
             worldToScreen.setValue(screenToWorld.get().createInverse());
         } catch (NonInvertibleTransformException exception){
             throw new Error(exception);
-        }
+        }*/
         pane = new Pane(profile, line, grid, texts);
         borderPane = new BorderPane(pane, null, null, routeStatistics, null);
         borderPane.getStylesheets().add("elevation_profile.css");
@@ -80,9 +81,6 @@ public final class ElevationProfileManager {
 
         System.out.printf("Début avant createStats\n",
                 (System.nanoTime() - t0) / 1_000_000);
-
-
-        //statsBinding();
         rectangleBinding();
         elevationProfileProperty.addListener(l -> {
             if (elevationProfileProperty.get() != null) {
@@ -91,23 +89,22 @@ public final class ElevationProfileManager {
             }});
         rectangleProperty.addListener(l -> {
             //FIND UNE AUTRE SOLUTION
-            if(elevationProfileProperty.get() != null) {
                  transformations();
-            }});
-        worldToScreen.addListener(l -> {
-            if (rectangleProperty.get().getHeight() != 0) {
-                createPolygon();
-                createGrid();
-                createStatistics();
-            }
             });
-        screenToWorld.addListener(l -> {
+        worldToScreen.addListener(l -> {
+           // if (rectangleProperty.get().getHeight() != 0) {
+                createPolygon();
+                createGrid();
+                createStatistics();
+           // }
+            });
+    /*    screenToWorld.addListener(l -> {
             if (rectangleProperty.get().getHeight() != 0) {
                 createPolygon();
                 createGrid();
                 createStatistics();
             }
-        });
+        });*/
         lineBindings();
         events();
     }
@@ -142,6 +139,7 @@ public final class ElevationProfileManager {
     }
 
     private void createGrid() {
+        System.out.println("grid");
         texts.getChildren().clear();
         grid.getElements().clear();
         int posStep = 0;
@@ -219,22 +217,27 @@ public final class ElevationProfileManager {
     }
 
     private void transformations() {
+        //System.out.println("transform");
         Affine affine = new Affine();
         ElevationProfile elevationProfile = elevationProfileProperty.get();
-        affine.prependTranslation(-insets.getLeft(), -insets.getTop());
-        affine.prependScale(
-                elevationProfile.length() / rectangleProperty.get().getWidth(),
-                (elevationProfile.minElevation() - elevationProfile.maxElevation()) / rectangleProperty.get().getHeight());
-        affine.prependTranslation(0, elevationProfile.maxElevation());
-        screenToWorld.setValue(affine);
-        try {
-            worldToScreen.setValue(screenToWorld.get().createInverse());
-        } catch (NonInvertibleTransformException exception) {
-            throw new Error (exception);
+        if(elevationProfile != null) {
+            affine.prependTranslation(-insets.getLeft(), -insets.getTop());
+            affine.prependScale(
+                    elevationProfile.length() / rectangleProperty.get().getWidth(),
+                    (elevationProfile.minElevation() - elevationProfile.maxElevation()) / rectangleProperty.get().getHeight());
+            affine.prependTranslation(0, elevationProfile.maxElevation());
+            screenToWorld.setValue(affine);
+            try {
+                worldToScreen.setValue(screenToWorld.get().createInverse());
+            } catch (NonInvertibleTransformException exception) {
+                throw new Error (exception);
+            }
         }
+
     }
 
     private void createPolygon() {
+        System.out.println("polygon");
         List<Double> listPoints = new ArrayList<>();
         Rectangle2D rectangle = rectangleProperty.get();
         ElevationProfile elevationProfile = elevationProfileProperty.get();
