@@ -39,11 +39,22 @@ public final class ElevationProfileManager {
     private Group texts;
     private Insets insets;
 
+    /**
+     *
+     */
     private final static int[] POS_STEPS =
             { 1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000 };
+    /**
+     *
+     */
     private final static int[] ELE_STEPS =
             { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
 
+    /**
+     *
+     * @param elevationProfileProperty
+     * @param highlightedPositionProperty
+     */
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty,
                                    ReadOnlyDoubleProperty highlightedPositionProperty) {
         this.elevationProfileProperty = elevationProfileProperty;
@@ -55,111 +66,29 @@ public final class ElevationProfileManager {
         events();
     }
 
+    /**
+     *
+     * @return
+     */
     public Pane pane() {
         return borderPane;
     }
 
+    /**
+     *
+     * @return
+     */
     public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {
         return mousePositionProperty;
     }
 
-    private void lineBindings() {
-        line.visibleProperty().bind(highlightedPositionProperty.greaterThanOrEqualTo(0));
-        line.layoutXProperty().bind(Bindings.createDoubleBinding( () ->
-                        worldToScreen.get().transform(new Point2D(highlightedPositionProperty.get(), 0)).getX(),
-                worldToScreen, highlightedPositionProperty));
-        line.startYProperty().bind(Bindings.select(rectangleProperty, "minY"));
-        line.endYProperty().bind(Bindings.select(rectangleProperty, "maxY"));
-    }
-
-    private void events() {
-        pane.setOnMouseMoved(e -> {
-            if (rectangleProperty.get().contains(new Point2D(e.getX(), e.getY()))) {
-                mousePositionProperty.set(screenToWorld.get().transform(new Point2D(e.getX(), 0)).getX());
-            } else {
-                mousePositionProperty.set(Double.NaN);
-            }
-        });
-        pane.setOnMouseExited(e ->
-                mousePositionProperty.set(Double.NaN));
-    }
-
-    private void createGrid() {
-        texts.getChildren().clear();
-        grid.getElements().clear();
-        int posStep = 0;
-        int eleStep = 0;
-        double posSpacing = 0;
-        double eleSpacing = 0;
-        if(worldToScreen.get() != null) {
-            for (int i = 0; i < POS_STEPS.length; ++i) {
-                posSpacing = worldToScreen.get().deltaTransform(POS_STEPS[i], 0).getX();
-                posStep = POS_STEPS[i];
-                if (posSpacing >= 50) {
-                    break;
-                }
-            }
-            for (int i = 0; i < ELE_STEPS.length; ++i) {
-                eleSpacing = worldToScreen.get().deltaTransform(0, -ELE_STEPS[i]).getY();
-                eleStep = ELE_STEPS[i];
-                if (eleSpacing >= 25) {
-                    break;
-                }
-            }
-            double xPosition = insets.getLeft();
-            int positionInText = 0;
-                for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
-                    grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
-                    grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
-                    Text posText = new Text();
-                    posText.getStyleClass().add("grid_label");
-                    posText.getStyleClass().add("horizontal");
-                    posText.textOriginProperty().setValue(VPos.TOP);
-                    posText.setText(String.valueOf(positionInText));
-                    posText.setFont(Font.font("Avenir", 10));
-                    posText.setLayoutX(xPosition - posText.prefWidth(0) / 2);
-                    posText.setLayoutY(insets.getTop() + rectangleProperty.get().getHeight());
-                    texts.getChildren().add(posText);
-                    positionInText += posStep / 1000;
-                    xPosition += posSpacing;
-                }
-            double gapM = elevationProfileProperty.get().minElevation() % eleStep;
-            double gapP = worldToScreen.get().deltaTransform(0, gapM).getY();
-            double yPosition = insets.getTop() + rectangleProperty.get().getHeight() + gapP;
-            int elevationInText = (int) Math.ceil(elevationProfileProperty.get().minElevation() / eleStep)
-                    * eleStep;
-                for (int i = 0; i < Math.ceil(elevationProfileProperty.get().maxElevation() - elevationProfileProperty.get().minElevation()
-                        / eleStep); ++i) {
-                    grid.getElements().add(new MoveTo(insets.getLeft(), yPosition));
-                    grid.getElements().add(new LineTo(insets.getLeft() + rectangleProperty.get().getWidth(), yPosition));
-                    Text eleText = new Text();
-                    eleText.getStyleClass().add("grid_label");
-                    eleText.getStyleClass().add("verticale");
-                    eleText.textOriginProperty().setValue(VPos.CENTER);
-                    eleText.setText(String.valueOf(elevationInText));
-                    eleText.setFont(Font.font("Avenir", 10));
-                    eleText.setLayoutX(insets.getLeft() - eleText.prefWidth(0) - 2);
-                    eleText.setLayoutY(yPosition);
-                    texts.getChildren().add(eleText);
-                    elevationInText += eleStep;
-                    yPosition -= eleSpacing;
-                }
-        }
-    }
-
-    private void rectangleBinding() {
-        rectangleProperty.bind(Bindings.createObjectBinding((() -> {
-           return new Rectangle2D(
-                    insets.getLeft(),
-                    insets.getTop(),
-                    Math.max(pane.getWidth() - insets.getRight() - insets.getLeft(),0),
-                    Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0));
-        }), pane.widthProperty(), pane.heightProperty()));
-    }
-
+    /**
+     *
+     */
     private void transformations() {
         Affine affine = new Affine();
         ElevationProfile elevationProfile = elevationProfileProperty.get();
+
         if(elevationProfile != null) {
             affine.prependTranslation(-insets.getLeft(), -insets.getTop());
             affine.prependScale(
@@ -175,15 +104,19 @@ public final class ElevationProfileManager {
         }
     }
 
+    /**
+     *
+     */
     private void createPolygon() {
         List<Double> listPoints = new ArrayList<>();
         Rectangle2D rectangle = rectangleProperty.get();
         ElevationProfile elevationProfile = elevationProfileProperty.get();
         double positionP = insets.getLeft();
+
         if(worldToScreen.get() != null) {
             listPoints.add(insets.getLeft());
             listPoints.add(insets.getTop() + rectangle.getHeight());
-            while (positionP <= rectangleProperty.get().getWidth() + insets.getLeft()) {
+            while (positionP <= rectangle.getWidth() + insets.getLeft()) {
                 Point2D pointP = new Point2D(positionP, 0);
                 Point2D pointM = screenToWorld.get().transform(pointP);
                 Point2D pointToTransform = new Point2D(pointM.getX(), elevationProfile.elevationAt(pointM.getX()));
@@ -195,9 +128,91 @@ public final class ElevationProfileManager {
             listPoints.add(insets.getLeft() + rectangle.getWidth());
             listPoints.add(insets.getTop() + rectangle.getHeight());
         }
+
         profile.getPoints().setAll(listPoints);
     }
 
+    /**
+     *
+     */
+    private void createGrid() {
+        texts.getChildren().clear();
+        grid.getElements().clear();
+
+        int posStep = 0;
+        int eleStep = 0;
+        double posSpacing = 0;
+        double eleSpacing = 0;
+
+        if(worldToScreen.get() != null) {
+            for (int i = 0; i < POS_STEPS.length; ++i) {
+                posSpacing = worldToScreen.get().deltaTransform(POS_STEPS[i], 0).getX();
+                posStep = POS_STEPS[i];
+                if (posSpacing >= 50) {
+                    break;
+                }
+            }
+            for (int i = 0; i < ELE_STEPS.length; ++i) {
+                eleSpacing = worldToScreen.get().deltaTransform(0, -ELE_STEPS[i]).getY();
+                eleStep = ELE_STEPS[i];
+                if (eleSpacing >= 25) {
+                    break;
+                }
+            }
+
+            double xPosition = insets.getLeft();
+            int positionInText = 0;
+
+            for (int i = 0; i < Math.ceil(elevationProfileProperty.get().length() / posStep); ++i) {
+
+                grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
+                grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangleProperty.get().getHeight()));
+
+                Text posText = new Text();
+                posText.getStyleClass().add("grid_label");
+                posText.getStyleClass().add("horizontal");
+                posText.textOriginProperty().setValue(VPos.TOP);
+                posText.setText(String.valueOf(positionInText));
+                posText.setFont(Font.font("Avenir", 10));
+                posText.setLayoutX(xPosition - posText.prefWidth(0) / 2);
+                posText.setLayoutY(insets.getTop() + rectangleProperty.get().getHeight());
+                texts.getChildren().add(posText);
+
+                positionInText += posStep / 1000;
+                xPosition += posSpacing;
+            }
+
+            double gapM = elevationProfileProperty.get().minElevation() % eleStep;
+            double gapP = worldToScreen.get().deltaTransform(0, gapM).getY();
+
+            double yPosition = insets.getTop() + rectangleProperty.get().getHeight() + gapP;
+            int elevationInText = (int) Math.ceil(elevationProfileProperty.get().minElevation() / eleStep) * eleStep;
+
+            for (int i = 0; i < Math.ceil(elevationProfileProperty.get().maxElevation() - elevationProfileProperty.get().minElevation()
+                    / eleStep); ++i) {
+
+                grid.getElements().add(new MoveTo(insets.getLeft(), yPosition));
+                grid.getElements().add(new LineTo(insets.getLeft() + rectangleProperty.get().getWidth(), yPosition));
+
+                Text eleText = new Text();
+                eleText.getStyleClass().add("grid_label");
+                eleText.getStyleClass().add("verticale");
+                eleText.textOriginProperty().setValue(VPos.CENTER);
+                eleText.setText(String.valueOf(elevationInText));
+                eleText.setFont(Font.font("Avenir", 10));
+                eleText.setLayoutX(insets.getLeft() - eleText.prefWidth(0) - 2);
+                eleText.setLayoutY(yPosition);
+                texts.getChildren().add(eleText);
+
+                elevationInText += eleStep;
+                yPosition -= eleSpacing;
+            }
+        }
+    }
+
+    /**
+     *
+     */
     private void createStatistics() {
         ElevationProfile elevationProfile = elevationProfileProperty.get();
         if (elevationProfile != null) {
@@ -213,6 +228,9 @@ public final class ElevationProfileManager {
         }
     }
 
+    /**
+     *
+     */
     private void initialize() {
         mousePositionProperty = new SimpleDoubleProperty();
 
@@ -240,19 +258,70 @@ public final class ElevationProfileManager {
         borderPane.getStylesheets().add("elevation_profile.css");
     }
 
+    /**
+     *
+     */
     private void listeners() {
         elevationProfileProperty.addListener(l -> {
             if (elevationProfileProperty.get() != null) {
                 transformations();
                 createStatistics();
-            }});
-        rectangleProperty.addListener(l -> {
-            transformations();
+            }
         });
+
+        rectangleProperty.addListener(l ->
+            transformations());
+
         worldToScreen.addListener(l -> {
             createPolygon();
             createGrid();
             createStatistics();
         });
     }
+
+    /**
+     *
+     */
+    private void rectangleBinding() {
+        rectangleProperty.bind(Bindings.createObjectBinding((() -> {
+            return new Rectangle2D(
+                    insets.getLeft(),
+                    insets.getTop(),
+                    Math.max(pane.getWidth() - insets.getRight() - insets.getLeft(),0),
+                    Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0));
+        }), pane.widthProperty(), pane.heightProperty()));
+    }
+
+    /**
+     *
+     */
+    private void lineBindings() {
+        line.visibleProperty().bind(highlightedPositionProperty.greaterThanOrEqualTo(0));
+        line.layoutXProperty().bind(Bindings.createDoubleBinding( () ->
+                        worldToScreen.get()
+                                     .transform(new Point2D(highlightedPositionProperty.get(), 0))
+                                     .getX(),
+                worldToScreen, highlightedPositionProperty));
+        line.startYProperty().bind(Bindings.select(rectangleProperty, "minY"));
+        line.endYProperty().bind(Bindings.select(rectangleProperty, "maxY"));
+    }
+
+    /**
+     *
+     */
+    private void events() {
+        pane.setOnMouseMoved(e -> {
+            if (rectangleProperty.get().contains(new Point2D(e.getX(), e.getY()))) {
+                mousePositionProperty.set(
+                                       screenToWorld.get()
+                                                    .transform(new Point2D(e.getX(), 0))
+                                                    .getX());
+            } else {
+                mousePositionProperty.set(Double.NaN);
+            }
+        });
+        pane.setOnMouseExited(e ->
+                mousePositionProperty.set(Double.NaN));
+    }
 }
+
