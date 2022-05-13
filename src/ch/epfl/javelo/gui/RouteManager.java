@@ -2,7 +2,6 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
@@ -11,14 +10,12 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import static java.lang.Double.isNaN;
 
 public final class RouteManager {
 
     private RouteBean routeBean;
     private ReadOnlyObjectProperty<MapViewParameters> mapProperty;
-//    private Consumer<String> errorConsumer;
     private Pane pane;
     private final Polyline polylineItinerary;
     private Circle circle;
@@ -28,7 +25,6 @@ public final class RouteManager {
     public RouteManager(RouteBean routeBean, ReadOnlyObjectProperty<MapViewParameters> mapViewParametersProperty) {
         this.routeBean = routeBean;
         this.mapProperty = mapViewParametersProperty;
-        //this.errorConsumer = errorConsumer;
         pane = new Pane();
         pane.setPickOnBounds(false);
         polylineItinerary = new Polyline();
@@ -92,7 +88,6 @@ public final class RouteManager {
     private void createCircle() {
         double position = routeBean.highlightedPosition();
         if(routeBean.route() == null || isNaN(position)) {
-            System.out.println("lol");
             circle.setVisible(false);
             return;
         }
@@ -112,24 +107,8 @@ public final class RouteManager {
                 int closestNode = routeBean.route().nodeClosestTo(routeBean.highlightedPosition());
                 Waypoint wayPoint = new Waypoint(pointCh, closestNode);
                 ObservableList<Waypoint> newList = routeBean.waypoints();
-                //attention magic number.
                 int index = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition()) + 1;
-                //boolean canAdd = true;
                 newList.add(index, wayPoint);
-/*                if (! (newList.get(index - 1).closestNodeId() == closestNode
-                || newList.get(index).closestNodeId() == closestNode)) {
-                    //newList.add(index, wayPoint);
-                }  else {
-                    errorConsumer.accept("Un point de passage est déjà présent à cet endroit !");
-                }*/
-//                while(canAdd && count < newList.size()){
-//                    if(newList.get(count).closestNodeId() == closestNode) {
-//                        canAdd = false;
-//                    }
-//                    ++count;
-//                }
-//                if(canAdd && !newList.contains(wayPoint)) {
-//                    newList.add(index, wayPoint);
             }
         });
     }
