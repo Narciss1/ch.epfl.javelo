@@ -91,8 +91,8 @@ public final class RouteManager {
 
     private void createCircle() {
         double position = routeBean.highlightedPosition();
+        //System.out.println("position :" + routeBean.highlightedPosition());
         if(routeBean.route() == null || isNaN(position)) {
-            System.out.println("lol");
             circle.setVisible(false);
             return;
         }

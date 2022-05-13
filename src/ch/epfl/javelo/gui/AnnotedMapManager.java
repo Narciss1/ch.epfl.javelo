@@ -60,7 +60,7 @@ public final class AnnotedMapManager {
     private void mousePositionOnRouteBinding() {
         mousePositionOnRouteProperty.bind(Bindings.createDoubleBinding((() -> {
             if(mousePositionP.get() == null) {
-                System.out.println("mousePositionP null");
+                //System.out.println("mousePositionP null");
                 return Double.NaN;
             }
             PointWebMercator webMercatorMouse = mapViewParametersP.get().pointAt(
@@ -68,18 +68,18 @@ public final class AnnotedMapManager {
                     mousePositionP.get().getY());
             PointCh pointChMouse = webMercatorMouse.toPointCh();
             if (routeBean.route() != null) {   //Prk c pas automatically géré ?
-                System.out.println("les calcul");
+                //System.out.println("les calcul");
                 RoutePoint routePointMouse = routeBean.route().pointClosestTo(pointChMouse);
                 PointWebMercator closestPoint = PointWebMercator.ofPointCh(routePointMouse.point());
                 double distance = Math2.norm(
                         mapViewParametersP.get().viewX(closestPoint) - mapViewParametersP.get().viewX(webMercatorMouse),
                         mapViewParametersP.get().viewY(closestPoint) - mapViewParametersP.get().viewY(webMercatorMouse));
                 if (distance <= 15) {
-                    System.out.println("distance");
+                    //System.out.println("distance");
                     return routePointMouse.position();
                 }
             }
-            System.out.println("apres les calcul");
+            //System.out.println("apres les calcul");
                 return Double.NaN;
         }), mousePositionP, mapViewParametersP, routeBean.routeProperty()));
     }

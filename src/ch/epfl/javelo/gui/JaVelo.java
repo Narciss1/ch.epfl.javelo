@@ -40,17 +40,22 @@ public final class JaVelo extends Application {
         Consumer<String> errorConsumer = errorManager::displayError;
         AnnotedMapManager annotedMapManager = new AnnotedMapManager(graph, tileManager, routeBean, errorConsumer);
         BooleanProperty positivemousePositionOnRoute = new SimpleBooleanProperty();
+        ElevationProfileManager profileManager =
+                new ElevationProfileManager(routeBean.elevationProfileProperty(), routeBean.highlightedPositionProperty());
+
         positivemousePositionOnRoute.bind(Bindings.createBooleanBinding(
                 () -> {
+                    System.out.println(annotedMapManager.mousePositionOnRouteProperty().get());
                     if (annotedMapManager.mousePositionOnRouteProperty().get() >= 0) {
+                        System.out.println("YES POSITIVE");
                         return true;
                     } else {
+                        System.out.println("c la merde");
+                        System.out.println(profileManager.mousePositionOnProfileProperty().get());
                         return false;
                     }
                 }, annotedMapManager.mousePositionOnRouteProperty()
         ));
-        ElevationProfileManager profileManager =
-                new ElevationProfileManager(routeBean.elevationProfileProperty(), routeBean.highlightedPositionProperty());
 
 
         SplitPane splitPane = new SplitPane(annotedMapManager.pane());

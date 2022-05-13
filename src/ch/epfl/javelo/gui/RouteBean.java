@@ -40,6 +40,7 @@ public final class RouteBean {
     }
 
     public void setHighlightedPosition(double position){
+        System.out.println("position reçue :" + position);
         if ((route.get() != null) && !(0 <= position && position <= route.get().length())) {
             highlightedPosition.set(Double.NaN);
         } else {

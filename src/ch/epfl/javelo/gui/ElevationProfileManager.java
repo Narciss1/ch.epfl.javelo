@@ -1,7 +1,6 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.routing.ElevationProfile;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.geometry.Insets;
@@ -50,7 +49,7 @@ public final class ElevationProfileManager {
                                    ReadOnlyDoubleProperty highlightedPositionProperty) {
         this.elevationProfileProperty = elevationProfileProperty;
         this.highlightedPositionProperty = highlightedPositionProperty;
-        mousePositionProperty = new SimpleDoubleProperty();
+        mousePositionProperty = new SimpleDoubleProperty(Double.NaN);
         insets = new Insets(10, 10, 20, 40);
         rectangleProperty = new SimpleObjectProperty<>(new Rectangle2D(0,0,0,0)); //ADD CTS
         profile = new Polygon();
@@ -75,8 +74,6 @@ public final class ElevationProfileManager {
             throw new Error(exception);
         }*/
         pane = new Pane(profile, line, grid, texts);
-        borderPane = new BorderPane(pane, null, null, routeStatistics, null);
-        borderPane.getStylesheets().add("elevation_profile.css");
 
 
         System.out.printf("Début avant createStats\n",
@@ -93,9 +90,9 @@ public final class ElevationProfileManager {
             });
         worldToScreen.addListener(l -> {
            // if (rectangleProperty.get().getHeight() != 0) {
-                createPolygon();
-                createGrid();
-                createStatistics();
+//                createPolygon();
+//                createGrid();
+//                createStatistics();
            // }
             });
     /*    screenToWorld.addListener(l -> {
@@ -105,8 +102,14 @@ public final class ElevationProfileManager {
                 createStatistics();
             }
         });*/
-        lineBindings();
-        events();
+//        lineBindings();
+//        events();
+        borderPane = new BorderPane(
+                pane, null, null,
+                routeStatistics,
+                null
+        );
+        borderPane.getStylesheets().add("elevation_profile.css");
     }
 
     public Pane pane() {
@@ -139,7 +142,6 @@ public final class ElevationProfileManager {
     }
 
     private void createGrid() {
-        System.out.println("grid");
         texts.getChildren().clear();
         grid.getElements().clear();
         int posStep = 0;
@@ -237,7 +239,6 @@ public final class ElevationProfileManager {
     }
 
     private void createPolygon() {
-        System.out.println("polygon");
         List<Double> listPoints = new ArrayList<>();
         Rectangle2D rectangle = rectangleProperty.get();
         ElevationProfile elevationProfile = elevationProfileProperty.get();
