@@ -40,20 +40,22 @@ public final class ElevationProfileManager {
     private Insets insets;
 
     /**
-     *
+     * Table containing the different values that can be used to separate the vertical lines of position
      */
     private final static int[] POS_STEPS =
             { 1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000 };
     /**
-     *
+     * Table containing the different values that can be used to separate the horizontal lines of altitude
      */
     private final static int[] ELE_STEPS =
             { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
 
     /**
-     *
-     * @param elevationProfileProperty
-     * @param highlightedPositionProperty
+     * Constructs an elevation profile manager
+     * @param elevationProfileProperty a read-only property, containing the profile to
+     * be displayed or null in case no profile is to be displayed
+     * @param highlightedPositionProperty a read-only property containing the position along
+     * the profile to be highlighted or NaN in case no position is to be highlighted
      */
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty,
                                    ReadOnlyDoubleProperty highlightedPositionProperty) {
@@ -67,23 +69,26 @@ public final class ElevationProfileManager {
     }
 
     /**
-     *
-     * @return
+     * Returns the panel containing the profile design
+     * @return the border pane
      */
     public Pane pane() {
         return borderPane;
     }
 
     /**
-     *
-     * @return
+     * Returns a read-only property containing the position of the mouse pointer along the profile
+     * (in meters, rounded to the nearest integer) or NaN if the mouse pointer is not above the
+     * profile
+     * @return the property of the mouse position on the profile
      */
     public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {
         return mousePositionProperty;
     }
 
     /**
-     *
+     * Computes the value of the transformation screenToWorld and its inverse worldToScreen,
+     * each of which consists of a succession of translations and a scaling
      */
     private void transformations() {
         Affine affine = new Affine();
@@ -105,7 +110,7 @@ public final class ElevationProfileManager {
     }
 
     /**
-     *
+     * Creates a polygon representing the profile by constructing its list of points
      */
     private void createPolygon() {
         List<Double> listPoints = new ArrayList<>();
@@ -133,7 +138,8 @@ public final class ElevationProfileManager {
     }
 
     /**
-     *
+     * Determines the values to use to separate vertical and horizontal lines of position and altitude
+     * respectively, creates a grid accordingly and places position labels
      */
     private void createGrid() {
         texts.getChildren().clear();
@@ -211,7 +217,7 @@ public final class ElevationProfileManager {
     }
 
     /**
-     *
+     * Adds the route statistics to the bottom of the panel
      */
     private void createStatistics() {
         ElevationProfile elevationProfile = elevationProfileProperty.get();
@@ -229,7 +235,7 @@ public final class ElevationProfileManager {
     }
 
     /**
-     *
+     * Initializes all the attributes of the class ElevationProfileManager
      */
     private void initialize() {
         mousePositionProperty = new SimpleDoubleProperty();
@@ -259,7 +265,8 @@ public final class ElevationProfileManager {
     }
 
     /**
-     *
+     * Adds listeners to the properties containing : the transformation worldToScreen, the elevation profile
+     * and the rectangle that contains it
      */
     private void listeners() {
         elevationProfileProperty.addListener(l -> {
@@ -280,7 +287,7 @@ public final class ElevationProfileManager {
     }
 
     /**
-     *
+     * Binds the rectangle containing the elevation profile and the pane
      */
     private void rectangleBinding() {
         rectangleProperty.bind(Bindings.createObjectBinding((() -> {
@@ -293,7 +300,8 @@ public final class ElevationProfileManager {
     }
 
     /**
-     *
+     * Binds the properties of the line with the properties containing : the highlighted position,
+     * the transformation worldToScreen and the rectangle containing the elevation profile
      */
     private void lineBindings() {
         line.visibleProperty().bind(highlightedPositionProperty.greaterThanOrEqualTo(0));
@@ -307,7 +315,7 @@ public final class ElevationProfileManager {
     }
 
     /**
-     *
+     * Manage the events related to the mouse
      */
     private void events() {
         pane.setOnMouseMoved(e -> {
