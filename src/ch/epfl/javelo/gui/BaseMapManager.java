@@ -34,6 +34,7 @@ public final class BaseMapManager {
     private final Pane pane;
     private final Canvas canvas;
     private final Button reverseItineraryButton;
+    private final Button removePointsButton;
     private boolean redrawNeeded;
     private final WaypointsManager waypointsManager;
 
@@ -54,6 +55,7 @@ public final class BaseMapManager {
         this.mapProperty = mapProperty;
         this.waypointsManager = waypointsManager;
         canvas = new Canvas();
+
         reverseItineraryButton = new Button();
         SVGPath reverseIcon2 = new SVGPath();
         reverseIcon2.setContent("M5.79,9.71A1,1,0,1,0,7.21,8.29L5.91,7h12A1.56,1.56" +
@@ -65,9 +67,24 @@ public final class BaseMapManager {
                 "1.56,0,0,1,4.5,15.47V13a1,1,0,0,0-2,0v2.47A3.56,3.56,0,0,0,6.09,19Z");
         Group reverseIcon = new Group(reverseIcon1, reverseIcon2);
         reverseItineraryButton.setGraphic(reverseIcon);
-        pane = new Pane(canvas, reverseItineraryButton);
+
+        removePointsButton = new Button();
+        SVGPath removeIcon2 = new SVGPath();
+        removeIcon2.setContent("M6.8,8.8h11L17,22.6 H7.6L6.8,8.8z M4.9,7l1,17.4h12.8 l1-17.4 H4.9z");
+        SVGPath removeIcon1 = new SVGPath();
+        removeIcon1.setContent("M20.4,4h-4.8l-0.5-1.6 H9.5L9,4 H4.2 L3.5,8.6h17.6 L20.4,4z M9.9,3.2h4.8 L14.9,3.9h-5.2z M5.6,6.7l0.2-1 h13l0.2,1 H5.6z");
+        Group removeIcon = new Group(removeIcon1, removeIcon2);
+        removePointsButton.setGraphic(removeIcon);
+
+        pane = new Pane(canvas, reverseItineraryButton, removePointsButton);
+
+        removePointsButton.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getHeight() - reverseItineraryButton.getHeight(),
+                pane.heightProperty()));
         reverseItineraryButton.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getHeight() - reverseItineraryButton.getHeight(), pane.heightProperty()));
+                pane.getHeight() - reverseItineraryButton.getHeight() - removePointsButton.getHeight(),
+                pane.heightProperty()));
+
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
         baseMapEvents();
@@ -169,6 +186,7 @@ public final class BaseMapManager {
         });
 
         reverseItineraryButton.setOnAction(e -> waypointsManager.reverseItinerary());
+        removePointsButton.setOnAction(e -> waypointsManager.removeItinerary());
     }
 
     /**

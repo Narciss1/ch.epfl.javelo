@@ -81,6 +81,7 @@ public final class WaypointsManager {
     public void reverseItinerary() {
         FXCollections.reverse(wayPoints);
     }
+    public void removeItinerary() { wayPoints.clear(); }
 
     /**
      * Positions the markers at the coordinates of their corresponding waypoint
