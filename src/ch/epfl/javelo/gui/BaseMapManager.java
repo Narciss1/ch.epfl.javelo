@@ -15,6 +15,7 @@ import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
@@ -113,6 +114,14 @@ public final class BaseMapManager {
                 "347-.79.505-1.217.473-1.282z");
         Group groupMinus = new Group(minusIcon1, minusIcon2);
         substractZoomB.setGraphic(groupMinus);
+
+
+        pane = new Pane(canvas, reverseItineraryB, addZoomB, substractZoomB);
+        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getHeight() - reverseItineraryB.getHeight(), pane.heightProperty()));
+        substractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                addZoomB.getHeight(), addZoomB.heightProperty()));
+        reverseItineraryB.setGraphic(reverseIcon);
 
         removePointsButton = new Button();
         SVGPath removeIcon2 = new SVGPath();
@@ -322,6 +331,5 @@ public final class BaseMapManager {
                 +  mapProperty.get().yCoordinate();
         mapProperty.setValue(new MapViewParameters (newZoom, newTopLeftX, newTopLeftY));
     }
-
 
 }

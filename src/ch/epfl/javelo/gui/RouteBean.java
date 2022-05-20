@@ -52,7 +52,7 @@ public final class RouteBean {
         elevationProfileP = new SimpleObjectProperty<>();
         highlightedPositionP = new SimpleDoubleProperty();
 
-        //Un assistant m'a dit; pas besoin de méthode mais les deux sont défendables => demander à Schinz.
+        //méthode.
         waypoints.addListener((InvalidationListener) l -> computingItineraryAndProfile());
     }
 
