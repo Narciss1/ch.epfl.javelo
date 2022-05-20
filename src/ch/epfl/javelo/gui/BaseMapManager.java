@@ -143,7 +143,7 @@ public final class BaseMapManager {
     }
 
     /**
-     *
+     * Manages the events related to the pane
      */
     private void baseMapEvents(){
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
@@ -172,9 +172,9 @@ public final class BaseMapManager {
     }
 
     /**
-     *
-     * @param mousePositionProperty
-     * @param e
+     * Updates the mapViewParameters after a shift of the map
+     * @param mousePositionProperty a property containing the position of the map
+     * @param e a mouse event
      */
     private void changeMapViewParametersAfterSlide
         (ObjectProperty<Point2D> mousePositionProperty, MouseEvent e) {
@@ -187,9 +187,9 @@ public final class BaseMapManager {
     }
 
     /**
-     *
-     * @param minScrollTime
-     * @param e
+     * Updates the mapViewParameters after a change in the zoom level of the map
+     * @param minScrollTime a minimum scrolling time
+     * @param e a scroll event
      */
     private void changeMapViewParametersAfterZoom
     (SimpleLongProperty minScrollTime, ScrollEvent e) {
@@ -212,5 +212,4 @@ public final class BaseMapManager {
                 +  mapProperty.get().yCoordinate();
         mapProperty.setValue(new MapViewParameters (newZoom, newTopLeftX, newTopLeftY));
     }
-
 }

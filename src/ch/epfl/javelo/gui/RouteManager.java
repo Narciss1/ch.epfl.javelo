@@ -3,13 +3,13 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import java.util.ArrayList;
 import java.util.List;
-
 import static java.lang.Double.isNaN;
 
 public final class RouteManager {
@@ -71,6 +71,7 @@ public final class RouteManager {
     private void createCircle() {
         double position = routeBean.highlightedPosition();
         if(routeBean.route() == null || isNaN(position)) {
+            System.out.println("lol");
             circle.setVisible(false);
             return;
         }

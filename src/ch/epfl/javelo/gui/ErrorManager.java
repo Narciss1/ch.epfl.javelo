@@ -21,7 +21,6 @@ public final class ErrorManager {
         errorPane = new VBox();
         errorPane.getStylesheets().add("error.css");
         errorPane.setMouseTransparent(true);
-        //errorPane.setVisible(false);
         errorText = new Text();
         errorPane.getChildren().add(errorText);
         firstFdeTransition = new FadeTransition(new Duration(200), errorPane);
@@ -32,8 +31,6 @@ public final class ErrorManager {
         lastFadeTransition.setFromValue(0.8);
         lastFadeTransition.setToValue(0);
         sequentialTransition = new SequentialTransition(firstFdeTransition, pauseTransition, lastFadeTransition);
-        //sequentialTransition.setOnFinished(e -> errorPane.setVisible(false));
-
     }
 
     public Pane pane() {
@@ -43,7 +40,6 @@ public final class ErrorManager {
     public void displayError(String s) {
         sequentialTransition.stop();
         errorText.setText(s);
-        //errorPane.setVisible(true);
         sequentialTransition.play();
         java.awt.Toolkit.getDefaultToolkit().beep();
     }

@@ -83,7 +83,7 @@ public final class WaypointsManager {
     }
 
     /**
-     * Position the markers at the coordinates of their corresponding waypoint
+     * Positions the markers at the coordinates of their corresponding waypoint
      */
     private void addSVGPaths() {
         pane.getChildren().clear();
@@ -114,40 +114,11 @@ public final class WaypointsManager {
         //We have to call this method as well because now we are dealing with new groups
         //so these new groups must now be linked to the events.
         wayPointsEvents();
-
-        /*for (int i = 0; i < wayPoints.size(); ++i) {
-            Group group = new Group();
-            group.getStyleClass().add("pin");
-            SVGPath exterior = new SVGPath();
-            SVGPath interior = new SVGPath();
-            exterior.getStyleClass().add("pin_outside");
-            interior.getStyleClass().add("pin_inside");
-            exterior.setContent("M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20");
-            interior.setContent("M0-23A1 1 0 000-29 1 1 0 000-23");
-            //Existe-il une manière d'éviter ces enchainements de if ?
-            if (i == 0) {
-                group.getStyleClass().add("first");
-            } else if (i == wayPoints.size() - 1) {
-                group.getStyleClass().add("last");
-            } else {
-                group.getStyleClass().add("middle");
-            }
-            group.getChildren().add(exterior);
-            group.getChildren().add(interior);
-            //Trop long
-            double newX = mapProperty.get()
-                          .viewX(PointWebMercator.ofPointCh(
-                          new PointCh(wayPoints.get(i).pointCh().e(), wayPoints.get(i).pointCh().n())));
-            double newY = mapProperty.get()
-                          .viewY(PointWebMercator.ofPointCh(
-                          new PointCh(wayPoints.get(i).pointCh().e(), wayPoints.get(i).pointCh().n())));
-            group.setLayoutX(newX);
-            group.setLayoutY(newY);
-            pane.getChildren().add(group);
-        }
-        wayPointsEvents();*/
     }
 
+    /**
+     * Relocates all groups representing markers
+     */
     private void relocateSVGPaths(){
         ObservableList<Node> groupsList = pane.getChildren();
         for (int i = 0; i < groupsList.size(); ++i) {
@@ -162,13 +133,19 @@ public final class WaypointsManager {
         }
     }
 
+    /**
+     * Relocates a group representing a marker
+     * @param group a group representing a marker
+     * @param x the group's x coordinate
+     * @param y the group's y coordinate
+     */
     private void relocateGroup(Node group, double x, double y) {
         group.setLayoutX(x);
         group.setLayoutY(y);
     }
 
     /**
-     *
+     * Manages the events related to each child of the pane
      */
     private void wayPointsEvents(){
         ObservableList<Node> list = pane.getChildren();
@@ -204,7 +181,6 @@ public final class WaypointsManager {
                         wayPoints.set(index,
                                 new Waypoint(newPointCh, graph.nodeClosestTo(newPointCh, SQUARE_RADIUS)));
                     } else {
-                        //addSVGPaths();
                         relocateSVGPaths();
                         errorConsumer.accept("Aucune route à proximité !");
                     }
