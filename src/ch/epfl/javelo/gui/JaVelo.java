@@ -1,8 +1,6 @@
 package ch.epfl.javelo.gui;
 
-import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.data.Graph;
-import ch.epfl.javelo.projection.PointWebMercator;
 import ch.epfl.javelo.routing.*;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -18,12 +16,10 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.function.Consumer;
-
 import static javafx.beans.binding.Bindings.when;
 
 public final class JaVelo extends Application {
@@ -33,7 +29,9 @@ public final class JaVelo extends Application {
     public void start(Stage primaryStage) throws Exception {
         Graph graph = Graph.loadFrom(Path.of("javelo-data"));
         Path cacheBasePath = Path.of("./osm-cache");
-        String tileServerHost = "tile.openstreetmap.org";
+        //String tileServerHost = "tile.openstreetmap.org";
+        //String tileServerHost = "api.maptiler.com/maps/outdoor";
+        String tileServerHost = "a.tile-cyclosm.openstreetmap.fr/cyclosm";
         ErrorManager errorManager = new ErrorManager();
         TileManager tileManager =
                 new TileManager(cacheBasePath, tileServerHost);
