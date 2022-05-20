@@ -7,7 +7,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
+import javafx.event.Event;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
@@ -20,7 +20,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
 
 import java.io.IOException;
-import java.util.Collections;
 
 /**
  * Manages the display and interaction with the background map
@@ -33,7 +32,9 @@ public final class BaseMapManager {
     private final ObjectProperty<MapViewParameters> mapProperty;
     private final Pane pane;
     private final Canvas canvas;
-    private final Button reverseItineraryButton;
+    private final Button reverseItineraryB;
+    private final Button addZoomB;
+    private final Button substractZoomB;
     private boolean redrawNeeded;
     private final WaypointsManager waypointsManager;
 
@@ -54,7 +55,9 @@ public final class BaseMapManager {
         this.mapProperty = mapProperty;
         this.waypointsManager = waypointsManager;
         canvas = new Canvas();
-        reverseItineraryButton = new Button();
+
+        //ReverseItineraryExtension.
+        reverseItineraryB = new Button();
         SVGPath reverseIcon2 = new SVGPath();
         reverseIcon2.setContent("M5.79,9.71A1,1,0,1,0,7.21,8.29L5.91,7h12A1.56,1.56" +
                 ",0,0,1,19.5,8.53V11a1,1,0,0,0,2,0V8.53A3.56,3.56,0,0,0,17.91,5h-12l1.3-1.29a1" +
@@ -64,10 +67,46 @@ public final class BaseMapManager {
                 "1,0,0,0,0-1.42l-3-3a1,1,0,0,0-1.42,0,1,1,0,0,0,0,1.42L18.09,17h-12A1.56," +
                 "1.56,0,0,1,4.5,15.47V13a1,1,0,0,0-2,0v2.47A3.56,3.56,0,0,0,6.09,19Z");
         Group reverseIcon = new Group(reverseIcon1, reverseIcon2);
-        reverseItineraryButton.setGraphic(reverseIcon);
-        pane = new Pane(canvas, reverseItineraryButton);
-        reverseItineraryButton.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getHeight() - reverseItineraryButton.getHeight(), pane.heightProperty()));
+        reverseItineraryB.setGraphic(reverseIcon);
+
+        //+ and - for ZOOM buttons extension.
+        addZoomB = new Button();
+        SVGPath plusIcon = new SVGPath();
+        plusIcon.setContent("M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 " +
+                "0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z");
+        addZoomB.setGraphic(plusIcon);
+
+        substractZoomB = new Button();
+        SVGPath minusIcon1 = new SVGPath();
+        minusIcon1.setContent("M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 " +
+                "2.516.024.034 1.52.087 2.475-1.258.955-1.345.762-2.391.728-2.43zm3.314 " +
+                "11.733c-.048-.096-2.325-1.234-2.113-3.422.212-2.189 1.675-2.789 1.698-2.854.023-." +
+                "065-.597-.79-1.254-1.157a3.692 3.692 0 0 0-1.563-.434c-.108-.003-.483-.095-1.254.116-." +
+                "508.139-1.653.589-1.968.607-.316.018-1.256-.522-2.267-.665-.647-.125-1.333.131-1.824.328-." +
+                "49.196-1.422.754-2.074 2.237-.652 1.482-.311 3.83-.067 4.56.244.729.625 1.924 1.273 2.796.576.984 " +
+                "1.34 1.667 1.659 1.899.319.232 1.219.386 1.843.067.502-.308 1.408-.485 1.766-.472.357.013 1.061.154 " +
+                "1.782.539.571.197 1.111.115 1.652-.105.541-.221 1.324-1.059 2.238-2.758.347-.79.505-1.217.473-1.282z");
+        SVGPath minusIcon2 = new SVGPath();
+        minusIcon2.setContent("M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 2.516.024." +
+                "034 1.52.087 2.475-1.258.955-1.345.762-2.391.728-2.43zm3.314 11.733c-.048-.096-2.325-1.234-2.113-3." +
+                "422.212-2.189 1.675-2.789 1.698-2.854.023-.065-.597-.79-1.254-1.157a3.692 3.692 0 0 0-1.563-.434c-" +
+                ".108-.003-.483-.095-1.254.116-.508.139-1.653.589-1.968.607-.316.018-1.256-.522-2.267-.665-.647-." +
+                "125-1.333.131-1.824.328-.49.196-1.422.754-2.074 2.237-.652 1.482-.311 3.83-.067 4.56.244.729.625 " +
+                "1.924 1.273 2.796.576.984 1.34 1.667 1.659 1.899.319.232 1.219.386 1.843.067.502-.308 1.408-.485 " +
+                "1.766-.472.357.013 1.061.154 1.782.539.571.197 1.111.115 1.652-.105.541-.221 1.324-1.059 2.238-2.758." +
+                "347-.79.505-1.217.473-1.282z");
+        Group groupMinus = new Group(minusIcon1, minusIcon2);
+        substractZoomB.setGraphic(groupMinus);
+
+
+
+
+
+        pane = new Pane(canvas, reverseItineraryB, addZoomB, substractZoomB);
+        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getHeight() - reverseItineraryB.getHeight(), pane.heightProperty()));
+        substractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                addZoomB.getHeight(), addZoomB.heightProperty()));
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
         baseMapEvents();
@@ -168,7 +207,21 @@ public final class BaseMapManager {
             }
         });
 
-        reverseItineraryButton.setOnAction(e -> waypointsManager.reverseItinerary());
+        reverseItineraryB.setOnAction(e -> waypointsManager.reverseItinerary());
+
+        addZoomB.setOnAction( e -> {
+            //We made the choice to add 1 zoom level per click.
+            PointWebMercator centerPoint = mapProperty.get().pointAt(pane.getWidth() / 2d,
+                    pane.getHeight() / 2d);
+            changeZoom(1, centerPoint);
+        });
+
+        substractZoomB.setOnAction( e -> {
+            //We made the choice to substract 1 zoom level per click.
+            PointWebMercator centerPoint = mapProperty.get().pointAt(pane.getWidth() / 2d,
+                    pane.getHeight() / 2d);
+            changeZoom(- 1, centerPoint);
+        });
     }
 
     /**
@@ -198,18 +251,37 @@ public final class BaseMapManager {
         if (currentTime < minScrollTime.get()) return;
         minScrollTime.set(currentTime + 200);
         int zoomDelta = (int)Math.signum(e.getDeltaY());
-        int newZoom = Math2.clamp(8, zoomDelta + mapProperty.get().zoomLevel(), 19);
+        //int newZoom = Math2.clamp(8, zoomDelta + mapProperty.get().zoomLevel(), 19);
         PointWebMercator pointUnderMouse =  mapProperty.get().pointAt(e.getX(), e.getY());
+        changeZoom(zoomDelta, pointUnderMouse);
         //This calculus is due to the fact that, since the point under the mouse does not
         //change after the zooming; therefore its distance to the old top left corner point
         //of the map regarding the old zoom level should be the same as its distance to the
         //new top left corner point  regarding the new zoom level.
-        double newTopLeftX = pointUnderMouse.xAtZoomLevel(newZoom)
-                - pointUnderMouse.xAtZoomLevel(mapProperty.get().zoomLevel())
+//        double newTopLeftX = pointUnderMouse.xAtZoomLevel(newZoom)
+//                - pointUnderMouse.xAtZoomLevel(mapProperty.get().zoomLevel())
+//                +  mapProperty.get().xCoordinate();
+//        double newTopLeftY = pointUnderMouse.yAtZoomLevel(newZoom)
+//                - pointUnderMouse.yAtZoomLevel(mapProperty.get().zoomLevel())
+//                +  mapProperty.get().yCoordinate();
+//        mapProperty.setValue(new MapViewParameters (newZoom, newTopLeftX, newTopLeftY));
+    }
+
+    private void changeZoom(int zoomDelta, PointWebMercator pointToZoomIn) {
+        int newZoom = Math2.clamp(8, zoomDelta + mapProperty.get().zoomLevel(), 19);
+        //This calculus is due to the fact that, since the point under the mouse does not
+        //change after the zooming (or that the center point in the map stays in the center
+        // after the zooming); therefore its distance to the old top left corner point
+        //of the map regarding the old zoom level should be the same as its distance to the
+        //new top left corner point  regarding the new zoom level.
+        double newTopLeftX = pointToZoomIn.xAtZoomLevel(newZoom)
+                - pointToZoomIn.xAtZoomLevel(mapProperty.get().zoomLevel())
                 +  mapProperty.get().xCoordinate();
-        double newTopLeftY = pointUnderMouse.yAtZoomLevel(newZoom)
-                - pointUnderMouse.yAtZoomLevel(mapProperty.get().zoomLevel())
+        double newTopLeftY = pointToZoomIn.yAtZoomLevel(newZoom)
+                - pointToZoomIn.yAtZoomLevel(mapProperty.get().zoomLevel())
                 +  mapProperty.get().yCoordinate();
         mapProperty.setValue(new MapViewParameters (newZoom, newTopLeftX, newTopLeftY));
     }
+
+
 }

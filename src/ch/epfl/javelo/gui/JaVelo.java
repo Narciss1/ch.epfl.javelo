@@ -13,6 +13,8 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -104,22 +106,22 @@ public final class JaVelo extends Application {
             }
         });
 
-/*        int newZoom = Math2.clamp(8, 1 + mapProperty.get().zoomLevel(), 19);
-        PointWebMercator pointUnderMouse =  ;
-        double newTopLeftX = pointUnderMouse.xAtZoomLevel(newZoom)
-                - pointUnderMouse.xAtZoomLevel(mapProperty.get().zoomLevel())
-                +  mapProperty.get().xCoordinate();
-        double newTopLeftY = pointUnderMouse.yAtZoomLevel(newZoom)
-                - pointUnderMouse.yAtZoomLevel(mapProperty.get().zoomLevel())
-                +  mapProperty.get().yCoordinate();
-        mapProperty.setValue(new MapViewParameters (newZoom, newTopLeftX, newTopLeftY));*/
 
+        //BorderPane sûrement à changer.
         BorderPane borderPane = new BorderPane(splitPane, menuBar, null, null, null);
-        StackPane mainPain = new StackPane(borderPane, errorManager.pane());
+        StackPane mainPane = new StackPane(borderPane, errorManager.pane());
         primaryStage.setMinWidth(800);
         primaryStage.setMinHeight(600);
-        primaryStage.setScene(new Scene(mainPain));
+        primaryStage.setScene(new Scene(mainPane));
+        mainPane.requestFocus();
+        mainPane.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.F){
+                primaryStage.setFullScreen(true);
+            }
+        });
         primaryStage.setTitle("JaVelo");
+        primaryStage.setFullScreenExitHint("Press escape to exit full screen");
+        primaryStage.setFullScreenExitKeyCombination(KeyCombination.valueOf(KeyCode.ESCAPE.getName()));
         primaryStage.show();
     }
 }
