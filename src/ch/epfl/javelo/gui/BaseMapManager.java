@@ -115,14 +115,6 @@ public final class BaseMapManager {
         Group groupMinus = new Group(minusIcon1, minusIcon2);
         substractZoomB.setGraphic(groupMinus);
 
-
-        pane = new Pane(canvas, reverseItineraryB, addZoomB, substractZoomB);
-        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getHeight() - reverseItineraryB.getHeight(), pane.heightProperty()));
-        substractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                addZoomB.getHeight(), addZoomB.heightProperty()));
-        reverseItineraryB.setGraphic(reverseIcon);
-
         removePointsButton = new Button();
         SVGPath removeIcon2 = new SVGPath();
         removeIcon2.setContent("M6.8,8.8h11L17,22.6 H7.6L6.8,8.8z M4.9,7l1,17.4h12.8 l1-17.4 H4.9z");
@@ -133,23 +125,17 @@ public final class BaseMapManager {
 
         pane = new Pane(canvas, reverseItineraryB, removePointsButton, addZoomB, substractZoomB);
 
-
-
+        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getHeight() - reverseItineraryB.getHeight(), pane.heightProperty()));
+        reverseItineraryB.setGraphic(reverseIcon);
         removePointsButton.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
                 pane.getHeight() - reverseItineraryB.getHeight(),
                 pane.heightProperty()));
         reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
                 pane.getHeight() - reverseItineraryB.getHeight() - removePointsButton.getHeight(),
                 pane.heightProperty()));
-        addZoomB.layoutXProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getWidth() - addZoomB.getWidth(),
-                pane.widthProperty()));
-        substractZoomB.layoutXProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getWidth() - substractZoomB.getWidth(),
-                pane.widthProperty()));
         substractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getHeight() - addZoomB.getHeight(),
-                pane.heightProperty()));
+                addZoomB.getHeight(), addZoomB.heightProperty()));
 
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());

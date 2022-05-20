@@ -29,7 +29,7 @@ public final class JaVelo extends Application {
     public void start(Stage primaryStage) throws Exception {
         Graph graph = Graph.loadFrom(Path.of("javelo-data"));
         Path cacheBasePath = Path.of("./osm-cache");
-        String tileServerHost = "a.tile-cyclosm.openstreetmap.fr/cyclosm";
+        String tileServerHost = "tile.openstreetmap.org";
         ErrorManager errorManager = new ErrorManager();
         TileManager tileManager =
                new TileManager(cacheBasePath, tileServerHost);
@@ -55,7 +55,7 @@ public final class JaVelo extends Application {
         Label label = new Label("Tiles Format");
         RadioButton osmButton = new RadioButton("OpenStreetMap");
         RadioButton cyclosmButton = new RadioButton("CyclOSM           ");
-        cyclosmButton.setSelected(true);
+        osmButton.setSelected(true);
 
         TilePane tilePane = new TilePane(Orientation.VERTICAL);
         tilePane.maxHeightProperty().bind(Bindings.createDoubleBinding(() ->

@@ -29,8 +29,8 @@ public final class WaypointsManager {
     private final ObjectProperty<MapViewParameters> mapProperty;
     private final ObservableList<Waypoint> wayPoints;
     private final Consumer<String> errorConsumer;
-    private final AudioClip delete = new AudioClip(
-                            getClass().getResource("/delete.wav").toString());
+   // private final AudioClip delete = new AudioClip(
+                            //getClass().getResource("/delete.wav").toString());
 
     /**
      * Length of the side of a square centred on the mouse pointer
@@ -190,7 +190,7 @@ public final class WaypointsManager {
                         errorConsumer.accept("Aucune route à proximité !");
                     }
                 } else {
-                    delete.play();
+                    //delete.play();
                     wayPoints.remove(waypoint);
                 }
             });

@@ -66,7 +66,6 @@ public final class ElevationProfileManager {
                                    ReadOnlyDoubleProperty highlightedPositionProperty) {
         this.elevationProfileProperty = elevationProfileProperty;
         this.highlightedPositionProperty = highlightedPositionProperty;
-        this.borderPane = new BorderPane();
         initialize();
         listeners();
         rectangleBinding();
@@ -268,42 +267,42 @@ public final class ElevationProfileManager {
         insets = new Insets(10, 10, 20, 40);
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
 
-//        profile = new Polygon();
-//        profile.setId("profile");
-//
-//        grid = new Path();
-//        grid.setId("grid");
-//
-//        texts = new Group();
-//        line = new Line();
+        profile = new Polygon();
+        profile.setId("profile");
+
+        grid = new Path();
+        grid.setId("grid");
+
+        texts = new Group();
+        line = new Line();
 
         stats = new Text();
-        //routeStatistics = new VBox(stats);
-        //routeStatistics.setId("profile_data");
+        routeStatistics = new VBox(stats);
+        routeStatistics.setId("profile_data");
 
         screenToWorld = new SimpleObjectProperty<>(new Affine());
         worldToScreen = new SimpleObjectProperty<>(new Affine());
 
-//        pane = new Pane(profile, line, grid, texts);
-//        borderPane = new BorderPane(pane, null, null, routeStatistics, null);
-//        borderPane.getStylesheets().add("elevation_profile.css");
-
+        pane = new Pane(profile, line, grid, texts);
+        borderPane = new BorderPane(pane, null, null, routeStatistics, null);
         borderPane.getStylesheets().add("elevation_profile.css");
-        pane = new Pane();
-        routeStatistics = new VBox();
-        borderPane.setCenter(pane);
-        borderPane.setBottom(routeStatistics);
-        routeStatistics.setId("profile_data");
-        grid = new Path();
-        texts = new Group();
-        profile = new Polygon();
 
-        //pane.getChildren().add(line);
-        pane.getChildren().add(grid);
-        pane.getChildren().add(texts);
-        pane.getChildren().add(profile);
-        grid.setId("grid");
-        profile.setId("profile");
+//        borderPane.getStylesheets().add("elevation_profile.css");
+//        pane = new Pane();
+//        routeStatistics = new VBox();
+//        borderPane.setCenter(pane);
+//        borderPane.setBottom(routeStatistics);
+//        routeStatistics.setId("profile_data");
+//        grid = new Path();
+//        texts = new Group();
+//        profile = new Polygon();
+//
+//        //pane.getChildren().add(line);
+//        pane.getChildren().add(grid);
+//        pane.getChildren().add(texts);
+//        pane.getChildren().add(profile);
+//        grid.setId("grid");
+//        profile.setId("profile");
     }
 
     /**
