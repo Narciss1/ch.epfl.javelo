@@ -1,9 +1,10 @@
 package ch.epfl.javelo.gui;
 
+import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.data.Graph;
+import ch.epfl.javelo.projection.PointWebMercator;
 import ch.epfl.javelo.routing.*;
 import javafx.application.Application;
-import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.geometry.Orientation;
@@ -100,6 +101,16 @@ public final class JaVelo extends Application {
                 throw new UncheckedIOException(exception);
             }
         });
+
+/*        int newZoom = Math2.clamp(8, 1 + mapProperty.get().zoomLevel(), 19);
+        PointWebMercator pointUnderMouse =  ;
+        double newTopLeftX = pointUnderMouse.xAtZoomLevel(newZoom)
+                - pointUnderMouse.xAtZoomLevel(mapProperty.get().zoomLevel())
+                +  mapProperty.get().xCoordinate();
+        double newTopLeftY = pointUnderMouse.yAtZoomLevel(newZoom)
+                - pointUnderMouse.yAtZoomLevel(mapProperty.get().zoomLevel())
+                +  mapProperty.get().yCoordinate();
+        mapProperty.setValue(new MapViewParameters (newZoom, newTopLeftX, newTopLeftY));*/
 
         BorderPane borderPane = new BorderPane(splitPane, menuBar, null, null, null);
         StackPane mainPain = new StackPane(borderPane, errorManager.pane());

@@ -80,7 +80,8 @@ public final class ElevationProfileManager {
     public Pane pane() {
         return borderPane;
     }
-    
+
+
     private Rectangle2D rectangle() {
         return rectangleProperty.get();
     }
@@ -96,6 +97,7 @@ public final class ElevationProfileManager {
     private Transform screenToWorld() {
         return screenToWorld.get();
     }
+
     /**
      * Returns a read-only property containing the position of the mouse pointer along the profile
      * (in meters, rounded to the nearest integer) or NaN if the mouse pointer is not above the
