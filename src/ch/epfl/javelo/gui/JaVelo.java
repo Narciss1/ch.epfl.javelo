@@ -6,15 +6,13 @@ import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -23,48 +21,64 @@ import java.util.function.Consumer;
 import static javafx.beans.binding.Bindings.when;
 
 public final class JaVelo extends Application {
+
+
     public static void main(String[] args) { launch(args); }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         Graph graph = Graph.loadFrom(Path.of("javelo-data"));
         Path cacheBasePath = Path.of("./osm-cache");
-        //String tileServerHost = "tile.openstreetmap.org";
-        //String tileServerHost = "api.maptiler.com/maps/outdoor";
         String tileServerHost = "a.tile-cyclosm.openstreetmap.fr/cyclosm";
         ErrorManager errorManager = new ErrorManager();
         TileManager tileManager =
-                new TileManager(cacheBasePath, tileServerHost);
+               new TileManager(cacheBasePath, tileServerHost);
         CostFunction cf = new CityBikeCF(graph);
         RouteComputer routeComputer = new RouteComputer(graph, cf);
         RouteBean routeBean = new RouteBean(routeComputer);
         Consumer<String> errorConsumer = errorManager::displayError;
         AnnotedMapManager annotedMapManager = new AnnotedMapManager(graph, tileManager, routeBean, errorConsumer);
-        BooleanProperty positivemousePositionOnRoute = new SimpleBooleanProperty();
+        BooleanProperty positiveMousePositionOnRoute = new SimpleBooleanProperty();
         ElevationProfileManager profileManager =
                 new ElevationProfileManager(routeBean.elevationProfileProperty(), routeBean.highlightedPositionProperty());
 
-        positivemousePositionOnRoute.bind(Bindings.createBooleanBinding(
+        positiveMousePositionOnRoute.bind(Bindings.createBooleanBinding(
                 () -> {
                     if (annotedMapManager.mousePositionOnRouteProperty().get() >= 0) {
                         return true;
                     } else {
-                        System.out.println(profileManager.mousePositionOnProfileProperty().get());
                         return false;
                     }
                 }, annotedMapManager.mousePositionOnRouteProperty()
         ));
 
+        Label label = new Label("Tiles Format");
+        RadioButton osmButton = new RadioButton("OpenStreetMap");
+        RadioButton cyclosmButton = new RadioButton("CyclOSM           ");
+        cyclosmButton.setSelected(true);
+
+        TilePane tilePane = new TilePane(Orientation.VERTICAL);
+        tilePane.maxHeightProperty().bind(Bindings.createDoubleBinding(() ->
+            osmButton.getHeight() + cyclosmButton.getHeight() + label.getHeight()
+        , osmButton.heightProperty(), cyclosmButton.heightProperty(), label.heightProperty()));
+        tilePane.maxWidthProperty().bind(Bindings.createDoubleBinding(() ->
+                   Math.max(Math.max(osmButton.getWidth(), cyclosmButton.getWidth()),
+                            label.getWidth())
+                , osmButton.widthProperty(), cyclosmButton.widthProperty()));
+        tilePane.setPickOnBounds(false);
+        tilePane.setBackground(Background.fill(Color.MINTCREAM));
+        ToggleGroup tileButtons = new ToggleGroup();
+
+        osmButton.setToggleGroup(tileButtons);
+        cyclosmButton.setToggleGroup(tileButtons);
+
+        tilePane.getChildren().add(label);
+        tilePane.getChildren().add(osmButton);
+        tilePane.getChildren().add(cyclosmButton);
+        Pane switchOsm = new Pane(tilePane);
+        switchOsm.setPickOnBounds(false);
 
         SplitPane splitPane = new SplitPane(annotedMapManager.pane());
-
-      //  splitPane.setOnMouseMoved(e -> {
-//            if(annotedMapManager.mousePositionOnRouteProperty().get() >= 0) {
-//                routeBean.highlightedPositionProperty().bind(annotedMapManager.mousePositionOnRouteProperty());
-//            } else {
-//                routeBean.highlightedPositionProperty().bind(profileManager.mousePositionOnProfileProperty());
-//            }
-      //  });
 
         routeBean.elevationProfileProperty().addListener(l -> {
             if(routeBean.elevationProfileProperty().get() == null) {
@@ -75,7 +89,7 @@ public final class JaVelo extends Application {
         });
 
         routeBean.highlightedPositionProperty().bind(
-                when(positivemousePositionOnRoute)
+                when(positiveMousePositionOnRoute)
                 .then(annotedMapManager.mousePositionOnRouteProperty())
                         .otherwise(profileManager.mousePositionOnProfileProperty()));
 
@@ -104,10 +118,24 @@ public final class JaVelo extends Application {
             }
         });
 
+        osmButton.setOnAction( e -> {
+            System.out.println("osm");
+            annotedMapManager.setTileManager(new TileManager(cacheBasePath,"tile.openstreetmap.org"));
+        });
+        cyclosmButton.setOnAction( e -> {
+            System.out.println("cyclosm");
+            annotedMapManager.setTileManager(new TileManager(cacheBasePath,"a.tile-cyclosm.openstreetmap.fr/cyclosm"));
+        });
 
         //BorderPane sûrement à changer.
         BorderPane borderPane = new BorderPane(splitPane, menuBar, null, null, null);
-        StackPane mainPane = new StackPane(borderPane, errorManager.pane());
+        tilePane.layoutYProperty().bind(Bindings.createDoubleBinding(
+                () -> switchOsm.getHeight() - tilePane.getHeight(),  switchOsm.heightProperty(), tilePane.heightProperty()
+        ));
+        tilePane.layoutXProperty().bind(Bindings.createDoubleBinding(
+                () -> switchOsm.getWidth() - tilePane.getWidth(),  switchOsm.widthProperty(), tilePane.widthProperty()
+        ));
+        StackPane mainPane = new StackPane(borderPane, errorManager.pane(), switchOsm);
         primaryStage.setMinWidth(800);
         primaryStage.setMinHeight(600);
         primaryStage.setScene(new Scene(mainPane));

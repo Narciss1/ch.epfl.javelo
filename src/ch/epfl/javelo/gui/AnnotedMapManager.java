@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public final class AnnotedMapManager {
 
-    private final BaseMapManager baseMapManager;
+    private BaseMapManager baseMapManager;
     private final RouteManager routeManager;
     private final WaypointsManager waypointsManager;
 
@@ -50,6 +50,10 @@ public final class AnnotedMapManager {
 
     public ReadOnlyDoubleProperty mousePositionOnRouteProperty() {
         return mousePositionOnRouteProperty;
+    }
+
+    public void setTileManager(TileManager tileManager) {
+        baseMapManager.setTileManager(tileManager);
     }
 
     private void mousePositionOnRouteBinding() {

@@ -18,7 +18,7 @@ import javafx.scene.image.Image;
 public final class TileManager {
 
     private final Path basePath;
-    private final String server;
+    public final String server;
     private final LinkedHashMap<TileId, javafx.scene.image.Image> cacheMemory;
 
 
@@ -80,7 +80,7 @@ public final class TileManager {
             return cacheMemory.get(tileId);
         }
 
-        Path pathImage = basePath.resolve(String.valueOf(tileId.zoomLevel))
+        Path pathImage = basePath.resolve(String.valueOf(server)).resolve(String.valueOf(tileId.zoomLevel))
                 .resolve(String.valueOf(tileId.indexX))
                 .resolve(tileId.indexY + ".png");
         if (Files.exists(pathImage)){
@@ -93,7 +93,7 @@ public final class TileManager {
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
 
-        Path directoryPath = basePath.resolve(String.valueOf(tileId.zoomLevel)).
+        Path directoryPath = basePath.resolve(String.valueOf(server)).resolve(String.valueOf(tileId.zoomLevel)).
                 resolve(String.valueOf(tileId.indexX));
         Files.createDirectories(directoryPath);
 

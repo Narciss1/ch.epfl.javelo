@@ -8,15 +8,23 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.Event;
+import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.TilePane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
 import java.io.IOException;
@@ -29,8 +37,9 @@ import java.util.Collections;
  */
 public final class BaseMapManager {
 
-    private final TileManager tileManager;
+    private TileManager tileManager;
     private final ObjectProperty<MapViewParameters> mapProperty;
+    private final ObjectProperty<TileManager> tileManagerP;
     private final Pane pane;
     private final Canvas canvas;
     private final Button reverseItineraryB;
@@ -56,12 +65,16 @@ public final class BaseMapManager {
         this.tileManager = tileManager;
         this.mapProperty = mapProperty;
         this.waypointsManager = waypointsManager;
+        this.tileManagerP = new SimpleObjectProperty<>();
+        tileManagerP.set(tileManager);
         canvas = new Canvas();
 
+
+        tileManagerP.addListener(l -> {
+            redrawOnNextPulse();
+        });
         //ReverseItineraryExtension.
         reverseItineraryB = new Button();
-
-        reverseItineraryButton = new Button();
         SVGPath reverseIcon2 = new SVGPath();
         reverseIcon2.setContent("M5.79,9.71A1,1,0,1,0,7.21,8.29L5.91,7h12A1.56,1.56" +
                 ",0,0,1,19.5,8.53V11a1,1,0,0,0,2,0V8.53A3.56,3.56,0,0,0,17.91,5h-12l1.3-1.29a1" +
@@ -79,7 +92,6 @@ public final class BaseMapManager {
         plusIcon.setContent("M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 " +
                 "0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z");
         addZoomB.setGraphic(plusIcon);
-
         substractZoomB = new Button();
         SVGPath minusIcon1 = new SVGPath();
         minusIcon1.setContent("M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 " +
@@ -102,17 +114,6 @@ public final class BaseMapManager {
         Group groupMinus = new Group(minusIcon1, minusIcon2);
         substractZoomB.setGraphic(groupMinus);
 
-
-
-
-
-        pane = new Pane(canvas, reverseItineraryB, addZoomB, substractZoomB);
-        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getHeight() - reverseItineraryB.getHeight(), pane.heightProperty()));
-        substractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                addZoomB.getHeight(), addZoomB.heightProperty()));
-        reverseItineraryButton.setGraphic(reverseIcon);
-
         removePointsButton = new Button();
         SVGPath removeIcon2 = new SVGPath();
         removeIcon2.setContent("M6.8,8.8h11L17,22.6 H7.6L6.8,8.8z M4.9,7l1,17.4h12.8 l1-17.4 H4.9z");
@@ -121,13 +122,24 @@ public final class BaseMapManager {
         Group removeIcon = new Group(removeIcon1, removeIcon2);
         removePointsButton.setGraphic(removeIcon);
 
-        pane = new Pane(canvas, reverseItineraryButton, removePointsButton);
+        pane = new Pane(canvas, reverseItineraryB, removePointsButton, addZoomB, substractZoomB);
+
+
 
         removePointsButton.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getHeight() - reverseItineraryButton.getHeight(),
+                pane.getHeight() - reverseItineraryB.getHeight(),
                 pane.heightProperty()));
-        reverseItineraryButton.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getHeight() - reverseItineraryButton.getHeight() - removePointsButton.getHeight(),
+        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getHeight() - reverseItineraryB.getHeight() - removePointsButton.getHeight(),
+                pane.heightProperty()));
+        addZoomB.layoutXProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getWidth() - addZoomB.getWidth(),
+                pane.widthProperty()));
+        substractZoomB.layoutXProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getWidth() - substractZoomB.getWidth(),
+                pane.widthProperty()));
+        substractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getHeight() - addZoomB.getHeight(),
                 pane.heightProperty()));
 
         canvas.widthProperty().bind(pane.widthProperty());
@@ -143,6 +155,10 @@ public final class BaseMapManager {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
+    }
+
+    public void setTileManager(TileManager tileManager) {
+        tileManagerP.set(tileManager);
     }
 
     /**
@@ -167,7 +183,7 @@ public final class BaseMapManager {
                 TileManager.TileId tileId = new TileManager.TileId(mapProperty.get().zoomLevel(),
                         indexX, indexY);
                 try {
-                    Image image = tileManager.imageForTileAt(tileId);
+                    Image image = tileManagerP.get().imageForTileAt(tileId);
                     canvasGraphicsContext.drawImage(image,
                             PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
                             PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate());
@@ -231,6 +247,7 @@ public final class BaseMapManager {
         });
 
         reverseItineraryB.setOnAction(e -> waypointsManager.reverseItinerary());
+        removePointsButton.setOnAction(e -> waypointsManager.removeItinerary());
 
         addZoomB.setOnAction( e -> {
             //We made the choice to add 1 zoom level per click.
@@ -245,8 +262,6 @@ public final class BaseMapManager {
                     pane.getHeight() / 2d);
             changeZoom(- 1, centerPoint);
         });
-        reverseItineraryButton.setOnAction(e -> waypointsManager.reverseItinerary());
-        removePointsButton.setOnAction(e -> waypointsManager.removeItinerary());
     }
 
     /**
