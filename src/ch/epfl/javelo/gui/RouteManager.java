@@ -2,23 +2,20 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+
 import static java.lang.Double.isNaN;
 
 public final class RouteManager {
 
     private RouteBean routeBean;
     private ReadOnlyObjectProperty<MapViewParameters> mapProperty;
-//    private Consumer<String> errorConsumer;
     private Pane pane;
     private final Polyline polylineItinerary;
     private Circle circle;
@@ -28,35 +25,19 @@ public final class RouteManager {
     public RouteManager(RouteBean routeBean, ReadOnlyObjectProperty<MapViewParameters> mapViewParametersProperty) {
         this.routeBean = routeBean;
         this.mapProperty = mapViewParametersProperty;
-        //this.errorConsumer = errorConsumer;
-        pane = new Pane();
-        pane.setPickOnBounds(false);
         polylineItinerary = new Polyline();
         polylineItinerary.setId("route");
         circle = new Circle(HIGHLIGHTED_POSITION_RADIUS);
         circle.setId("highlight");
-        pane.getChildren().add(polylineItinerary);
-        pane.getChildren().add(circle);
-        createPolyline();
-        createCircle();
+        pane = new Pane(polylineItinerary, circle);
+        pane.setPickOnBounds(false);
 
-        mapProperty.addListener((p, oldM, newM) -> {
-                if (oldM.zoomLevel() == newM.zoomLevel()) {
-                    moveItinerary();
-                } else {
-                    createPolyline();
-                }
-                createCircle();
-        });
-        routeBean.routeProperty().addListener( l -> {
-            createPolyline();
-            createCircle();
-        });
-        routeBean.highlightedPositionProperty().addListener( l -> {
-            // Est-ce qu'on doit createPolyline quand la position change?
-            createCircle();
-            createPolyline();
-        });
+        //Etant donné qu'avec javelo initialement tout est vide est-ce qu'il faut tej ses trucs ou les garder?
+
+//        createPolyline();
+//        createCircle();
+
+        addListeners();
         routeEvents();
     }
 
@@ -65,8 +46,6 @@ public final class RouteManager {
     }
 
     private void createPolyline() {
-        polylineItinerary.getPoints().clear();
-        //Opérateur ternaire à conseiller ?
         if (routeBean.route() == null){
             polylineItinerary.setVisible(false);
             return;
@@ -80,7 +59,7 @@ public final class RouteManager {
             pointsCoordinates.add(pointMercator.xAtZoomLevel(mapProperty.get().zoomLevel()));
             pointsCoordinates.add(pointMercator.yAtZoomLevel(mapProperty.get().zoomLevel()));
         }
-        polylineItinerary.getPoints().addAll(pointsCoordinates);
+        polylineItinerary.getPoints().setAll(pointsCoordinates);
         moveItinerary();
     }
 
@@ -91,7 +70,6 @@ public final class RouteManager {
 
     private void createCircle() {
         double position = routeBean.highlightedPosition();
-        //System.out.println("position :" + routeBean.highlightedPosition());
         if(routeBean.route() == null || isNaN(position)) {
             circle.setVisible(false);
             return;
@@ -103,34 +81,40 @@ public final class RouteManager {
         circle.setLayoutY(mapProperty.get().viewY(pointWebMercatorHighlightedPosition));
     }
 
-    public void routeEvents(){
+    private void routeEvents() {
         circle.setOnMouseClicked(e -> {
+
+            //ces checks avec le if sont nécessaires (le programme marche pas sans), est-ce normal ?
             if(routeBean.route() != null && !isNaN(routeBean.highlightedPosition())) {
                 Point2D position = circle.localToParent(new Point2D(e.getX(), e.getY()));
+                //Je pense qu'on a vrmt besoin d'une version PointCh de pointAt pr le coup.
                 PointWebMercator pointMercator = mapProperty.get().pointAt(position.getX(), position.getY());
                 PointCh pointCh = pointMercator.toPointCh();
                 int closestNode = routeBean.route().nodeClosestTo(routeBean.highlightedPosition());
                 Waypoint wayPoint = new Waypoint(pointCh, closestNode);
-                ObservableList<Waypoint> newList = routeBean.waypoints();
-                //attention magic number.
                 int index = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition()) + 1;
-                //boolean canAdd = true;
-                newList.add(index, wayPoint);
-/*                if (! (newList.get(index - 1).closestNodeId() == closestNode
-                || newList.get(index).closestNodeId() == closestNode)) {
-                    //newList.add(index, wayPoint);
-                }  else {
-                    errorConsumer.accept("Un point de passage est déjà présent à cet endroit !");
-                }*/
-//                while(canAdd && count < newList.size()){
-//                    if(newList.get(count).closestNodeId() == closestNode) {
-//                        canAdd = false;
-//                    }
-//                    ++count;
-//                }
-//                if(canAdd && !newList.contains(wayPoint)) {
-//                    newList.add(index, wayPoint);
+                routeBean.waypoints().add(index, wayPoint);
             }
+        });
+    }
+
+    private void addListeners() {
+        mapProperty.addListener((p, oldM, newM) -> {
+            if (oldM.zoomLevel() == newM.zoomLevel()) {
+                moveItinerary();
+            } else {
+                createPolyline();
+            }
+            createCircle();
+        });
+        routeBean.routeProperty().addListener( l -> {
+            createPolyline();
+            //createCircle(); pour moi techniquement useless mais sur piazza Albinos dit qu'il le faut (@1369_f2)
+        });
+        routeBean.highlightedPositionProperty().addListener(l -> {
+            // Est-ce qu'on doit createPolyline quand la position change?
+            createCircle();
+            //createPolyline(); pour moi useless.
         });
     }
 }

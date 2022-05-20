@@ -12,13 +12,10 @@ import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
-import java.awt.*;
 import java.nio.file.Path;
 
-import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
 
 import java.util.function.Consumer;
@@ -55,9 +52,9 @@ public final class Stage8Test extends Application {
         RouteBean routeBean = new RouteBean(routeComputer);
 
         //Sens phrase prof
-        routeBean.setWaypoints(waypoints);
+        //routeBean.setWaypoints(waypoints);
 
-        routeBean.setHighlightedPosition(1000);
+        routeBean.setHighlightedPositionP(1000);
 
         RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP);
 

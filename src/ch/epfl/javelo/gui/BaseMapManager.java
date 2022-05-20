@@ -3,18 +3,24 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.SVGPath;
 
 import java.io.IOException;
+import java.util.Collections;
 
 /**
  * Manages the display and interaction with the background map
@@ -27,6 +33,7 @@ public final class BaseMapManager {
     private final ObjectProperty<MapViewParameters> mapProperty;
     private final Pane pane;
     private final Canvas canvas;
+    private final Button reverseItineraryButton;
     private boolean redrawNeeded;
     private final WaypointsManager waypointsManager;
 
@@ -46,9 +53,21 @@ public final class BaseMapManager {
         this.tileManager = tileManager;
         this.mapProperty = mapProperty;
         this.waypointsManager = waypointsManager;
-        pane = new Pane();
         canvas = new Canvas();
-        pane.getChildren().add(canvas);
+        reverseItineraryButton = new Button();
+        SVGPath reverseIcon2 = new SVGPath();
+        reverseIcon2.setContent("M5.79,9.71A1,1,0,1,0,7.21,8.29L5.91,7h12A1.56,1.56" +
+                ",0,0,1,19.5,8.53V11a1,1,0,0,0,2,0V8.53A3.56,3.56,0,0,0,17.91,5h-12l1.3-1.29a1" +
+                ",1,0,0,0,0-1.42,1,1,0,0,0-1.42,0l-3,3a1,1,0,0,0,0,1.42Z");
+        SVGPath reverseIcon1 = new SVGPath();
+        reverseIcon1.setContent("M6.09,19h12l-1.3,1.29a1,1,0,0,0,1.42,1.42l3-3a1," +
+                "1,0,0,0,0-1.42l-3-3a1,1,0,0,0-1.42,0,1,1,0,0,0,0,1.42L18.09,17h-12A1.56," +
+                "1.56,0,0,1,4.5,15.47V13a1,1,0,0,0-2,0v2.47A3.56,3.56,0,0,0,6.09,19Z");
+        Group reverseIcon = new Group(reverseIcon1, reverseIcon2);
+        reverseItineraryButton.setGraphic(reverseIcon);
+        pane = new Pane(canvas, reverseItineraryButton);
+        reverseItineraryButton.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getHeight() - reverseItineraryButton.getHeight(), pane.heightProperty()));
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
         baseMapEvents();
@@ -148,6 +167,8 @@ public final class BaseMapManager {
                 waypointsManager.addWaypoint(point.x(), point.y());
             }
         });
+
+        reverseItineraryButton.setOnAction(e -> waypointsManager.reverseItinerary());
     }
 
     /**

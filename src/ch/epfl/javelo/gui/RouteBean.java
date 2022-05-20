@@ -12,55 +12,81 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+/**
+ * a JavaFX bean grouping properties linked to the waypoints and the itinerary.
+ * @author Lina Sadgal (342075)
+ * @author Aya Hamane (345565)
+ */
 public final class RouteBean {
 
     private ObservableList<Waypoint> waypoints;
-    private ObjectProperty<Route> route;
-    private ObjectProperty<ElevationProfile> elevationProfile;
-    private DoubleProperty highlightedPosition;
+    private ObjectProperty<Route> routeP;
+    private ObjectProperty<ElevationProfile> elevationProfileP;
+    private DoubleProperty highlightedPositionP;
     private RouteComputer rc;
     private LinkedHashMap<Pair<Integer, Integer>, Route> cacheMemoryRoutes;
 
+    /**
+     * The maximum capacity of the cache containing the last added routes.
+     */
     private final static int CACHE_MEMORY_ROUTES_CAPACITY = 25;
+    /**
+     * The maximum step length
+     */
     private final static int MAX_STEP_LENGTH = 5;
+    /**
+     * the minimal size of the list of the waypoints so that we attempt to calculate a route.
+     */
+    private final static int WAYPOINTS_MINIMAL_SIZE_CHECK = 2;
 
-    public RouteBean (RouteComputer rc){
+    /**
+     * Constructor
+     * @param rc the RouteComputer used to compute the route
+     */
+    public RouteBean (RouteComputer rc) {
         this.rc = rc;
+
+        //@1370 qlq avait eu ce pb. A tester maybe ?
         cacheMemoryRoutes = new LinkedHashMap<>(CACHE_MEMORY_ROUTES_CAPACITY, 0.75f, true);
         waypoints = FXCollections.observableArrayList();
-        route = new SimpleObjectProperty<>();
-        elevationProfile = new SimpleObjectProperty<>();
-        highlightedPosition = new SimpleDoubleProperty();
+        routeP = new SimpleObjectProperty<>();
+        elevationProfileP = new SimpleObjectProperty<>();
+        highlightedPositionP = new SimpleDoubleProperty();
+
+        //Un assistant m'a dit; pas besoin de méthode mais les deux sont défendables => demander à Schinz.
         waypoints.addListener((InvalidationListener) l -> computingItineraryAndProfile());
     }
 
-    //USED ONLY DANS LE TEST
-    public void setWaypoints(ObservableList<Waypoint> listOfWaypoints) {
-        waypoints.setAll(listOfWaypoints);
-    }
-
-    public void setHighlightedPosition(double position){
-        System.out.println("position reçue :" + position);
-        if ((route.get() != null) && !(0 <= position && position <= route.get().length())) {
-            highlightedPosition.set(Double.NaN);
+    /**
+     * stores the given position in the highlightedPositionProperty if the route is not null
+     * and the position is between 0 and the length of the route, and NaN if not.
+     * @param position the position to be stored in the highlightedPositionProperty
+     */
+    public void setHighlightedPositionP(double position) {
+        if ((routeP.get() != null) && !(0 <= position && position <= routeP.get().length())) {
+            highlightedPositionP.set(Double.NaN);
         } else {
-            highlightedPosition.set(position);
+            highlightedPositionP.set(position);
         }
     }
 
-    private void computingItineraryAndProfile(){
+    /**
+     * computes the itinerary and the profile between the existing waypoints
+     * and respectively stores them in the route property and elevation profile property.
+     */
+    private void computingItineraryAndProfile() {
         List<Route> routes = new ArrayList<>();
-        if (waypoints.size() < 2){
+        if (waypoints.size() < WAYPOINTS_MINIMAL_SIZE_CHECK){
             routeAndItineraryToNull();
             return;
         }
-        Integer startNodeId;
-        Integer endNodeId;
-        for (int i = 0; i < waypoints.size() - 1; ++i){
+        int startNodeId;
+        int endNodeId;
+        for (int i = 0; i < waypoints.size() - 1; ++i) {
             startNodeId = waypoints.get(i).closestNodeId();
             endNodeId = waypoints.get(i + 1).closestNodeId();
-            if(! startNodeId.equals(endNodeId)) {
-                if (cacheMemoryRoutes.containsKey(new Pair<>(startNodeId, endNodeId))){
+            if(startNodeId != endNodeId) {
+                if (cacheMemoryRoutes.containsKey(new Pair<>(startNodeId, endNodeId))) {
                     routes.add(cacheMemoryRoutes.get(new Pair<>(startNodeId, endNodeId)));
                 } else {
                     Route routeToAdd = rc.bestRouteBetween(startNodeId, endNodeId);
@@ -75,41 +101,78 @@ public final class RouteBean {
             }
         }
         MultiRoute theRoute = new MultiRoute(routes);
-        route.set(theRoute);
-        elevationProfile.set(ElevationProfileComputer.elevationProfile(theRoute, MAX_STEP_LENGTH));
+        routeP.set(theRoute);
+        elevationProfileP.set(ElevationProfileComputer.elevationProfile(theRoute, MAX_STEP_LENGTH));
     }
 
-    private void routeAndItineraryToNull(){
-        route.set(null);
-        elevationProfile.set(null);
+    /**
+     * stores null in the route and itinerary properties.
+     */
+    private void routeAndItineraryToNull() {
+        routeP.set(null);
+        elevationProfileP.set(null);
     }
 
-    public ReadOnlyObjectProperty<Route> routeProperty(){
-        return route;
+    /**
+     *
+     * @return the route property as a ReadOnlyObjectProperty.
+     */
+    public ReadOnlyObjectProperty<Route> routeProperty() {
+        return routeP;
     }
 
-    public DoubleProperty highlightedPositionProperty(){
-        return highlightedPosition;
+    /**
+     *
+     * @return the highlighted position property.
+     */
+    public DoubleProperty highlightedPositionProperty() {
+        return highlightedPositionP;
     }
 
-    public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty(){
-        return elevationProfile;
+    /**
+     *
+     * @return the elevation profile property as a ReadOnlyObjectProperty.
+     */
+    public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty() {
+        return elevationProfileP;
     }
 
-    public Route route() { return route.get();}
+    /**
+     *
+     * @return the route
+     */
+    public Route route() {
+        return routeP.get();
+    }
 
+    /**
+     *
+     * @return the elevation profile
+     */
     public ElevationProfile elevationProfile() {
-        return elevationProfile.get();
+        return elevationProfileP.get();
     }
 
+    /**
+     *
+     * @return the position in the itinerary of the highlighted position
+     */
     public double highlightedPosition() {
-        return highlightedPosition.get();
+        return highlightedPositionP.get();
     }
 
+    /**
+     *
+     * @return the observable list containing the waypoints.
+     */
     public ObservableList<Waypoint> waypoints() {
         return waypoints;
     }
 
+    /**
+     * checks if the cache containing the route is full and, if it is, removes the
+     * first added element in it.
+     */
     private void checkCacheCapacity(){
         if(cacheMemoryRoutes.size() == CACHE_MEMORY_ROUTES_CAPACITY) {
             Iterator<Pair<Integer, Integer>> iterator = cacheMemoryRoutes.keySet().iterator();
@@ -117,6 +180,11 @@ public final class RouteBean {
         }
     }
 
+    /**
+     * gives the index of the route's segment at a given position.
+     * @param position the given position for which we want the segment's index.
+     * @return the index of the route's segment at a given position.
+     */
     public int indexOfNonEmptySegmentAt(double position) {
         int index = route().indexOfSegmentAt(position);
         for (int i = 0; i <= index; i += 1) {

@@ -6,6 +6,7 @@ import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -77,12 +78,17 @@ public final class WaypointsManager {
         }
     }
 
+    public void reverseItinerary() {
+        FXCollections.reverse(wayPoints);
+    }
+
     /**
      * Position the markers at the coordinates of their corresponding waypoint
      */
     private void addSVGPaths() {
         pane.getChildren().clear();
         int counting = 0;
+        //Useless boucle.
         for (Waypoint waypoint : wayPoints) {
             Group group = new Group();
             group.getStyleClass().add("pin");

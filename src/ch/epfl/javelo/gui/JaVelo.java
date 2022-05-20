@@ -3,7 +3,6 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.routing.*;
 import javafx.application.Application;
-import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.geometry.Orientation;
@@ -28,8 +27,8 @@ public final class JaVelo extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Graph graph = Graph.loadFrom(Path.of("ch_west"));
-        Path cacheBasePath = Path.of(".");
+        Graph graph = Graph.loadFrom(Path.of("javelo-data"));
+        Path cacheBasePath = Path.of("./osm-cache");
         String tileServerHost = "tile.openstreetmap.org";
         ErrorManager errorManager = new ErrorManager();
         TileManager tileManager =
@@ -45,12 +44,9 @@ public final class JaVelo extends Application {
 
         positivemousePositionOnRoute.bind(Bindings.createBooleanBinding(
                 () -> {
-                    System.out.println(annotedMapManager.mousePositionOnRouteProperty().get());
                     if (annotedMapManager.mousePositionOnRouteProperty().get() >= 0) {
-                        System.out.println("YES POSITIVE");
                         return true;
                     } else {
-                        System.out.println("c la merde");
                         System.out.println(profileManager.mousePositionOnProfileProperty().get());
                         return false;
                     }

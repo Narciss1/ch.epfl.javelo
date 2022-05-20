@@ -33,7 +33,7 @@ public final class TileManager {
      * @param server the tiles' server's name
      */
     public TileManager(Path basePath, String server) {
-        this.basePath = basePath;
+        this.basePath = basePath;  //
         this.server = server;
         cacheMemory = new LinkedHashMap(CACHE_MEMORY_CAPACITY, 0.75f, true);
     }
