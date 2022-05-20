@@ -12,7 +12,9 @@ import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.AudioClip;
 import javafx.scene.shape.SVGPath;
+
 import java.util.function.Consumer;
 
 /**
@@ -27,6 +29,8 @@ public final class WaypointsManager {
     private final ObjectProperty<MapViewParameters> mapProperty;
     private final ObservableList<Waypoint> wayPoints;
     private final Consumer<String> errorConsumer;
+    private final AudioClip delete = new AudioClip(
+                            getClass().getResource("/delete.wav").toString());
 
     /**
      * Length of the side of a square centred on the mouse pointer
@@ -48,7 +52,7 @@ public final class WaypointsManager {
         this.mapProperty = mapProperty;
         this.wayPoints = wayPoints;
         this.errorConsumer = errorConsumer;
-        addSVGPaths();
+        //addSVGPaths(); useless now I guess vu que tt est initialement vide.
         wayPoints.addListener((InvalidationListener)  l -> addSVGPaths());
         mapProperty.addListener((p, oldM, newM) -> {
             relocateSVGPaths();
@@ -185,6 +189,7 @@ public final class WaypointsManager {
                         errorConsumer.accept("Aucune route à proximité !");
                     }
                 } else {
+                    delete.play();
                     wayPoints.remove(waypoint);
                 }
             });

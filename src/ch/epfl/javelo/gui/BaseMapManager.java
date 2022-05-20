@@ -13,6 +13,7 @@ import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -97,9 +98,6 @@ public final class BaseMapManager {
                 "347-.79.505-1.217.473-1.282z");
         Group groupMinus = new Group(minusIcon1, minusIcon2);
         substractZoomB.setGraphic(groupMinus);
-
-
-
 
 
         pane = new Pane(canvas, reverseItineraryB, addZoomB, substractZoomB);
@@ -282,6 +280,5 @@ public final class BaseMapManager {
                 +  mapProperty.get().yCoordinate();
         mapProperty.setValue(new MapViewParameters (newZoom, newTopLeftX, newTopLeftY));
     }
-
 
 }
