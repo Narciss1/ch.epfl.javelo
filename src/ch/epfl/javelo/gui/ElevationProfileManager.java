@@ -262,7 +262,7 @@ public final class ElevationProfileManager {
      * Initializes all the attributes of the class ElevationProfileManager
      */
     private void initialize() {
-        mousePositionProperty = new SimpleDoubleProperty();
+        mousePositionProperty = new SimpleDoubleProperty(Double.NaN);
 
         insets = new Insets(10, 10, 20, 40);
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
