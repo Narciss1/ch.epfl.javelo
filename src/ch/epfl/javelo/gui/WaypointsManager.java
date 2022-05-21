@@ -29,8 +29,8 @@ public final class WaypointsManager {
     private final ObjectProperty<MapViewParameters> mapProperty;
     private final ObservableList<Waypoint> wayPoints;
     private final Consumer<String> errorConsumer;
-   // private final AudioClip delete = new AudioClip(
-                            //getClass().getResource("/delete.wav").toString());
+   private final AudioClip delete = new AudioClip(
+                            getClass().getResource("/delete.wav").toString());
 
     /**
      * Length of the side of a square centred on the mouse pointer
@@ -75,7 +75,9 @@ public final class WaypointsManager {
     public void addWaypoint(double x, double y) {
         PointWebMercator pointWebMercator = new PointWebMercator(x, y);
         PointCh pointCh = pointWebMercator.toPointCh();
-        if (graph.nodeClosestTo(pointCh, SQUARE_RADIUS) == -1){
+        if (pointCh == null) {
+            errorConsumer.accept("Oups. Vous êtes sortis du territoir de la belle Suisse.");
+        } else if (graph.nodeClosestTo(pointCh, SQUARE_RADIUS) == -1) {
             errorConsumer.accept("Aucune route à proximité !");
         } else {
             wayPoints.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, SQUARE_RADIUS)));
@@ -190,7 +192,7 @@ public final class WaypointsManager {
                         errorConsumer.accept("Aucune route à proximité !");
                     }
                 } else {
-                    //delete.play();
+                    delete.play();
                     wayPoints.remove(waypoint);
                 }
             });
