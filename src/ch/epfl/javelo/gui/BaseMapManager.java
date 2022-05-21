@@ -17,7 +17,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
-
 import java.io.IOException;
 
 /**
@@ -27,9 +26,11 @@ import java.io.IOException;
  */
 public final class BaseMapManager {
 
-    private final TileManager tileManager;
     private final ObjectProperty<MapViewParameters> mapProperty;
+    //Extension
     private final ObjectProperty<TileManager> tileManagerP;
+    private final TileManager tileManager;
+    private final WaypointsManager waypointsManager;
     private final Pane pane;
     private final Canvas canvas;
     private final Button reverseItineraryB;
@@ -37,12 +38,23 @@ public final class BaseMapManager {
     private final Button subtractZoomB;
     private final Button removePointsButton;
     private boolean redrawNeeded;
-    private final WaypointsManager waypointsManager;
 
     /**
-     *Number of pixels on the side of a tile
+     * Number of pixels on the side of a tile
      */
     private final static int PIXELS_IN_TILE = 256;
+    /**
+     * Minimum value of zoom level
+     */
+    private final static int MIN_ZOOM_LEVEL = 8;
+    /**
+     * Maximum value of zoom level
+     */
+    private final static int MAX_ZOOM_LEVEL = 19;
+    /**
+     * A minimum scrolling time delta
+     */
+    private final static int MIN_SCROLL_TIME_DELTA = 200;
 
     /**
      * Constructor
@@ -56,7 +68,6 @@ public final class BaseMapManager {
         this.mapProperty = mapProperty;
         this.waypointsManager = waypointsManager;
         canvas = new Canvas();
-
 
         //Extension qui permet le changement de visuel pour les tuiles.
         this.tileManagerP = new SimpleObjectProperty<>();
@@ -78,7 +89,208 @@ public final class BaseMapManager {
     }
 
     /**
-     * Creates the icons and add them to the buttons.
+     * Returns the JavaFX panel displaying the background map
+     * @return a JavaFX panel displaying the background map
+     */
+    public Pane pane() {
+        return pane;
+    }
+
+    /**
+     * Changes the value contained in tile manager property
+     * @param tileManager a new tile manager
+     */
+    //Extension
+    public void setTileManager(TileManager tileManager) {
+        tileManagerP.set(tileManager);
+    }
+
+    /**
+     * Generates and draws each of the visible tiles at least partially
+     * If an exception is thrown by the tile manager (of type IOException),
+     * the corresponding tile is simply not drawn
+     * @throws IllegalArgumentException if the index X or the index Y of the tile are not valid
+     */
+    public void tilesDraw(){
+        GraphicsContext canvasGraphicsContext = canvas.getGraphicsContext2D();
+        canvasGraphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        double xTopLeft = mapProperty.get().xCoordinate();
+        double yTopLeft = mapProperty.get().yCoordinate();
+        int xNumberTiles = ((int) canvas.getWidth() / PIXELS_IN_TILE) + 1;
+        int yNumberTiles = ((int) canvas.getHeight() / PIXELS_IN_TILE) + 1;
+        int indexX, indexY;
+
+        for(double y = 0; y <= yNumberTiles; ++y) {
+            double newXTopLeft = xTopLeft;
+            for(double x = 0; x <= xNumberTiles; ++x) {
+                indexX = (int) (newXTopLeft / PIXELS_IN_TILE);
+                indexY = (int) (yTopLeft / PIXELS_IN_TILE);
+                TileManager.TileId tileId = new TileManager.TileId(mapProperty.get().zoomLevel(),
+                        indexX, indexY);
+                try {
+                    Image image = tileManagerP.get().imageForTileAt(tileId);
+                    canvasGraphicsContext.drawImage(image,
+                            PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
+                            PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate());
+                } catch (IOException e) {}
+                newXTopLeft += PIXELS_IN_TILE;
+            }
+            yTopLeft += PIXELS_IN_TILE;
+        }
+    }
+
+    /**
+     * Redraws the map if and only if the attribute redrawNeeded is true
+     */
+    private void redrawIfNeeded(){
+        if (!redrawNeeded) return;
+        redrawNeeded = false;
+        tilesDraw();
+    }
+
+    /**
+     * Requests a redrawing on the next beat by forcing JavaFX to perform the next beat,
+     * even if from its point of view this is not necessary
+     */
+    private void redrawOnNextPulse() {
+        redrawNeeded = true;
+        Platform.requestNextPulse();
+    }
+
+    /**
+     * Binds the elements in the pane to its properties for their placement
+     */
+    private void bindings () {
+        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getHeight() - reverseItineraryB.getHeight(),
+                pane.heightProperty()));
+        removePointsButton.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getHeight() - reverseItineraryB.getHeight(),
+                pane.heightProperty()));
+        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                pane.getHeight() - reverseItineraryB.getHeight() - removePointsButton.getHeight(),
+                pane.heightProperty()));
+        subtractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
+                addZoomB.getHeight(),
+                addZoomB.heightProperty()));
+        canvas.widthProperty().bind(pane.widthProperty());
+        canvas.heightProperty().bind(pane.heightProperty());
+    }
+
+    /**
+     * Adds the listeners to the properties
+     */
+    private void addListeners() {
+        canvas.widthProperty().addListener((p, oldM, newM) ->
+                redrawOnNextPulse());
+        canvas.heightProperty().addListener((p, oldM, newM) ->
+                redrawOnNextPulse());
+        mapProperty.addListener((p, oldM, newM) ->
+                redrawOnNextPulse());
+        canvas.sceneProperty().addListener((p, oldS, newS) -> {
+            assert oldS == null;
+            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
+        });
+    }
+
+    /**
+     * Manages the events related to the pane
+     */
+    private void baseMapEvents(){
+        SimpleLongProperty minScrollTime = new SimpleLongProperty();
+        ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
+
+        pane.setOnScroll(e ->
+                changeMapViewParametersAfterZoomByScrolling(minScrollTime, e));
+        pane.setOnMousePressed(e ->
+                mousePositionProperty.setValue(new Point2D(e.getX(), e.getY())));
+        pane.setOnMouseDragged(e ->
+                changeMapViewParametersAfterSlide(mousePositionProperty, e));
+        pane.setOnMouseReleased(e -> {
+            if (!e.isStillSincePress()) {
+                changeMapViewParametersAfterSlide(mousePositionProperty, e);
+            } else {
+                double x = e.getX() + mapProperty.get().xCoordinate();
+                double y = e.getY() + mapProperty.get().yCoordinate();
+                PointWebMercator point = PointWebMercator.of(mapProperty.get().zoomLevel(), x, y);
+                waypointsManager.addWaypoint(point.x(), point.y());
+            }
+        });
+
+        reverseItineraryB.setOnAction(e -> waypointsManager.reverseItinerary());
+        removePointsButton.setOnAction(e -> waypointsManager.removeItinerary());
+        addZoomB.setOnAction( e -> {
+            //We chose to add 1 zoom level per click
+            PointWebMercator centerPoint = mapProperty.get().pointAt(
+                    pane.getWidth() / 2d,
+                    pane.getHeight() / 2d);
+            changeZoom(1, centerPoint);
+        });
+        subtractZoomB.setOnAction(e -> {
+            //We chose to subtract 1 zoom level per click
+            PointWebMercator centerPoint = mapProperty.get().pointAt(
+                    pane.getWidth() / 2d,
+                    pane.getHeight() / 2d);
+            changeZoom(- 1, centerPoint);
+        });
+    }
+
+    /**
+     * Updates the mapViewParameters after a shift of the map
+     * @param mousePositionProperty a property containing the position of the map
+     * @param e a mouse event
+     */
+    private void changeMapViewParametersAfterSlide
+    (ObjectProperty<Point2D> mousePositionProperty, MouseEvent e) {
+        Point2D oldMousePosition = mousePositionProperty.get();
+        mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
+        Point2D gap = oldMousePosition.subtract(mousePositionProperty.get());
+        mapProperty.setValue(mapProperty.get().withMinXY(
+                mapProperty.get().xCoordinate() + gap.getX(),
+                mapProperty.get().yCoordinate() + gap.getY()));
+    }
+
+    /**
+     * Updates the mapViewParameters after a change in the zoom level of the map
+     * @param minScrollTime a minimum scrolling time
+     * @param e a scroll event
+     */
+    private void changeMapViewParametersAfterZoomByScrolling
+    (SimpleLongProperty minScrollTime, ScrollEvent e) {
+        if (e.getDeltaY() == 0d) return;
+        long currentTime = System.currentTimeMillis();
+        if (currentTime < minScrollTime.get()) return;
+        minScrollTime.set(currentTime + MIN_SCROLL_TIME_DELTA);
+        int zoomDelta = (int)Math.signum(e.getDeltaY());
+        PointWebMercator pointUnderMouse =  mapProperty.get().pointAt(e.getX(), e.getY());
+        changeZoom(zoomDelta, pointUnderMouse);
+    }
+
+    /**
+     * Changes the zoom
+     * @param zoomDelta the difference of zoom between the current one and the next one
+     * @param pointToZoomIn the point in the map that should appear in the same place
+     * after the zooming
+     */
+    private void changeZoom(int zoomDelta, PointWebMercator pointToZoomIn) {
+        int newZoom = Math2.clamp(MIN_ZOOM_LEVEL, zoomDelta + mapProperty.get().zoomLevel(), MAX_ZOOM_LEVEL);
+        //This calculus is due to the fact that, since the point under the mouse does not
+        //change after the zooming (or that the center point in the map stays in the center
+        // after the zooming); therefore its distance to the old top left corner point
+        //of the map regarding the old zoom level should be the same as its distance to the
+        //new top left corner point regarding the new zoom level.
+        double newTopLeftX = pointToZoomIn.xAtZoomLevel(newZoom)
+                - pointToZoomIn.xAtZoomLevel(mapProperty.get().zoomLevel())
+                +  mapProperty.get().xCoordinate();
+        double newTopLeftY = pointToZoomIn.yAtZoomLevel(newZoom)
+                - pointToZoomIn.yAtZoomLevel(mapProperty.get().zoomLevel())
+                +  mapProperty.get().yCoordinate();
+        mapProperty.setValue(new MapViewParameters (newZoom, newTopLeftX, newTopLeftY));
+    }
+
+    /**
+     * Creates the icons and add them to the buttons
      */
     private void buttonsIcons() {
         //ReverseItineraryExtension.
@@ -111,202 +323,4 @@ public final class BaseMapManager {
         Group removeIcon = new Group(removeIcon1, removeIcon2);
         removePointsButton.setGraphic(removeIcon);
     }
-
-    /**
-     * binds the elements in the pane to its properties for their placement.
-     */
-    private void bindings () {
-        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getHeight() - reverseItineraryB.getHeight(), pane.heightProperty()));
-        removePointsButton.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                        pane.getHeight() - reverseItineraryB.getHeight(),
-                pane.heightProperty()));
-        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                        pane.getHeight() - reverseItineraryB.getHeight() -
-                                removePointsButton.getHeight(),
-                pane.heightProperty()));
-        subtractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                addZoomB.getHeight(), addZoomB.heightProperty()));
-        canvas.widthProperty().bind(pane.widthProperty());
-        canvas.heightProperty().bind(pane.heightProperty());
-    }
-
-    /**
-     * add the listeners to the properties.
-     */
-    private void addListeners() {
-        canvas.widthProperty().addListener((p, oldM, newM) ->
-                redrawOnNextPulse());
-        canvas.heightProperty().addListener((p, oldM, newM) ->
-                redrawOnNextPulse());
-        mapProperty.addListener((p, oldM, newM) ->
-                redrawOnNextPulse());
-        canvas.sceneProperty().addListener((p, oldS, newS) -> {
-            assert oldS == null;
-            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
-        });
-    }
-
-    public void setTileManager(TileManager tileManager) {
-        tileManagerP.set(tileManager);
-    }
-
-    /**
-     * Generates and draws each of the visible tiles at least partially
-     * If an exception is thrown by the tile manager (of type IOException),
-     * the corresponding tile is simply not drawn
-     * @throws IllegalArgumentException if the index X or the index Y of the tile are not valid
-     */
-    public void tilesDraw(){
-        GraphicsContext canvasGraphicsContext = canvas.getGraphicsContext2D();
-        canvasGraphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        double xTopLeft = mapProperty.get().xCoordinate();
-        double yTopLeft = mapProperty.get().yCoordinate();
-        int xNumberTiles = ((int) canvas.getWidth() / PIXELS_IN_TILE) + 1;
-        int yNumberTiles = ((int) canvas.getHeight() / PIXELS_IN_TILE) + 1;
-        int indexX, indexY;
-        for(double y = 0; y <= yNumberTiles; ++y) {
-            double newXTopLeft = xTopLeft;
-            for(double x = 0; x <= xNumberTiles; ++x) {
-                indexX = (int) (newXTopLeft / PIXELS_IN_TILE);
-                indexY = (int) (yTopLeft / PIXELS_IN_TILE);
-                TileManager.TileId tileId = new TileManager.TileId(mapProperty.get().zoomLevel(),
-                        indexX, indexY);
-                try {
-                    Image image = tileManagerP.get().imageForTileAt(tileId);
-                    canvasGraphicsContext.drawImage(image,
-                            PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
-                            PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate());
-                } catch (IOException e) {}
-                newXTopLeft += PIXELS_IN_TILE;
-            }
-            yTopLeft += PIXELS_IN_TILE;
-        }
-    }
-
-    /**
-     * Returns the JavaFX panel displaying the background map
-     * @return a JavaFX panel displaying the background map
-     */
-    public Pane pane() {
-        return pane;
-    }
-
-    /**
-     * Redraw the map if and only if the attribute redrawNeeded is true
-     */
-    private void redrawIfNeeded(){
-        if (!redrawNeeded) return;
-        redrawNeeded = false;
-        tilesDraw();
-    }
-
-    /**
-     * Requests a redraw on the next beat by forcing JavaFX to perform the next beat,
-     * even if from its point of view this is not necessary
-     */
-    private void redrawOnNextPulse() {
-        redrawNeeded = true;
-        Platform.requestNextPulse();
-    }
-
-    /**
-     * Manages the events related to the pane
-     */
-    private void baseMapEvents(){
-        SimpleLongProperty minScrollTime = new SimpleLongProperty();
-        ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
-        pane.setOnScroll(e ->
-                zoomFromScrolling(minScrollTime, e));
-
-        pane.setOnMousePressed(e ->
-                mousePositionProperty.setValue(new Point2D(e.getX(), e.getY())));
-
-        pane.setOnMouseDragged(e ->
-                changeMapViewParametersAfterSlide(mousePositionProperty, e));
-
-        pane.setOnMouseReleased(e -> {
-            if (!e.isStillSincePress()) {
-                changeMapViewParametersAfterSlide(mousePositionProperty, e);
-            } else {
-                double x = e.getX() + mapProperty.get().xCoordinate();
-                double y = e.getY() + mapProperty.get().yCoordinate();
-                PointWebMercator point = PointWebMercator.of(mapProperty.get().zoomLevel(), x, y);
-                waypointsManager.addWaypoint(point.x(), point.y());
-            }
-        });
-
-        reverseItineraryB.setOnAction(e -> waypointsManager.reverseItinerary());
-        removePointsButton.setOnAction(e -> waypointsManager.removeItinerary());
-
-        addZoomB.setOnAction( e -> {
-            //We made the choice to add 1 zoom level per click.
-            PointWebMercator centerPoint = mapProperty.get().pointAt(
-                    pane.getWidth() / 2d,
-                    pane.getHeight() / 2d);
-            changeZoom(1, centerPoint);
-        });
-
-        subtractZoomB.setOnAction(e -> {
-            //We made the choice to subtract 1 zoom level per click.
-            PointWebMercator centerPoint = mapProperty.get().pointAt(
-                    pane.getWidth() / 2d,
-                    pane.getHeight() / 2d);
-            changeZoom(- 1, centerPoint);
-        });
-    }
-
-    /**
-     * Updates the mapViewParameters after a shift of the map
-     * @param mousePositionProperty a property containing the position of the map
-     * @param e a mouse event
-     */
-    private void changeMapViewParametersAfterSlide
-        (ObjectProperty<Point2D> mousePositionProperty, MouseEvent e) {
-        Point2D oldMousePosition = mousePositionProperty.get();
-        mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
-        Point2D gap = oldMousePosition.subtract(mousePositionProperty.get());
-        mapProperty.setValue(mapProperty.get().withMinXY(
-                mapProperty.get().xCoordinate() + gap.getX(),
-                mapProperty.get().yCoordinate() + gap.getY()));
-    }
-
-    /**
-     * Updates the mapViewParameters after a change in the zoom level of the map
-     * @param minScrollTime a minimum scrolling time
-     * @param e a scroll event
-     */
-    private void zoomFromScrolling
-    (SimpleLongProperty minScrollTime, ScrollEvent e) {
-        if (e.getDeltaY() == 0d) return;
-        long currentTime = System.currentTimeMillis();
-        if (currentTime < minScrollTime.get()) return;
-        minScrollTime.set(currentTime + 200);
-        int zoomDelta = (int)Math.signum(e.getDeltaY());
-        PointWebMercator pointUnderMouse =  mapProperty.get().pointAt(e.getX(), e.getY());
-        changeZoom(zoomDelta, pointUnderMouse);
-    }
-
-    /**
-     *
-     * @param zoomDelta the difference of zoom between the current one and the next one.
-     * @param pointToZoomIn the point in the map that should appear in the same place
-     *                      after the zooming.
-     */
-    private void changeZoom(int zoomDelta, PointWebMercator pointToZoomIn) {
-        int newZoom = Math2.clamp(8, zoomDelta + mapProperty.get().zoomLevel(), 19);
-        //This calculus is due to the fact that, since the point under the mouse does not
-        //change after the zooming (or that the center point in the map stays in the center
-        // after the zooming); therefore its distance to the old top left corner point
-        //of the map regarding the old zoom level should be the same as its distance to the
-        //new top left corner point regarding the new zoom level.
-        double newTopLeftX = pointToZoomIn.xAtZoomLevel(newZoom)
-                - pointToZoomIn.xAtZoomLevel(mapProperty.get().zoomLevel())
-                +  mapProperty.get().xCoordinate();
-        double newTopLeftY = pointToZoomIn.yAtZoomLevel(newZoom)
-                - pointToZoomIn.yAtZoomLevel(mapProperty.get().zoomLevel())
-                +  mapProperty.get().yCoordinate();
-        mapProperty.setValue(new MapViewParameters (newZoom, newTopLeftX, newTopLeftY));
-    }
-
 }
