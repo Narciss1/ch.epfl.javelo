@@ -119,18 +119,16 @@ public final class JaVelo extends Application {
         });
 
         osmButton.setOnAction( e -> {
-            System.out.println("osm");
             annotedMapManager.setTileManager(new TileManager(cacheBasePath,"tile.openstreetmap.org"));
         });
         cyclosmButton.setOnAction( e -> {
-            System.out.println("cyclosm");
             annotedMapManager.setTileManager(new TileManager(cacheBasePath,"a.tile-cyclosm.openstreetmap.fr/cyclosm"));
         });
 
         //BorderPane sûrement à changer.
         BorderPane borderPane = new BorderPane(splitPane, menuBar, null, null, null);
         tilePane.layoutYProperty().bind(Bindings.createDoubleBinding(
-                () -> switchOsm.getHeight() - tilePane.getHeight(),  switchOsm.heightProperty(), tilePane.heightProperty()
+                () -> menuBar.getHeight(),  menuBar.heightProperty()
         ));
         tilePane.layoutXProperty().bind(Bindings.createDoubleBinding(
                 () -> switchOsm.getWidth() - tilePane.getWidth(),  switchOsm.widthProperty(), tilePane.widthProperty()

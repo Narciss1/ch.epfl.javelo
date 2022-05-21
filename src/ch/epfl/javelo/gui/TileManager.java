@@ -42,7 +42,7 @@ public final class TileManager {
     }
 
     /**
-     * Represents the identity of an OSM tile.
+     * Represents the identity of an OSM tile
      */
     public record TileId(int zoomLevel, int indexX, int indexY) {
 
@@ -63,7 +63,7 @@ public final class TileManager {
          * @param indexX index X of a potential tile
          * @param indexY index Y of a potential tile
          * @return true if the index X and Y of a potential tile are valid index according to the zoom level,
-        false if one or both of them are not.
+         * false if one or both of them are not
          */
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
             int limit = (int)Math.pow(2,zoomLevel) - 1;
