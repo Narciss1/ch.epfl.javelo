@@ -6,7 +6,6 @@ import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -25,89 +24,121 @@ public final class JaVelo extends Application {
 
     public static void main(String[] args) { launch(args); }
 
+    //On est d'accord que cette méthode n'a pas à être commentée ? (Override)
     @Override
     public void start(Stage primaryStage) throws Exception {
+
+        //Pour cette sucession de trucs j'ai essayé un peu de garder une cohérence dans
+        //leur succession ms je vois pas cmt améliorer autrement.
+
         Graph graph = Graph.loadFrom(Path.of("javelo-data"));
-        Path cacheBasePath = Path.of("./osm-cache");
-        String tileServerHost = "tile.openstreetmap.org";
-        ErrorManager errorManager = new ErrorManager();
-        TileManager tileManager =
-               new TileManager(cacheBasePath, tileServerHost);
         CostFunction cf = new CityBikeCF(graph);
         RouteComputer routeComputer = new RouteComputer(graph, cf);
-        RouteBean routeBean = new RouteBean(routeComputer);
+        Path cacheBasePath = Path.of("./osm-cache");
+        String tileServerHost = "tile.openstreetmap.org";
+
+        ErrorManager errorManager = new ErrorManager();
         Consumer<String> errorConsumer = errorManager::displayError;
-        AnnotedMapManager annotedMapManager = new AnnotedMapManager(graph, tileManager, routeBean, errorConsumer);
-        BooleanProperty positiveMousePositionOnRoute = new SimpleBooleanProperty();
-        ElevationProfileManager profileManager =
-                new ElevationProfileManager(routeBean.elevationProfileProperty(), routeBean.highlightedPositionProperty());
 
-        positiveMousePositionOnRoute.bind(Bindings.createBooleanBinding(
-                () -> {
-                    if (annotedMapManager.mousePositionOnRouteProperty().get() >= 0) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }, annotedMapManager.mousePositionOnRouteProperty()
-        ));
+        RouteBean routeBean = new RouteBean(routeComputer);
+        TileManager tileManager =
+               new TileManager(cacheBasePath, tileServerHost);
+        AnnotedMapManager annotedMapManager = new AnnotedMapManager
+                (graph, tileManager, routeBean, errorConsumer);
 
-        Label label = new Label("Tiles Format");
-        RadioButton osmButton = new RadioButton("OpenStreetMap");
-        RadioButton cyclosmButton = new RadioButton("CyclOSM           ");
-        osmButton.setSelected(true);
+        ElevationProfileManager elevationProfileManager =
+                new ElevationProfileManager(routeBean.elevationProfileProperty(),
+                        routeBean.highlightedPositionProperty());
 
-        TilePane tilePane = new TilePane(Orientation.VERTICAL);
-        tilePane.maxHeightProperty().bind(Bindings.createDoubleBinding(() ->
-            osmButton.getHeight() + cyclosmButton.getHeight() + label.getHeight()
-        , osmButton.heightProperty(), cyclosmButton.heightProperty(), label.heightProperty()));
-        tilePane.maxWidthProperty().bind(Bindings.createDoubleBinding(() ->
-                   Math.max(Math.max(osmButton.getWidth(), cyclosmButton.getWidth()),
-                            label.getWidth())
-                , osmButton.widthProperty(), cyclosmButton.widthProperty()));
-        tilePane.setPickOnBounds(false);
-        tilePane.setBackground(Background.fill(Color.MINTCREAM));
-        ToggleGroup tileButtons = new ToggleGroup();
+        highlightedPositionBindings(annotedMapManager, elevationProfileManager, routeBean);
 
-        osmButton.setToggleGroup(tileButtons);
-        cyclosmButton.setToggleGroup(tileButtons);
+        //Conception changée.
+//        BorderPane borderPane1 = new BorderPane(splitPane, exporter(routeBean),
+//                null, null, null);
+//
+//        StackPane mainPane1 = new StackPane(borderPane1, errorManager.pane(),
+//                changeTilesPane(annotedMapManager,
+//                cacheBasePath));
 
-        tilePane.getChildren().add(label);
-        tilePane.getChildren().add(osmButton);
-        tilePane.getChildren().add(cyclosmButton);
-        Pane switchOsm = new Pane(tilePane);
-        switchOsm.setPickOnBounds(false);
+        //Voici la nouvelle (en relisant l'énoncé) :
+        StackPane mainPane = new StackPane(createSplitPane(annotedMapManager, elevationProfileManager,
+                routeBean), errorManager.pane(),
+                changeTilesPane(annotedMapManager, cacheBasePath));
+        BorderPane borderPane = new BorderPane(mainPane, exporter(routeBean),
+        null, null, null);
 
-        SplitPane splitPane = new SplitPane(annotedMapManager.pane());
-
-        routeBean.elevationProfileProperty().addListener(l -> {
-            if(routeBean.elevationProfileProperty().get() == null) {
-                splitPane.getItems().removeAll(profileManager.pane());
-            } else if(!splitPane.getItems().contains(profileManager.pane())) {
-                splitPane.getItems().add(profileManager.pane());
+        primaryStage.setMinWidth(800);
+        primaryStage.setMinHeight(600);
+        primaryStage.setScene(new Scene(borderPane));
+        borderPane.requestFocus();
+        borderPane.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.F){
+                primaryStage.setFullScreen(true);
             }
         });
+        primaryStage.setTitle("JaVelo");
+        primaryStage.setFullScreenExitHint("Appuyez sur echap pour quitter le plein écran");
+        primaryStage.setFullScreenExitKeyCombination(
+                KeyCombination.valueOf(KeyCode.ESCAPE.getName()));
+        primaryStage.show();
+    }
 
+    /**
+     * create a splitpane always containing the pane from annotedMapManager and the pane
+     * from ElevationProfileManager only when there is an existing route.
+     * @param annotedMapManager the annotedMapManager of JaVelo
+     * @param elevationProfileManager the elevationProfileManager of JaVelo
+     * @param routeBean the routeBean of Javelo
+     * @return the splitpane for JaVelo using the annotedMapManager, the elevationProfileManager,
+     * and the routeBean.
+     */
+    private static SplitPane createSplitPane(AnnotedMapManager annotedMapManager,
+                                             ElevationProfileManager elevationProfileManager,
+                                             RouteBean routeBean) {
+        SplitPane splitPane = new SplitPane(annotedMapManager.pane());
+        splitPane.setOrientation(Orientation.VERTICAL);
+        SplitPane.setResizableWithParent(elevationProfileManager.pane(), false);
+        routeBean.elevationProfileProperty().addListener(l -> {
+            if(routeBean.elevationProfileProperty().get() == null) {
+                splitPane.getItems().removeAll(elevationProfileManager.pane());
+            } else if(!splitPane.getItems().contains(elevationProfileManager.pane())) {
+                splitPane.getItems().add(elevationProfileManager.pane());
+            }
+        });
+        return splitPane;
+    }
+
+    /**
+     * binds the highlighted position to the mouse position if the mouse is on the map
+     * and to the mouse position on the profile if it is on the profile
+     * @param annotedMapManager the annotedMapManager of JaVelo
+     * @param elevationProfileManager the elevationProfileManager of JaVelo
+     * @param routeBean the routeBean of Javelo
+     */
+    private static void highlightedPositionBindings
+            (AnnotedMapManager annotedMapManager,
+             ElevationProfileManager elevationProfileManager,
+             RouteBean routeBean) {
+        BooleanProperty positiveMousePositionOnRoute = new SimpleBooleanProperty();
+        positiveMousePositionOnRoute.bind(Bindings.createBooleanBinding(
+                () -> annotedMapManager.mousePositionOnRouteProperty().get() >= 0,
+                annotedMapManager.mousePositionOnRouteProperty()));
         routeBean.highlightedPositionProperty().bind(
                 when(positiveMousePositionOnRoute)
-                .then(annotedMapManager.mousePositionOnRouteProperty())
-                        .otherwise(profileManager.mousePositionOnProfileProperty()));
+                        .then(annotedMapManager.mousePositionOnRouteProperty())
+                        .otherwise(elevationProfileManager.mousePositionOnProfileProperty()));
+    }
 
-        splitPane.setOrientation(Orientation.VERTICAL);
-        SplitPane.setResizableWithParent(profileManager.pane(), false);
+
+    //Pour l'argument ici est-ce que c'est mieux de passer tout le routeBean ou de passer 2
+    //arguments, un pour route, l'autre pour elevationProfile
+    private static MenuBar exporter(RouteBean routeBean) {
 
         MenuItem gpxExporter = new MenuItem("Exporter GPX");
         MenuBar menuBar = new MenuBar(new Menu("Fichier", null, gpxExporter));
 
         gpxExporter.disableProperty().bind(Bindings.createBooleanBinding(
-                () -> {
-                    if (routeBean.route() == null) {
-                        return true;
-                    } else {
-                        return false;   //Est-ce que ce else est nécessaire ou elle est par défaut à false ?? :aaa:
-                    }
-                }, routeBean.routeProperty()
-        ));
+                () -> routeBean.route() == null, routeBean.routeProperty()));
 
         gpxExporter.setOnAction(e  -> {
             try {
@@ -118,36 +149,66 @@ public final class JaVelo extends Application {
             }
         });
 
-        osmButton.setOnAction( e -> {
-            System.out.println("osm");
-            annotedMapManager.setTileManager(new TileManager(cacheBasePath,"tile.openstreetmap.org"));
-        });
-        cyclosmButton.setOnAction( e -> {
-            System.out.println("cyclosm");
-            annotedMapManager.setTileManager(new TileManager(cacheBasePath,"a.tile-cyclosm.openstreetmap.fr/cyclosm"));
-        });
+        return menuBar;
+    }
 
-        //BorderPane sûrement à changer.
-        BorderPane borderPane = new BorderPane(splitPane, menuBar, null, null, null);
+    //1. Est-ce que cette méthode est obligée d'être en static ? ça change rien au lancement
+    //de Javelo mais j'aimerais comprendre le sens du static ici dans sa globalité, pck pr moi si
+    //mm si elle est private.
+
+    //2. Also, is it okay qu'on mette l'initialisation, les bindings, et les events de ce petit morceau ensemble
+    //en tant qu'entité, ou est-ce qu'il vaut mieux les séparer
+    private static Pane changeTilesPane(AnnotedMapManager annotedMapManager,
+                                        Path cacheBasePath) {
+        Label label = new Label("Fond de carte");
+        RadioButton osmButton = new RadioButton("OpenStreetMap");
+        //Façon très moche de procéder Aya.
+        RadioButton cyclosmButton = new RadioButton("CyclOSM           ");
+        osmButton.setSelected(true);
+
+        osmButton.setOnAction( e -> annotedMapManager.setTileManager(
+                    new TileManager(cacheBasePath,"tile.openstreetmap.org")));
+        cyclosmButton.setOnAction( e -> annotedMapManager.setTileManager(
+                    new TileManager(cacheBasePath,"a.tile-cyclosm.openstreetmap.fr/cyclosm")));
+
+        ToggleGroup tileButtons = new ToggleGroup();
+        osmButton.setToggleGroup(tileButtons);
+        cyclosmButton.setToggleGroup(tileButtons);
+
+        TilePane tilePane = new TilePane(label, osmButton, cyclosmButton);
+        tilePane.setOrientation(Orientation.VERTICAL);
+        tilePane.setBackground(Background.fill(Color.MINTCREAM));
+
+        //En testant, je me suis rendue compte qu'il n'y avait que la height qui faisait n'importe
+        //quoi niveau taille d'origine mais la width non. Sauf que je sais pas prk la height n'est pas
+        //bien seule contrairement à la width. Tu peux check ça stv ça nous évitera les 4 lignes de code below.
+        tilePane.maxHeightProperty().bind(Bindings.createDoubleBinding(() ->
+                        osmButton.getHeight() + cyclosmButton.getHeight() + label.getHeight()
+                , osmButton.heightProperty(), cyclosmButton.heightProperty(),
+                label.heightProperty()));
+
+//        tilePane.maxWidthProperty().bind(Bindings.createDoubleBinding(() ->
+//                        Math.max(Math.max(osmButton.getWidth(), cyclosmButton.getWidth()),
+//                                label.getWidth())
+//                , osmButton.widthProperty(), cyclosmButton.widthProperty()));
+
+
+        //tilePane.setPickOnBounds(false); je pense c useless.
+
+        Pane switchOsm = new Pane(tilePane);
+        switchOsm.setPickOnBounds(false);
+
         tilePane.layoutYProperty().bind(Bindings.createDoubleBinding(
-                () -> switchOsm.getHeight() - tilePane.getHeight(),  switchOsm.heightProperty(), tilePane.heightProperty()
+                () -> switchOsm.getHeight() - tilePane.getHeight(),
+                switchOsm.heightProperty(), tilePane.heightProperty()
         ));
         tilePane.layoutXProperty().bind(Bindings.createDoubleBinding(
-                () -> switchOsm.getWidth() - tilePane.getWidth(),  switchOsm.widthProperty(), tilePane.widthProperty()
+                () -> switchOsm.getWidth() - tilePane.getWidth(),
+                switchOsm.widthProperty(), tilePane.widthProperty()
         ));
-        StackPane mainPane = new StackPane(borderPane, errorManager.pane(), switchOsm);
-        primaryStage.setMinWidth(800);
-        primaryStage.setMinHeight(600);
-        primaryStage.setScene(new Scene(mainPane));
-        mainPane.requestFocus();
-        mainPane.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.F){
-                primaryStage.setFullScreen(true);
-            }
-        });
-        primaryStage.setTitle("JaVelo");
-        primaryStage.setFullScreenExitHint("Press escape to exit full screen");
-        primaryStage.setFullScreenExitKeyCombination(KeyCombination.valueOf(KeyCode.ESCAPE.getName()));
-        primaryStage.show();
+
+    return switchOsm;
     }
+
+
 }

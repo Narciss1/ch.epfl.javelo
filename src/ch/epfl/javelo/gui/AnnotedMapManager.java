@@ -65,7 +65,7 @@ public final class AnnotedMapManager {
                     mousePositionP.get().getX(),
                     mousePositionP.get().getY());
             PointCh pointChMouse = webMercatorMouse.toPointCh();
-            if (routeBean.route() != null) {
+            if (routeBean.route() != null && pointChMouse != null) {
                 RoutePoint routePointMouse = routeBean.route().pointClosestTo(pointChMouse);
                 PointWebMercator closestPoint = PointWebMercator.ofPointCh(routePointMouse.point());
                 double distance = Math2.norm(
