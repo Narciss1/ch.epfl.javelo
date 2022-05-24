@@ -13,8 +13,6 @@ public final class ErrorManager {
     private final VBox errorPane;
     private final Text errorText;
 
-    ///!\Pour moi le code est bcp plus clair comme ça (ça éviterait notamment de surcharger la méthode
-    //display). Qu'en pense le prof ?
     private final FadeTransition firstFdeTransition;
     private final PauseTransition pauseTransition;
     private final FadeTransition lastFadeTransition;
@@ -41,8 +39,8 @@ public final class ErrorManager {
     }
 
     /**
-     *
-     * @return the plans on which the errors' message appears.
+     * Allow us to obtain the plan on which the errors' message appears
+     * @return the plan on which the errors' message appears
      */
     public Pane pane() {
         return errorPane;

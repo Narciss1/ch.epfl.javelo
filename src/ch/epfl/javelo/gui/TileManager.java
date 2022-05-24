@@ -29,10 +29,12 @@ public final class TileManager {
      * Value of load factor
      */
     private final static float LOAD_FACTOR = 0.75f;
+
+    /**
+     * A string containing ".png"
+     */
     private final static String PNG = ".png";
-    private final static String USER = "User-Agent";
-    private final static String JAVELO = "JaVelo";
-    private final static String HTTPS = "https://";
+
     /**
      * Constructor
      * @param basePath the path of the directory containing the disk cache
@@ -65,11 +67,12 @@ public final class TileManager {
          * @param zoomLevel the zoom level of the tile
          * @param indexX index X of a potential tile
          * @param indexY index Y of a potential tile
-         * @return true if the index X and Y of a potential tile are valid index according to the zoom level,
+         * @return true if the index X and Y of a potential tile are valid
+         * index according to the zoom level,
          * false if one or both of them are not
          */
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
-            int limit = (int)Math.pow(2, zoomLevel) - 1;
+            int limit = (int)Math.pow(2,zoomLevel) - 1;
             return (indexX <= limit && indexY <= limit && zoomLevel >= 0);
         }
     }
@@ -94,11 +97,11 @@ public final class TileManager {
             return imageInCacheMemory(pathImage, tileId);
         }
 
-        String s = HTTPS + server + '/' + tileId.zoomLevel + '/' + tileId.indexX
+        String s = "https://" + server + '/' + tileId.zoomLevel + '/' + tileId.indexX
                    + '/' + tileId.indexY + PNG;
         URL u = new URL(s);
         URLConnection c = u.openConnection();
-        c.setRequestProperty(USER, JAVELO);
+        c.setRequestProperty("User-Agent", "JaVelo");
 
         Path directoryPath = basePath.resolve(String.valueOf(server))
                 .resolve(String.valueOf(tileId.zoomLevel))

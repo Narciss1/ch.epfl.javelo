@@ -59,7 +59,8 @@ public final class AnnotatedMapManager {
         RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP);
         baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
 
-        javeloPane = new StackPane(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
+        javeloPane = new StackPane(baseMapManager.pane(), routeManager.pane(),
+                waypointsManager.pane());
         javeloPane.getStylesheets().add("map.css");
 
         this.routeBean = routeBean;
@@ -108,7 +109,8 @@ public final class AnnotatedMapManager {
             if (routeBean.route() != null && pointChMouse != null) {
                 RoutePoint routePointMouse = routeBean.route()
                                                       .pointClosestTo(pointChMouse);
-                PointWebMercator closestPoint = PointWebMercator.ofPointCh(routePointMouse.point());
+                PointWebMercator closestPoint =
+                        PointWebMercator.ofPointCh(routePointMouse.point());
                 double distance = Math2.norm(
                         mapViewParametersP.get().viewX(closestPoint)
                                 - mapViewParametersP.get().viewX(webMercatorMouse),

@@ -18,8 +18,8 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      *creates a new Edge
      * @param graph the edge's belongs to
      * @param edgeId the edge's identity
-     * @param fromNodeId the identity of the first node in the
-     * @param toNodeId
+     * @param fromNodeId the identity of the first node in the edge
+     * @param toNodeId the identity of the last node in the edge
      * @return a new Edge
      */
     public static Edge of(Graph graph, int edgeId, int fromNodeId, int toNodeId){
