@@ -27,8 +27,8 @@ import java.util.List;
  */
 public final class ElevationProfileManager {
 
-    private ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty;
-    private ReadOnlyDoubleProperty highlightedPositionProperty;
+    private final ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty;
+    private final ReadOnlyDoubleProperty highlightedPositionProperty;
     private DoubleProperty mousePositionProperty;
     private ObjectProperty<Rectangle2D> rectangleProperty;
     private ObjectProperty<Transform> worldToScreen;
@@ -36,7 +36,6 @@ public final class ElevationProfileManager {
 
     private BorderPane borderPane;
     private Pane pane;
-    private VBox routeStatistics;
     private Path grid;
     private Line line;
     private Text stats;
@@ -81,23 +80,6 @@ public final class ElevationProfileManager {
         return borderPane;
     }
 
-
-    private Rectangle2D rectangle() {
-        return rectangleProperty.get();
-    }
-
-    private ElevationProfile elevationProfile() {
-        return elevationProfileProperty.get();
-    }
-
-    private Transform worldToScreen() {
-        return worldToScreen.get();
-    }
-
-    private Transform screenToWorld() {
-        return screenToWorld.get();
-    }
-
     /**
      * Returns a read-only property containing the position of the mouse pointer along the profile
      * (in meters, rounded to the nearest integer) or NaN if the mouse pointer is not above the
@@ -114,9 +96,6 @@ public final class ElevationProfileManager {
      */
     private void transformations() {
         Affine affine = new Affine();
-        Rectangle2D rectangle = rectangleProperty.get();
-        ElevationProfile elevationProfile = elevationProfileProperty.get();
-
         if(elevationProfile() != null) {
             affine.prependTranslation(-insets.getLeft(), -insets.getTop());
             affine.prependScale(
@@ -138,8 +117,6 @@ public final class ElevationProfileManager {
      */
     private void createPolygon() {
         List<Double> listPoints = new ArrayList<>();
-        Rectangle2D rectangle = rectangleProperty.get();
-        ElevationProfile elevationProfile = elevationProfileProperty.get();
         double positionP = insets.getLeft();
 
         if(worldToScreen.get() != null) {
@@ -175,16 +152,16 @@ public final class ElevationProfileManager {
         double eleSpacing = 0;
 
         if(worldToScreen() != null) {
-            for (int i = 0; i < POS_STEPS.length; ++i) {
-                posSpacing = worldToScreen().deltaTransform(POS_STEPS[i], 0).getX();
-                posStep = POS_STEPS[i];
+            for (int step : POS_STEPS) {
+                posSpacing = worldToScreen().deltaTransform(step, 0).getX();
+                posStep = step;
                 if (posSpacing >= 50) {
                     break;
                 }
             }
-            for (int i = 0; i < ELE_STEPS.length; ++i) {
-                eleSpacing = worldToScreen().deltaTransform(0, -ELE_STEPS[i]).getY();
-                eleStep = ELE_STEPS[i];
+            for (int step : ELE_STEPS) {
+                eleSpacing = worldToScreen().deltaTransform(0, -step).getY();
+                eleStep = step;
                 if (eleSpacing >= 25) {
                     break;
                 }
@@ -244,7 +221,6 @@ public final class ElevationProfileManager {
      * Adds the route statistics to the bottom of the panel
      */
     private void createStatistics() {
-        ElevationProfile elevationProfile = elevationProfileProperty.get();
         if (elevationProfile() != null) {
             stats.setText(String.format("Longueur : %.1f km" +
                             "     Montée : %.0f m" +
@@ -277,7 +253,7 @@ public final class ElevationProfileManager {
         line = new Line();
 
         stats = new Text();
-        routeStatistics = new VBox(stats);
+        VBox routeStatistics = new VBox(stats);
         routeStatistics.setId("profile_data");
 
         screenToWorld = new SimpleObjectProperty<>(new Affine());
@@ -311,7 +287,7 @@ public final class ElevationProfileManager {
      */
     private void listeners() {
         elevationProfileProperty.addListener(l -> {
-            if (elevationProfileProperty.get() != null) {
+            if (elevationProfile() != null) {
                 transformations();
                 createStatistics();
             }
@@ -331,13 +307,12 @@ public final class ElevationProfileManager {
      * Binds the rectangle containing the elevation profile and the pane
      */
     private void rectangleBinding() {
-        rectangleProperty.bind(Bindings.createObjectBinding((() -> {
-            return new Rectangle2D(
+        rectangleProperty.bind(Bindings.createObjectBinding((() ->new Rectangle2D(
                     insets.getLeft(),
                     insets.getTop(),
                     Math.max(pane.getWidth() - insets.getRight() - insets.getLeft(),0),
-                    Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0));
-        }), pane.widthProperty(), pane.heightProperty()));
+                    Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0))),
+                pane.widthProperty(), pane.heightProperty()));
     }
 
     /**
@@ -355,7 +330,7 @@ public final class ElevationProfileManager {
     }
 
     /**
-     * Manage the events related to the mouse
+     * Manages the events related to the mouse
      */
     private void events() {
         pane.setOnMouseMoved(e -> {
@@ -369,6 +344,38 @@ public final class ElevationProfileManager {
         });
         pane.setOnMouseExited(e ->
                 mousePositionProperty.set(Double.NaN));
+    }
+
+    /**
+     * Returns the rectangle contained in the property
+     * @return a rectangle
+     */
+    private Rectangle2D rectangle() {
+        return rectangleProperty.get();
+    }
+
+    /**
+     * Returns the elevation profile contained in the property
+     * @return an elevation profile
+     */
+    private ElevationProfile elevationProfile() {
+        return elevationProfileProperty.get();
+    }
+
+    /**
+     * Returns the transform contained in the property worldToScreen
+     * @return a transform
+     */
+    private Transform worldToScreen() {
+        return worldToScreen.get();
+    }
+
+    /**
+     * Returns the transform contained in the property screenToWorld
+     * @return a transform
+     */
+    private Transform screenToWorld() {
+        return screenToWorld.get();
     }
 }
 

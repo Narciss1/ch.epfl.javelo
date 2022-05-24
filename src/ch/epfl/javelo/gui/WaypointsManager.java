@@ -14,7 +14,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.AudioClip;
 import javafx.scene.shape.SVGPath;
-
 import java.util.function.Consumer;
 
 /**
@@ -29,8 +28,8 @@ public final class WaypointsManager {
     private final ObjectProperty<MapViewParameters> mapProperty;
     private final ObservableList<Waypoint> wayPoints;
     private final Consumer<String> errorConsumer;
-   private final AudioClip delete = new AudioClip(
-                            getClass().getResource("/delete.wav").toString());
+    //private final AudioClip delete = new AudioClip(
+                           // getClass().getResource("/delete.wav").toString());
 
     /**
      * Length of the side of a square centred on the mouse pointer
@@ -53,10 +52,7 @@ public final class WaypointsManager {
         this.wayPoints = wayPoints;
         this.errorConsumer = errorConsumer;
         //addSVGPaths(); useless now I guess vu que tt est initialement vide.
-        wayPoints.addListener((InvalidationListener)  l -> addSVGPaths());
-        mapProperty.addListener((p, oldM, newM) -> {
-            relocateSVGPaths();
-        });
+        addListeners();
     }
 
     /**
@@ -76,7 +72,7 @@ public final class WaypointsManager {
         PointWebMercator pointWebMercator = new PointWebMercator(x, y);
         PointCh pointCh = pointWebMercator.toPointCh();
         if (pointCh == null) {
-            errorConsumer.accept("Oups. Vous êtes sortis du territoir de la belle Suisse.");
+            errorConsumer.accept("À l'extérieur de la Suisse !");
         } else if (graph.nodeClosestTo(pointCh, SQUARE_RADIUS) == -1) {
             errorConsumer.accept("Aucune route à proximité !");
         } else {
@@ -84,9 +80,18 @@ public final class WaypointsManager {
         }
     }
 
+    /**
+     * Reverses the order of the wayPoints in their list in order to reverse the itinerary
+     */
+    //Extension
     public void reverseItinerary() {
         FXCollections.reverse(wayPoints);
     }
+
+    /**
+     * Clears the list of wayPoints in order to remove the itinerary
+     */
+    //Extension
     public void removeItinerary() { wayPoints.clear(); }
 
     /**
@@ -99,12 +104,14 @@ public final class WaypointsManager {
         for (Waypoint waypoint : wayPoints) {
             Group group = new Group();
             group.getStyleClass().add("pin");
+
             SVGPath exterior = new SVGPath();
             SVGPath interior = new SVGPath();
             exterior.getStyleClass().add("pin_outside");
             interior.getStyleClass().add("pin_inside");
             exterior.setContent("M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20");
             interior.setContent("M0-23A1 1 0 000-29 1 1 0 000-23");
+
             if (counting == 0) {
                 group.getStyleClass().add("first");
             } else if (counting == wayPoints.size() - 1) {
@@ -112,6 +119,7 @@ public final class WaypointsManager {
             } else {
                 group.getStyleClass().add("middle");
             }
+
             group.getChildren().add(exterior);
             group.getChildren().add(interior);
             pane.getChildren().add(group);
@@ -149,6 +157,14 @@ public final class WaypointsManager {
     private void relocateGroup(Node group, double x, double y) {
         group.setLayoutX(x);
         group.setLayoutY(y);
+    }
+
+    /**
+     * Adds listeners to waypoints manager
+     */
+    private void addListeners() {
+        wayPoints.addListener((InvalidationListener)  l -> addSVGPaths());
+        mapProperty.addListener((p, oldM, newM) -> relocateSVGPaths());
     }
 
     /**
@@ -192,7 +208,7 @@ public final class WaypointsManager {
                         errorConsumer.accept("Aucune route à proximité !");
                     }
                 } else {
-                    delete.play();
+                    //delete.play();
                     wayPoints.remove(waypoint);
                 }
             });

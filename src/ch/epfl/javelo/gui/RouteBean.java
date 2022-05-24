@@ -12,21 +12,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
- * a JavaFX bean grouping properties linked to the waypoints and the itinerary.
+ * A JavaFX bean grouping properties linked to the waypoints and the itinerary
  * @author Lina Sadgal (342075)
  * @author Aya Hamane (345565)
  */
 public final class RouteBean {
 
-    private ObservableList<Waypoint> waypoints;
-    private ObjectProperty<Route> routeP;
-    private ObjectProperty<ElevationProfile> elevationProfileP;
-    private DoubleProperty highlightedPositionP;
-    private RouteComputer rc;
-    private LinkedHashMap<Pair<Integer, Integer>, Route> cacheMemoryRoutes;
+    private final ObservableList<Waypoint> waypoints;
+    private final ObjectProperty<Route> routeP;
+    private final ObjectProperty<ElevationProfile> elevationProfileP;
+    private final DoubleProperty highlightedPositionP;
+    private final RouteComputer rc;
+    private final LinkedHashMap<Pair<Integer, Integer>, Route> cacheMemoryRoutes;
 
     /**
-     * The maximum capacity of the cache containing the last added routes.
+     * The maximum capacity of the cache containing the last added routes
      */
     private final static int CACHE_MEMORY_ROUTES_CAPACITY = 25;
     /**
@@ -34,9 +34,13 @@ public final class RouteBean {
      */
     private final static int MAX_STEP_LENGTH = 5;
     /**
-     * the minimal size of the list of the waypoints so that we attempt to calculate a route.
+     * The minimum size of the list of the waypoints so that we attempt to calculate a route
      */
     private final static int WAYPOINTS_MINIMAL_SIZE_CHECK = 2;
+    /**
+     * Value of load factor
+     */
+    private final static float LOAD_FACTOR = 0.75f;
 
     /**
      * Constructor
@@ -44,21 +48,19 @@ public final class RouteBean {
      */
     public RouteBean (RouteComputer rc) {
         this.rc = rc;
-
         //@1370 qlq avait eu ce pb. A tester maybe ?
-        cacheMemoryRoutes = new LinkedHashMap<>(CACHE_MEMORY_ROUTES_CAPACITY, 0.75f, true);
+        cacheMemoryRoutes = new LinkedHashMap<>(CACHE_MEMORY_ROUTES_CAPACITY, LOAD_FACTOR, true);
         waypoints = FXCollections.observableArrayList();
         routeP = new SimpleObjectProperty<>();
         elevationProfileP = new SimpleObjectProperty<>();
         highlightedPositionP = new SimpleDoubleProperty();
-
-        //méthode.
+        //méthode
         waypoints.addListener((InvalidationListener) l -> computingItineraryAndProfile());
     }
 
     /**
-     * stores the given position in the highlightedPositionProperty if the route is not null
-     * and the position is between 0 and the length of the route, and NaN if not.
+     * Stores the given position in the highlightedPositionProperty if the route is not null
+     * and the position is between 0 and the length of the route, and NaN if not
      * @param position the position to be stored in the highlightedPositionProperty
      */
     public void setHighlightedPositionP(double position) {
@@ -70,8 +72,64 @@ public final class RouteBean {
     }
 
     /**
-     * computes the itinerary and the profile between the existing waypoints
-     * and respectively stores them in the route property and elevation profile property.
+     * Returns the route property as a ReadOnlyObjectProperty
+     * @return a route property as a ReadOnlyObjectProperty
+     */
+    public ReadOnlyObjectProperty<Route> routeProperty() {
+        return routeP;
+    }
+
+    /**
+     * Returns the elevation profile property as a ReadOnlyObjectProperty
+     * @return an elevation profile property
+     */
+    public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty() {
+        return elevationProfileP;
+    }
+
+    /**
+     * Returns the route
+     * @return a route
+     */
+    public Route route() {
+        return routeP.get();
+    }
+
+    /**
+     * Returns the elevation profile
+     * @return an elevation profile
+     */
+    public ElevationProfile elevationProfile() {
+        return elevationProfileP.get();
+    }
+
+    /**
+     * Returns the highlighted position
+     * @return the position in the itinerary of the highlighted position
+     */
+    public double highlightedPosition() {
+        return highlightedPositionP.get();
+    }
+
+    /**
+     * Returns the highlighted position property
+     * @return the highlighted position property
+     */
+    public DoubleProperty highlightedPositionProperty() {
+        return highlightedPositionP;
+    }
+
+    /**
+     * Returns the list of waypoints
+     * @return the observable list containing the waypoints
+     */
+    public ObservableList<Waypoint> waypoints() {
+        return waypoints;
+    }
+
+    /**
+     * Computes the itinerary and the profile between the existing waypoints
+     * and respectively stores them in the route property and elevation profile property
      */
     private void computingItineraryAndProfile() {
         List<Route> routes = new ArrayList<>();
@@ -79,8 +137,7 @@ public final class RouteBean {
             routeAndItineraryToNull();
             return;
         }
-        int startNodeId;
-        int endNodeId;
+        int startNodeId, endNodeId;
         for (int i = 0; i < waypoints.size() - 1; ++i) {
             startNodeId = waypoints.get(i).closestNodeId();
             endNodeId = waypoints.get(i + 1).closestNodeId();
@@ -105,7 +162,7 @@ public final class RouteBean {
     }
 
     /**
-     * stores null in the route and itinerary properties.
+     * Stores null in the route and itinerary properties
      */
     private void routeAndItineraryToNull() {
         routeP.set(null);
@@ -113,64 +170,8 @@ public final class RouteBean {
     }
 
     /**
-     *
-     * @return the route property as a ReadOnlyObjectProperty.
-     */
-    public ReadOnlyObjectProperty<Route> routeProperty() {
-        return routeP;
-    }
-
-    /**
-     *
-     * @return the highlighted position property.
-     */
-    public DoubleProperty highlightedPositionProperty() {
-        return highlightedPositionP;
-    }
-
-    /**
-     *
-     * @return the elevation profile property as a ReadOnlyObjectProperty.
-     */
-    public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty() {
-        return elevationProfileP;
-    }
-
-    /**
-     *
-     * @return the route
-     */
-    public Route route() {
-        return routeP.get();
-    }
-
-    /**
-     *
-     * @return the elevation profile
-     */
-    public ElevationProfile elevationProfile() {
-        return elevationProfileP.get();
-    }
-
-    /**
-     *
-     * @return the position in the itinerary of the highlighted position
-     */
-    public double highlightedPosition() {
-        return highlightedPositionP.get();
-    }
-
-    /**
-     *
-     * @return the observable list containing the waypoints.
-     */
-    public ObservableList<Waypoint> waypoints() {
-        return waypoints;
-    }
-
-    /**
-     * checks if the cache containing the route is full and, if it is, removes the
-     * first added element in it.
+     * Checks if the cache containing the route is full and, if it is, removes the
+     * first added element in it
      */
     private void checkCacheCapacity(){
         if(cacheMemoryRoutes.size() == CACHE_MEMORY_ROUTES_CAPACITY) {
@@ -180,9 +181,9 @@ public final class RouteBean {
     }
 
     /**
-     * gives the index of the route's segment at a given position.
-     * @param position the given position for which we want the segment's index.
-     * @return the index of the route's segment at a given position.
+     * Gives the index of the route's segment at a given position
+     * @param position the given position for which we want the segment's index
+     * @return the index of the route's segment at a given position
      */
     public int indexOfNonEmptySegmentAt(double position) {
         int index = route().indexOfSegmentAt(position);
@@ -193,5 +194,4 @@ public final class RouteBean {
         }
         return index;
     }
-
 }
