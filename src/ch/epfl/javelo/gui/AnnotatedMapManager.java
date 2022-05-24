@@ -18,11 +18,9 @@ import java.util.function.Consumer;
  * @author Hamane Aya (345565)
  * @author Sadgal Lina (342075)
  */
-public final class AnnotedMapManager {
+public final class AnnotatedMapManager {
 
     private final BaseMapManager baseMapManager;
-    //private final RouteManager routeManager;
-    //private final WaypointsManager waypointsManager;
 
     private final ObjectProperty<MapViewParameters> mapViewParametersP;
     private final ObjectProperty<Point2D> mousePositionP;
@@ -50,8 +48,8 @@ public final class AnnotedMapManager {
      * @param errorConsumer an "error consumer" to report an error
      */
     //est-ce que c la classe qui se charge de la rendre readOnly? //manager
-    public AnnotedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean,
-                             Consumer<String> errorConsumer) {
+    public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean,
+                               Consumer<String> errorConsumer) {
         mapViewParametersP = new SimpleObjectProperty<>(startMapViewParameters);
         mousePositionP = new SimpleObjectProperty<>();
         mousePositionOnRouteProperty = new SimpleDoubleProperty();
@@ -94,6 +92,7 @@ public final class AnnotedMapManager {
     public void setTileManager(TileManager tileManager) {
         baseMapManager.setTileManager(tileManager);
     }
+
     /**
      * Binds the property containing the mouse position on the route and other
      * properties containing the map view parameters, the mouse position and the route
