@@ -4,7 +4,6 @@ import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.routing.*;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -50,20 +49,14 @@ public final class JaVelo extends Application {
                 new ElevationProfileManager(routeBean.elevationProfileProperty(),
                         routeBean.highlightedPositionProperty());
 
-        highlightedPositionBindings(annotedMapManager, elevationProfileManager, routeBean);
+        routeBean.highlightedPositionProperty().bind(
+                when(annotedMapManager.mousePositionOnRouteProperty().greaterThanOrEqualTo(0))
+                        .then(annotedMapManager.mousePositionOnRouteProperty())
+                        .otherwise(elevationProfileManager.mousePositionOnProfileProperty()));
 
-        //Conception changée.
-//        BorderPane borderPane1 = new BorderPane(splitPane, exporter(routeBean),
-//                null, null, null);
-//
-//        StackPane mainPane1 = new StackPane(borderPane1, errorManager.pane(),
-//                changeTilesPane(annotedMapManager,
-//                cacheBasePath));
-
-        //Voici la nouvelle (en relisant l'énoncé) :
         StackPane mainPane = new StackPane(createSplitPane(annotedMapManager, elevationProfileManager,
                 routeBean), errorManager.pane(),
-                changeTilesPane(annotedMapManager, cacheBasePath));
+                changeTilesPane(annotedMapManager, cacheBasePath, routeBean));
         BorderPane borderPane = new BorderPane(mainPane, exporter(routeBean),
         null, null, null);
 
@@ -108,27 +101,6 @@ public final class JaVelo extends Application {
         return splitPane;
     }
 
-    /**
-     * binds the highlighted position to the mouse position if the mouse is on the map
-     * and to the mouse position on the profile if it is on the profile
-     * @param annotedMapManager the annotedMapManager of JaVelo
-     * @param elevationProfileManager the elevationProfileManager of JaVelo
-     * @param routeBean the routeBean of Javelo
-     */
-    private static void highlightedPositionBindings
-            (AnnotedMapManager annotedMapManager,
-             ElevationProfileManager elevationProfileManager,
-             RouteBean routeBean) {
-        BooleanProperty positiveMousePositionOnRoute = new SimpleBooleanProperty();
-        positiveMousePositionOnRoute.bind(Bindings.createBooleanBinding(
-                () -> annotedMapManager.mousePositionOnRouteProperty().get() >= 0,
-                annotedMapManager.mousePositionOnRouteProperty()));
-        routeBean.highlightedPositionProperty().bind(
-                when(positiveMousePositionOnRoute)
-                        .then(annotedMapManager.mousePositionOnRouteProperty())
-                        .otherwise(elevationProfileManager.mousePositionOnProfileProperty()));
-    }
-
 
     //Pour l'argument ici est-ce que c'est mieux de passer tout le routeBean ou de passer 2
     //arguments, un pour route, l'autre pour elevationProfile
@@ -142,7 +114,8 @@ public final class JaVelo extends Application {
 
         gpxExporter.setOnAction(e  -> {
             try {
-                GpxGenerator.writeGpx("Javelo.gpx", routeBean.route(), routeBean.elevationProfile());
+                GpxGenerator.writeGpx("Javelo.gpx", routeBean.route(),
+                        routeBean.elevationProfile());
             }
             catch(IOException exception) {
                 throw new UncheckedIOException(exception);
@@ -152,14 +125,10 @@ public final class JaVelo extends Application {
         return menuBar;
     }
 
-    //1. Est-ce que cette méthode est obligée d'être en static ? ça change rien au lancement
-    //de Javelo mais j'aimerais comprendre le sens du static ici dans sa globalité, pck pr moi si
-    //mm si elle est private.
 
-    //2. Also, is it okay qu'on mette l'initialisation, les bindings, et les events de ce petit morceau ensemble
-    //en tant qu'entité, ou est-ce qu'il vaut mieux les séparer
+    //Créer une classe changeTilesManager pour ce panneau.
     private static Pane changeTilesPane(AnnotedMapManager annotedMapManager,
-                                        Path cacheBasePath) {
+                                        Path cacheBasePath, RouteBean routeBean) {
         Label label = new Label("Fond de carte");
         RadioButton osmButton = new RadioButton("OpenStreetMap");
         //Façon très moche de procéder Aya.
@@ -199,16 +168,13 @@ public final class JaVelo extends Application {
         switchOsm.setPickOnBounds(false);
 
         tilePane.layoutYProperty().bind(Bindings.createDoubleBinding(
-                () -> switchOsm.getHeight() - tilePane.getHeight(),
-                switchOsm.heightProperty(), tilePane.heightProperty()
+                () -> exporter(routeBean).getHeight(),  exporter(routeBean).heightProperty()
         ));
         tilePane.layoutXProperty().bind(Bindings.createDoubleBinding(
-                () -> switchOsm.getWidth() - tilePane.getWidth(),
-                switchOsm.widthProperty(), tilePane.widthProperty()
+                () -> switchOsm.getWidth() - tilePane.getWidth(),  switchOsm.widthProperty(), tilePane.widthProperty()
         ));
 
-    return switchOsm;
+        return switchOsm;
     }
-
 
 }

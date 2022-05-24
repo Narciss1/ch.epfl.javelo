@@ -48,13 +48,11 @@ public final class RouteBean {
      */
     public RouteBean (RouteComputer rc) {
         this.rc = rc;
-        //@1370 qlq avait eu ce pb. A tester maybe ?
         cacheMemoryRoutes = new LinkedHashMap<>(CACHE_MEMORY_ROUTES_CAPACITY, LOAD_FACTOR, true);
         waypoints = FXCollections.observableArrayList();
         routeP = new SimpleObjectProperty<>();
         elevationProfileP = new SimpleObjectProperty<>();
         highlightedPositionP = new SimpleDoubleProperty();
-        //méthode
         waypoints.addListener((InvalidationListener) l -> computingItineraryAndProfile());
     }
 

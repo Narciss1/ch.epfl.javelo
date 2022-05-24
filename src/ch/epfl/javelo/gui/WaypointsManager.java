@@ -29,12 +29,17 @@ public final class WaypointsManager {
     private final ObservableList<Waypoint> wayPoints;
     private final Consumer<String> errorConsumer;
     //private final AudioClip delete = new AudioClip(
-                           // getClass().getResource("/delete.wav").toString());
+    // getClass().getResource("/delete.wav").toString());
 
     /**
      * Length of the side of a square centred on the mouse pointer
      */
     private final static int SQUARE_RADIUS = 500;
+
+    /**
+     * The error message when there is no route nearby
+     */
+    private final static String ERROR_MESSAGE = "Aucune route à proximité !";
 
     /**
      * Constructor
@@ -71,10 +76,8 @@ public final class WaypointsManager {
     public void addWaypoint(double x, double y) {
         PointWebMercator pointWebMercator = new PointWebMercator(x, y);
         PointCh pointCh = pointWebMercator.toPointCh();
-        if (pointCh == null) {
-            errorConsumer.accept("À l'extérieur de la Suisse !");
-        } else if (graph.nodeClosestTo(pointCh, SQUARE_RADIUS) == -1) {
-            errorConsumer.accept("Aucune route à proximité !");
+       if (graph.nodeClosestTo(pointCh, SQUARE_RADIUS) == -1 || pointCh == null) {
+            errorConsumer.accept(ERROR_MESSAGE);
         } else {
             wayPoints.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, SQUARE_RADIUS)));
         }
@@ -100,8 +103,7 @@ public final class WaypointsManager {
     private void addSVGPaths() {
         pane.getChildren().clear();
         int counting = 0;
-        //Useless boucle.
-        for (Waypoint waypoint : wayPoints) {
+        for(int i = 0; i < wayPoints.size(); ++i) {
             Group group = new Group();
             group.getStyleClass().add("pin");
 
@@ -119,16 +121,15 @@ public final class WaypointsManager {
             } else {
                 group.getStyleClass().add("middle");
             }
+            ++counting;
 
             group.getChildren().add(exterior);
             group.getChildren().add(interior);
             pane.getChildren().add(group);
-            ++counting;
+
+            wayPointsEvents(group, wayPoints.get(i), i);
         }
         relocateSVGPaths();
-        //We have to call this method as well because now we are dealing with new groups
-        //so these new groups must now be linked to the events.
-        wayPointsEvents();
     }
 
     /**
@@ -163,55 +164,52 @@ public final class WaypointsManager {
      * Adds listeners to waypoints manager
      */
     private void addListeners() {
-        wayPoints.addListener((InvalidationListener)  l -> addSVGPaths());
+        wayPoints.addListener((InvalidationListener) l -> addSVGPaths());
         mapProperty.addListener((p, oldM, newM) -> relocateSVGPaths());
     }
 
     /**
-     * Manages the events related to each child of the pane
+     *
+     * @param group
+     * @param wayPoint
+     * @param i
      */
-    private void wayPointsEvents(){
-        ObservableList<Node> list = pane.getChildren();
-        for(int i = 0; i < list.size(); ++i) {
-            Waypoint waypoint = wayPoints.get(i);
-            int index = i;
-            Node group = list.get(i);
-            ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
+    private void wayPointsEvents(Group group, Waypoint wayPoint, int i){
+        ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
 
-            group.setOnMousePressed(e ->
-                    mousePositionProperty.setValue(new Point2D(e.getX(), e.getY())));
+        group.setOnMousePressed(e ->
+                mousePositionProperty.setValue(new Point2D(e.getX(), e.getY())));
 
-            group.setOnMouseDragged(e -> {
+        group.setOnMouseDragged(e -> {
+            Point2D oldMousePosition = mousePositionProperty.get();
+            Point2D gap = new Point2D(e.getX() , e.getY()).subtract(oldMousePosition);
+            double groupOriginalX = group.getLayoutX();
+            double groupOriginalY = group.getLayoutY();
+            relocateGroup(group, groupOriginalX + gap.getX(),groupOriginalY + gap.getY());
+        });
+
+        group.setOnMouseReleased(e -> {
+            if (!e.isStillSincePress()) {
                 Point2D oldMousePosition = mousePositionProperty.get();
-                Point2D gap = new Point2D(e.getX() , e.getY()).subtract(oldMousePosition);
-                double groupOriginalX = group.getLayoutX();
-                double groupOriginalY = group.getLayoutY();
-                relocateGroup(group, groupOriginalX + gap.getX(),groupOriginalY + gap.getY());
-            });
+                mousePositionProperty.setValue(new Point2D(e.getX() , e.getY()));
+                Point2D gap = mousePositionProperty.get().subtract(oldMousePosition);
 
-            group.setOnMouseReleased(e -> {
-                if (!e.isStillSincePress()) {
-                    Point2D oldMousePosition = mousePositionProperty.get();
-                    mousePositionProperty.setValue(new Point2D(e.getX() , e.getY()));
-                    Point2D gap = mousePositionProperty.get().subtract(oldMousePosition);
+                PointWebMercator newMercatorPoint = mapProperty.get().pointAt(
+                        group.getLayoutX() + gap.getX(),
+                        group.getLayoutY() + gap.getY());
+                PointCh newPointCh = newMercatorPoint.toPointCh();
 
-                    PointWebMercator newMercatorPoint = mapProperty.get().pointAt(
-                            group.getLayoutX() + gap.getX(),
-                            group.getLayoutY() + gap.getY());
-                    PointCh newPointCh = newMercatorPoint.toPointCh();
-
-                    if(newPointCh != null && graph.nodeClosestTo(newPointCh, SQUARE_RADIUS) != -1) {
-                        wayPoints.set(index,
-                                new Waypoint(newPointCh, graph.nodeClosestTo(newPointCh, SQUARE_RADIUS)));
-                    } else {
-                        relocateSVGPaths();
-                        errorConsumer.accept("Aucune route à proximité !");
-                    }
+                if(newPointCh != null && graph.nodeClosestTo(newPointCh, SQUARE_RADIUS) != -1) {
+                    wayPoints.set(i,
+                            new Waypoint(newPointCh, graph.nodeClosestTo(newPointCh, SQUARE_RADIUS)));
                 } else {
-                    //delete.play();
-                    wayPoints.remove(waypoint);
+                    relocateSVGPaths();
+                    errorConsumer.accept(ERROR_MESSAGE);
                 }
-            });
-        }
+            } else {
+                //delete.play();
+                wayPoints.remove(wayPoint);
+            }
+        });
     }
 }

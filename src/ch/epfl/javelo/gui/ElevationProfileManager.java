@@ -119,7 +119,7 @@ public final class ElevationProfileManager {
         List<Double> listPoints = new ArrayList<>();
         double positionP = insets.getLeft();
 
-        if(worldToScreen.get() != null) {
+
             listPoints.add(insets.getLeft());
             listPoints.add(insets.getTop() + rectangle().getHeight());
             while (positionP <= rectangle().getWidth() + insets.getLeft()) {
@@ -133,7 +133,7 @@ public final class ElevationProfileManager {
             }
             listPoints.add(insets.getLeft() + rectangle().getWidth());
             listPoints.add(insets.getTop() + rectangle().getHeight());
-        }
+
 
         profile.getPoints().setAll(listPoints);
     }
@@ -203,7 +203,7 @@ public final class ElevationProfileManager {
 
                 Text eleText = new Text();
                 eleText.getStyleClass().add("grid_label");
-                eleText.getStyleClass().add("verticale");
+                eleText.getStyleClass().add("vertical");
                 eleText.textOriginProperty().setValue(VPos.CENTER);
                 eleText.setText(String.valueOf(elevationInText));
                 eleText.setFont(Font.font("Avenir", 10));
@@ -262,23 +262,6 @@ public final class ElevationProfileManager {
         pane = new Pane(profile, line, grid, texts);
         borderPane = new BorderPane(pane, null, null, routeStatistics, null);
         borderPane.getStylesheets().add("elevation_profile.css");
-
-//        borderPane.getStylesheets().add("elevation_profile.css");
-//        pane = new Pane();
-//        routeStatistics = new VBox();
-//        borderPane.setCenter(pane);
-//        borderPane.setBottom(routeStatistics);
-//        routeStatistics.setId("profile_data");
-//        grid = new Path();
-//        texts = new Group();
-//        profile = new Polygon();
-//
-//        //pane.getChildren().add(line);
-//        pane.getChildren().add(grid);
-//        pane.getChildren().add(texts);
-//        pane.getChildren().add(profile);
-//        grid.setId("grid");
-//        profile.setId("profile");
     }
 
     /**
@@ -322,8 +305,8 @@ public final class ElevationProfileManager {
     private void lineBindings() {
         line.visibleProperty().bind(highlightedPositionProperty.greaterThanOrEqualTo(0));
         line.layoutXProperty().bind(Bindings.createDoubleBinding( () ->
-                        worldToScreen().transform(new Point2D(highlightedPositionProperty.get(), 0))
-                                       .getX(),
+                        worldToScreen().transform(new Point2D(
+                                highlightedPositionProperty.get(), 0)).getX(),
                 worldToScreen, highlightedPositionProperty));
         line.startYProperty().bind(Bindings.select(rectangleProperty, "minY"));
         line.endYProperty().bind(Bindings.select(rectangleProperty, "maxY"));

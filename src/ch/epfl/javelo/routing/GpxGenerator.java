@@ -44,7 +44,8 @@ public class GpxGenerator {
         root.setAttributeNS(
                 "http://www.w3.org/2001/XMLSchema-instance",
                 "xsi:schemaLocation",
-                "http://www.topografix.com/GPX/1/1 " + "http://www.topografix.com/GPX/1/1/gpx.xsd");
+                "http://www.topografix.com/GPX/1/1 " +
+                        "http://www.topografix.com/GPX/1/1/gpx.xsd");
         root.setAttribute("version", "1.1");
         root.setAttribute("creator", "JaVelo");
 

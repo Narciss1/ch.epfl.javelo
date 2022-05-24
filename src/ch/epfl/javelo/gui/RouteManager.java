@@ -34,7 +34,8 @@ public final class RouteManager {
      * @param routeBean a bean grouping all properties linked to the waypoints and the itinerary
      * @param mapViewParametersProperty a property containing the map view parameters
      */
-    public RouteManager(RouteBean routeBean, ReadOnlyObjectProperty<MapViewParameters> mapViewParametersProperty) {
+    public RouteManager(RouteBean routeBean,
+                        ReadOnlyObjectProperty<MapViewParameters> mapViewParametersProperty) {
         this.routeBean = routeBean;
         this.mapProperty = mapViewParametersProperty;
         polylineItinerary = new Polyline();
@@ -147,4 +148,5 @@ public final class RouteManager {
             }
         });
     }
+
 }

@@ -171,8 +171,7 @@ public final class BaseMapManager {
         reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
                 pane.getHeight() - reverseItineraryB.getHeight() - removePointsButton.getHeight(),
                 pane.heightProperty()));
-        subtractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                addZoomB.getHeight(),
+        subtractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding(addZoomB::getHeight,
                 addZoomB.heightProperty()));
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
@@ -220,18 +219,15 @@ public final class BaseMapManager {
 
         reverseItineraryB.setOnAction(e -> waypointsManager.reverseItinerary());
         removePointsButton.setOnAction(e -> waypointsManager.removeItinerary());
+        PointWebMercator centerPoint = mapProperty.get().pointAt(
+                pane.getWidth() / 2d,
+                pane.getHeight() / 2d);
         addZoomB.setOnAction( e -> {
             //We chose to add 1 zoom level per click
-            PointWebMercator centerPoint = mapProperty.get().pointAt(
-                    pane.getWidth() / 2d,
-                    pane.getHeight() / 2d);
             changeZoom(1, centerPoint);
         });
         subtractZoomB.setOnAction(e -> {
             //We chose to subtract 1 zoom level per click
-            PointWebMercator centerPoint = mapProperty.get().pointAt(
-                    pane.getWidth() / 2d,
-                    pane.getHeight() / 2d);
             changeZoom(- 1, centerPoint);
         });
     }
@@ -274,7 +270,8 @@ public final class BaseMapManager {
      * after the zooming
      */
     private void changeZoom(int zoomDelta, PointWebMercator pointToZoomIn) {
-        int newZoom = Math2.clamp(MIN_ZOOM_LEVEL, zoomDelta + mapProperty.get().zoomLevel(), MAX_ZOOM_LEVEL);
+        int newZoom = Math2.clamp(MIN_ZOOM_LEVEL,
+                zoomDelta + mapProperty.get().zoomLevel(), MAX_ZOOM_LEVEL);
         //This calculus is due to the fact that, since the point under the mouse does not
         //change after the zooming (or that the center point in the map stays in the center
         // after the zooming); therefore its distance to the old top left corner point
@@ -316,10 +313,11 @@ public final class BaseMapManager {
         subtractZoomB.setGraphic(groupMinus);
 
         SVGPath removeIcon2 = new SVGPath();
-        removeIcon2.setContent("M6.8,8.8h11L17,22.6 H7.6L6.8,8.8z M4.9,7l1,17.4h12.8 l1-17.4 H4.9z");
+        removeIcon2.setContent("M6.8,8.8h11L17,22.6 H7.6L6.8,8.8z " +
+                "M4.9,7l1,17.4h12.8 l1-17.4 H4.9z");
         SVGPath removeIcon1 = new SVGPath();
-        removeIcon1.setContent("M20.4,4h-4.8l-0.5-1.6 H9.5L9,4 H4.2 L3.5,8.6h17.6 L20.4,4z M9.9,3." +
-                "2h4.8 L14.9,3.9h-5.2z M5.6,6.7l0.2-1 h13l0.2,1 H5.6z");
+        removeIcon1.setContent("M20.4,4h-4.8l-0.5-1.6 H9.5L9,4 H4.2 L3.5,8.6h17.6 L20.4,4z " +
+                "M9.9,3.2h4.8 L14.9,3.9h-5.2z M5.6,6.7l0.2-1 h13l0.2,1 H5.6z");
         Group removeIcon = new Group(removeIcon1, removeIcon2);
         removePointsButton.setGraphic(removeIcon);
     }

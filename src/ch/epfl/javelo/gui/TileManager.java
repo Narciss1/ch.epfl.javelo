@@ -31,6 +31,11 @@ public final class TileManager {
     private final static float LOAD_FACTOR = 0.75f;
 
     /**
+     * A string containing ".png"
+     */
+    private final static String PNG = ".png";
+
+    /**
      * Constructor
      * @param basePath the path of the directory containing the disk cache
      * @param server the tiles' server's name
@@ -38,7 +43,7 @@ public final class TileManager {
     public TileManager(Path basePath, String server) {
         this.basePath = basePath;
         this.server = server;
-        cacheMemory = new LinkedHashMap(CACHE_MEMORY_CAPACITY, LOAD_FACTOR, true);
+        cacheMemory = new LinkedHashMap<>(CACHE_MEMORY_CAPACITY, LOAD_FACTOR, true);
     }
 
     /**
@@ -62,7 +67,8 @@ public final class TileManager {
          * @param zoomLevel the zoom level of the tile
          * @param indexX index X of a potential tile
          * @param indexY index Y of a potential tile
-         * @return true if the index X and Y of a potential tile are valid index according to the zoom level,
+         * @return true if the index X and Y of a potential tile are valid
+         * index according to the zoom level,
          * false if one or both of them are not
          */
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
@@ -86,13 +92,13 @@ public final class TileManager {
         Path pathImage = basePath.resolve(String.valueOf(server))
                 .resolve(String.valueOf(tileId.zoomLevel))
                 .resolve(String.valueOf(tileId.indexX))
-                .resolve(tileId.indexY + ".png");
+                .resolve(tileId.indexY + PNG);
         if (Files.exists(pathImage)) {
             return imageInCacheMemory(pathImage, tileId);
         }
 
         String s = "https://" + server + '/' + tileId.zoomLevel + '/' + tileId.indexX
-                   + '/' + tileId.indexY + ".png";
+                   + '/' + tileId.indexY + PNG;
         URL u = new URL(s);
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
