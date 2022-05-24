@@ -56,6 +56,20 @@ public final class BaseMapManager {
      */
     private final static int MIN_SCROLL_TIME_DELTA = 200;
 
+    private final static double TO_HALF = 1 / 2d;
+    private final static String REVERSE_2 = "M5.79,9.71A1,1,0,1,0,7.21,8.29L5.91,7h12A1.56,1.56" +
+            ",0,0,1,19.5,8.53V11a1,1,0,0,0,2,0V8.53A3.56,3.56,0,0,0,17.91,5h-12l1.3-1.29a1" +
+            ",1,0,0,0,0-1.42,1,1,0,0,0-1.42,0l-3,3a1,1,0,0,0,0,1.42Z";
+    private final static String REVERSE_1 = "M6.09,19h12l-1.3,1.29a1,1,0,0,0,1.42,1.42l3-3a1," +
+            "1,0,0,0,0-1.42l-3-3a1,1,0,0,0-1.42,0,1,1,0,0,0,0,1.42L18.09,17h-12A1.56," +
+            "1.56,0,0,1,4.5,15.47V13a1,1,0,0,0-2,0v2.47A3.56,3.56,0,0,0,6.09,19Z";
+    private final static String REMOVE_2 = "M6.8,8.8h11L17,22.6 H7.6L6.8,8.8z M4.9,7l1,17.4h12.8 l1-17.4 H4.9z";
+    private final static String REMOVE_1 = "M20.4,4h-4.8l-0.5-1.6 H9.5L9,4 H4.2 L3.5,8.6h17.6 L20.4,4z M9.9,3." +
+            "2h4.8 L14.9,3.9h-5.2z M5.6,6.7l0.2-1 h13l0.2,1 H5.6z";
+    private final static String PLUS = "M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 " +
+            "0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z";
+    private final static String MINUS = "M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z";
+
     /**
      * Constructor
      * @param tileManager a tile manager used to get the tiles from the map
@@ -171,8 +185,7 @@ public final class BaseMapManager {
         reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
                 pane.getHeight() - reverseItineraryB.getHeight() - removePointsButton.getHeight(),
                 pane.heightProperty()));
-        subtractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                addZoomB.getHeight(),
+        subtractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding(addZoomB::getHeight,
                 addZoomB.heightProperty()));
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
@@ -223,15 +236,15 @@ public final class BaseMapManager {
         addZoomB.setOnAction( e -> {
             //We chose to add 1 zoom level per click
             PointWebMercator centerPoint = mapProperty.get().pointAt(
-                    pane.getWidth() / 2d,
-                    pane.getHeight() / 2d);
+                    pane.getWidth() * TO_HALF,
+                    pane.getHeight() * TO_HALF);
             changeZoom(1, centerPoint);
         });
         subtractZoomB.setOnAction(e -> {
             //We chose to subtract 1 zoom level per click
             PointWebMercator centerPoint = mapProperty.get().pointAt(
-                    pane.getWidth() / 2d,
-                    pane.getHeight() / 2d);
+                    pane.getWidth() * TO_HALF,
+                    pane.getHeight() * TO_HALF);
             changeZoom(- 1, centerPoint);
         });
     }
@@ -274,7 +287,10 @@ public final class BaseMapManager {
      * after the zooming
      */
     private void changeZoom(int zoomDelta, PointWebMercator pointToZoomIn) {
-        int newZoom = Math2.clamp(MIN_ZOOM_LEVEL, zoomDelta + mapProperty.get().zoomLevel(), MAX_ZOOM_LEVEL);
+        int newZoom = Math2.clamp(
+                MIN_ZOOM_LEVEL,
+                zoomDelta + mapProperty.get().zoomLevel(),
+                MAX_ZOOM_LEVEL);
         //This calculus is due to the fact that, since the point under the mouse does not
         //change after the zooming (or that the center point in the map stays in the center
         // after the zooming); therefore its distance to the old top left corner point
@@ -293,33 +309,28 @@ public final class BaseMapManager {
      * Creates the icons and add them to the buttons
      */
     private void buttonsIcons() {
-        //ReverseItineraryExtension.
+        //ReverseItineraryExtension
         SVGPath reverseIcon2 = new SVGPath();
-        reverseIcon2.setContent("M5.79,9.71A1,1,0,1,0,7.21,8.29L5.91,7h12A1.56,1.56" +
-                ",0,0,1,19.5,8.53V11a1,1,0,0,0,2,0V8.53A3.56,3.56,0,0,0,17.91,5h-12l1.3-1.29a1" +
-                ",1,0,0,0,0-1.42,1,1,0,0,0-1.42,0l-3,3a1,1,0,0,0,0,1.42Z");
+        reverseIcon2.setContent(REVERSE_2);
         SVGPath reverseIcon1 = new SVGPath();
-        reverseIcon1.setContent("M6.09,19h12l-1.3,1.29a1,1,0,0,0,1.42,1.42l3-3a1," +
-                "1,0,0,0,0-1.42l-3-3a1,1,0,0,0-1.42,0,1,1,0,0,0,0,1.42L18.09,17h-12A1.56," +
-                "1.56,0,0,1,4.5,15.47V13a1,1,0,0,0-2,0v2.47A3.56,3.56,0,0,0,6.09,19Z");
+        reverseIcon1.setContent(REVERSE_1);
         Group reverseIcon = new Group(reverseIcon1, reverseIcon2);
         reverseItineraryB.setGraphic(reverseIcon);
 
-        //+ and - for ZOOM buttons extension.
+        //+ and - for ZOOM buttons extension
         SVGPath plusIcon = new SVGPath();
-        plusIcon.setContent("M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 " +
-                "0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z");
+        plusIcon.setContent(PLUS);
         addZoomB.setGraphic(plusIcon);
         SVGPath minusIcon = new SVGPath();
-        minusIcon.setContent("M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z");
+        minusIcon.setContent(MINUS);
         Group groupMinus = new Group(minusIcon);
         subtractZoomB.setGraphic(groupMinus);
 
+        //RemoveItineraryExtension
         SVGPath removeIcon2 = new SVGPath();
-        removeIcon2.setContent("M6.8,8.8h11L17,22.6 H7.6L6.8,8.8z M4.9,7l1,17.4h12.8 l1-17.4 H4.9z");
+        removeIcon2.setContent(REMOVE_2);
         SVGPath removeIcon1 = new SVGPath();
-        removeIcon1.setContent("M20.4,4h-4.8l-0.5-1.6 H9.5L9,4 H4.2 L3.5,8.6h17.6 L20.4,4z M9.9,3." +
-                "2h4.8 L14.9,3.9h-5.2z M5.6,6.7l0.2-1 h13l0.2,1 H5.6z");
+        removeIcon1.setContent(REMOVE_1);
         Group removeIcon = new Group(removeIcon1, removeIcon2);
         removePointsButton.setGraphic(removeIcon);
     }

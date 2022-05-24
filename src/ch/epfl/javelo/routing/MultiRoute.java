@@ -1,6 +1,5 @@
 package ch.epfl.javelo.routing;
 
-import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 import java.util.ArrayList;
 import java.util.List;

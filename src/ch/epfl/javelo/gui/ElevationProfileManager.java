@@ -53,6 +53,47 @@ public final class ElevationProfileManager {
      */
     private final static int[] ELE_STEPS =
             { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
+    /**
+     *
+     */
+    private final static String VERTICAL = "vertical";
+    /**
+     *
+     */
+    private final static String HORIZONTAL = "horizontal";
+    /**
+     *
+     */
+    private final static String GRID_LABEL = "grid_label";
+    /**
+     *
+     */
+    private final static String FONT_AVENIR = "Avenir";
+
+    //A VOIR
+    private final static String LENGTH = "Longueur : %.1f km";
+    private final static String CLIMB = "     Montée : %.0f m";
+    private final static String DESCENT = "     Descente : %.0f m";
+    private final static String ALTITUDE = "     Altitude : de %.0f m à %.0f m";
+
+    /**
+     * Value of text's size
+     */
+    private final static int TEXT_SIZE = 10;
+    /**
+     * Minimum value of spacing between positions
+     */
+    private final static int MIN_POS_SPACING = 50;
+    /**
+     * Minimum value of spacing between elevations
+     */
+    private final static int MIN_ELE_SPACING = 25;
+    /**
+     * Ratio used to convert values in meters to kilometers
+     */
+    private final static int METER_KILOMETER_RATIO = 1/1000;
+
+    private final static int X_LAYOUT_DELTA = 2; //A VOIR
 
     /**
      * Constructs an elevation profile manager
@@ -119,7 +160,6 @@ public final class ElevationProfileManager {
         List<Double> listPoints = new ArrayList<>();
         double positionP = insets.getLeft();
 
-        if(worldToScreen.get() != null) {
             listPoints.add(insets.getLeft());
             listPoints.add(insets.getTop() + rectangle().getHeight());
             while (positionP <= rectangle().getWidth() + insets.getLeft()) {
@@ -133,7 +173,6 @@ public final class ElevationProfileManager {
             }
             listPoints.add(insets.getLeft() + rectangle().getWidth());
             listPoints.add(insets.getTop() + rectangle().getHeight());
-        }
 
         profile.getPoints().setAll(listPoints);
     }
@@ -155,14 +194,14 @@ public final class ElevationProfileManager {
             for (int step : POS_STEPS) {
                 posSpacing = worldToScreen().deltaTransform(step, 0).getX();
                 posStep = step;
-                if (posSpacing >= 50) {
+                if (posSpacing >= MIN_POS_SPACING) {
                     break;
                 }
             }
             for (int step : ELE_STEPS) {
                 eleSpacing = worldToScreen().deltaTransform(0, -step).getY();
                 eleStep = step;
-                if (eleSpacing >= 25) {
+                if (eleSpacing >= MIN_ELE_SPACING) {
                     break;
                 }
             }
@@ -176,16 +215,16 @@ public final class ElevationProfileManager {
                 grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangle().getHeight()));
 
                 Text posText = new Text();
-                posText.getStyleClass().add("grid_label");
-                posText.getStyleClass().add("horizontal");
+                posText.getStyleClass().add(GRID_LABEL);
+                posText.getStyleClass().add(HORIZONTAL);
                 posText.textOriginProperty().setValue(VPos.TOP);
                 posText.setText(String.valueOf(positionInText));
-                posText.setFont(Font.font("Avenir", 10));
-                posText.setLayoutX(xPosition - posText.prefWidth(0) / 2);
+                posText.setFont(Font.font(FONT_AVENIR, TEXT_SIZE));
+                posText.setLayoutX(xPosition - posText.prefWidth(0) / X_LAYOUT_DELTA);
                 posText.setLayoutY(insets.getTop() + rectangle().getHeight());
                 texts.getChildren().add(posText);
 
-                positionInText += posStep / 1000;
+                positionInText += posStep * METER_KILOMETER_RATIO;
                 xPosition += posSpacing;
             }
 
@@ -202,12 +241,12 @@ public final class ElevationProfileManager {
                 grid.getElements().add(new LineTo(insets.getLeft() + rectangle().getWidth(), yPosition));
 
                 Text eleText = new Text();
-                eleText.getStyleClass().add("grid_label");
-                eleText.getStyleClass().add("verticale");
+                eleText.getStyleClass().add(GRID_LABEL);
+                eleText.getStyleClass().add(VERTICAL);
                 eleText.textOriginProperty().setValue(VPos.CENTER);
                 eleText.setText(String.valueOf(elevationInText));
-                eleText.setFont(Font.font("Avenir", 10));
-                eleText.setLayoutX(insets.getLeft() - eleText.prefWidth(0) - 2);
+                eleText.setFont(Font.font(FONT_AVENIR, TEXT_SIZE));
+                eleText.setLayoutX(insets.getLeft() - eleText.prefWidth(0) - X_LAYOUT_DELTA);
                 eleText.setLayoutY(yPosition);
                 texts.getChildren().add(eleText);
 
@@ -222,11 +261,8 @@ public final class ElevationProfileManager {
      */
     private void createStatistics() {
         if (elevationProfile() != null) {
-            stats.setText(String.format("Longueur : %.1f km" +
-                            "     Montée : %.0f m" +
-                            "     Descente : %.0f m" +
-                            "     Altitude : de %.0f m à %.0f m",
-                    elevationProfile().length() / 1000,
+            stats.setText(String.format(LENGTH + CLIMB + DESCENT + ALTITUDE,
+                    elevationProfile().length() * METER_KILOMETER_RATIO,
                     elevationProfile().totalAscent(),
                     elevationProfile().totalDescent(),
                     elevationProfile().minElevation(),
@@ -262,23 +298,6 @@ public final class ElevationProfileManager {
         pane = new Pane(profile, line, grid, texts);
         borderPane = new BorderPane(pane, null, null, routeStatistics, null);
         borderPane.getStylesheets().add("elevation_profile.css");
-
-//        borderPane.getStylesheets().add("elevation_profile.css");
-//        pane = new Pane();
-//        routeStatistics = new VBox();
-//        borderPane.setCenter(pane);
-//        borderPane.setBottom(routeStatistics);
-//        routeStatistics.setId("profile_data");
-//        grid = new Path();
-//        texts = new Group();
-//        profile = new Polygon();
-//
-//        //pane.getChildren().add(line);
-//        pane.getChildren().add(grid);
-//        pane.getChildren().add(texts);
-//        pane.getChildren().add(profile);
-//        grid.setId("grid");
-//        profile.setId("profile");
     }
 
     /**

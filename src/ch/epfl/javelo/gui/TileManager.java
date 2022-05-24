@@ -29,7 +29,10 @@ public final class TileManager {
      * Value of load factor
      */
     private final static float LOAD_FACTOR = 0.75f;
-
+    private final static String PNG = ".png";
+    private final static String USER = "User-Agent";
+    private final static String JAVELO = "JaVelo";
+    private final static String HTTPS = "https://";
     /**
      * Constructor
      * @param basePath the path of the directory containing the disk cache
@@ -38,7 +41,7 @@ public final class TileManager {
     public TileManager(Path basePath, String server) {
         this.basePath = basePath;
         this.server = server;
-        cacheMemory = new LinkedHashMap(CACHE_MEMORY_CAPACITY, LOAD_FACTOR, true);
+        cacheMemory = new LinkedHashMap<>(CACHE_MEMORY_CAPACITY, LOAD_FACTOR, true);
     }
 
     /**
@@ -66,7 +69,7 @@ public final class TileManager {
          * false if one or both of them are not
          */
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
-            int limit = (int)Math.pow(2,zoomLevel) - 1;
+            int limit = (int)Math.pow(2, zoomLevel) - 1;
             return (indexX <= limit && indexY <= limit && zoomLevel >= 0);
         }
     }
@@ -86,16 +89,16 @@ public final class TileManager {
         Path pathImage = basePath.resolve(String.valueOf(server))
                 .resolve(String.valueOf(tileId.zoomLevel))
                 .resolve(String.valueOf(tileId.indexX))
-                .resolve(tileId.indexY + ".png");
+                .resolve(tileId.indexY + PNG);
         if (Files.exists(pathImage)) {
             return imageInCacheMemory(pathImage, tileId);
         }
 
-        String s = "https://" + server + '/' + tileId.zoomLevel + '/' + tileId.indexX
-                   + '/' + tileId.indexY + ".png";
+        String s = HTTPS + server + '/' + tileId.zoomLevel + '/' + tileId.indexX
+                   + '/' + tileId.indexY + PNG;
         URL u = new URL(s);
         URLConnection c = u.openConnection();
-        c.setRequestProperty("User-Agent", "JaVelo");
+        c.setRequestProperty(USER, JAVELO);
 
         Path directoryPath = basePath.resolve(String.valueOf(server))
                 .resolve(String.valueOf(tileId.zoomLevel))

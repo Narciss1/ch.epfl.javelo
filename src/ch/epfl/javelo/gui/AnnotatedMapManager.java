@@ -18,11 +18,9 @@ import java.util.function.Consumer;
  * @author Hamane Aya (345565)
  * @author Sadgal Lina (342075)
  */
-public final class AnnotedMapManager {
+public final class AnnotatedMapManager {
 
     private final BaseMapManager baseMapManager;
-    //private final RouteManager routeManager;
-    //private final WaypointsManager waypointsManager;
 
     private final ObjectProperty<MapViewParameters> mapViewParametersP;
     private final ObjectProperty<Point2D> mousePositionP;
@@ -38,6 +36,11 @@ public final class AnnotedMapManager {
             new MapViewParameters(12, 543200, 370650);
 
     /**
+     * Maximum distance between the mouse pointer and the route
+     */
+    private static final int MAX_DISTANCE = 15;
+
+    /**
      * Constructor
      * @param graph a road network graph
      * @param tileManager an OpenStreetMap tile manager
@@ -45,13 +48,14 @@ public final class AnnotedMapManager {
      * @param errorConsumer an "error consumer" to report an error
      */
     //est-ce que c la classe qui se charge de la rendre readOnly? //manager
-    public AnnotedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean,
-                             Consumer<String> errorConsumer) {
+    public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean,
+                               Consumer<String> errorConsumer) {
         mapViewParametersP = new SimpleObjectProperty<>(startMapViewParameters);
         mousePositionP = new SimpleObjectProperty<>();
         mousePositionOnRouteProperty = new SimpleDoubleProperty();
 
-        WaypointsManager waypointsManager = new WaypointsManager(graph, mapViewParametersP, routeBean.waypoints(), errorConsumer);
+        WaypointsManager waypointsManager = new WaypointsManager(graph, mapViewParametersP,
+                routeBean.waypoints(), errorConsumer);
         RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP);
         baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
 
@@ -87,6 +91,7 @@ public final class AnnotedMapManager {
     public void setTileManager(TileManager tileManager) {
         baseMapManager.setTileManager(tileManager);
     }
+
     /**
      * Binds the property containing the mouse position on the route and other
      * properties containing the map view parameters, the mouse position and the route
@@ -109,7 +114,7 @@ public final class AnnotedMapManager {
                                 - mapViewParametersP.get().viewX(webMercatorMouse),
                         mapViewParametersP.get().viewY(closestPoint)
                                 - mapViewParametersP.get().viewY(webMercatorMouse));
-                if (distance <= 15) {
+                if (distance <= MAX_DISTANCE) {
                     return routePointMouse.position();
                 }
             }
@@ -122,8 +127,6 @@ public final class AnnotedMapManager {
      */
     private void setMousePositionP() {
         javeloPane.setOnMouseMoved(e -> mousePositionP.setValue(new Point2D(e.getX(), e.getY())));
-
         javeloPane.setOnMouseExited(e -> mousePositionP.set(null));
-        //Est-ce que détection legit? genre par le null
     }
 }

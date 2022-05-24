@@ -37,7 +37,7 @@ public final class JaVelo extends Application {
         RouteComputer routeComputer = new RouteComputer(graph, cf);
         RouteBean routeBean = new RouteBean(routeComputer);
         Consumer<String> errorConsumer = errorManager::displayError;
-        AnnotedMapManager annotedMapManager = new AnnotedMapManager(graph, tileManager, routeBean, errorConsumer);
+        AnnotatedMapManager annotedMapManager = new AnnotatedMapManager(graph, tileManager, routeBean, errorConsumer);
         BooleanProperty positiveMousePositionOnRoute = new SimpleBooleanProperty();
         ElevationProfileManager profileManager =
                 new ElevationProfileManager(routeBean.elevationProfileProperty(), routeBean.highlightedPositionProperty());
@@ -54,7 +54,7 @@ public final class JaVelo extends Application {
 
         Label label = new Label("Tiles Format");
         RadioButton osmButton = new RadioButton("OpenStreetMap");
-        RadioButton cyclosmButton = new RadioButton("CyclOSM           ");
+        RadioButton cyclosmButton = new RadioButton("CyclOSM");
         osmButton.setSelected(true);
 
         TilePane tilePane = new TilePane(Orientation.VERTICAL);
@@ -75,6 +75,7 @@ public final class JaVelo extends Application {
         tilePane.getChildren().add(label);
         tilePane.getChildren().add(osmButton);
         tilePane.getChildren().add(cyclosmButton);
+        tilePane.setTileAlignment(Pos.CENTER_LEFT);
         Pane switchOsm = new Pane(tilePane);
         switchOsm.setPickOnBounds(false);
 
