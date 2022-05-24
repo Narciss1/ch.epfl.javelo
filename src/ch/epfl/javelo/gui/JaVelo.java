@@ -43,14 +43,14 @@ public final class JaVelo extends Application {
         RouteBean routeBean = new RouteBean(routeComputer);
         TileManager tileManager =
                new TileManager(cacheBasePath, tileServerHost);
-        AnnotedMapManager annotedMapManager = new AnnotedMapManager
+        AnnotatedMapManager annotatedMapManager = new AnnotatedMapManager
                 (graph, tileManager, routeBean, errorConsumer);
 
         ElevationProfileManager elevationProfileManager =
                 new ElevationProfileManager(routeBean.elevationProfileProperty(),
                         routeBean.highlightedPositionProperty());
 
-        highlightedPositionBindings(annotedMapManager, elevationProfileManager, routeBean);
+        highlightedPositionBindings(annotatedMapManager, elevationProfileManager, routeBean);
 
         //Conception changée.
 //        BorderPane borderPane1 = new BorderPane(splitPane, exporter(routeBean),
@@ -61,9 +61,9 @@ public final class JaVelo extends Application {
 //                cacheBasePath));
 
         //Voici la nouvelle (en relisant l'énoncé) :
-        StackPane mainPane = new StackPane(createSplitPane(annotedMapManager, elevationProfileManager,
+        StackPane mainPane = new StackPane(createSplitPane(annotatedMapManager, elevationProfileManager,
                 routeBean), errorManager.pane(),
-                changeTilesPane(annotedMapManager, cacheBasePath));
+                changeTilesPane(annotatedMapManager, cacheBasePath));
         BorderPane borderPane = new BorderPane(mainPane, exporter(routeBean),
         null, null, null);
 
@@ -92,7 +92,7 @@ public final class JaVelo extends Application {
      * @return the splitpane for JaVelo using the annotedMapManager, the elevationProfileManager,
      * and the routeBean.
      */
-    private static SplitPane createSplitPane(AnnotedMapManager annotedMapManager,
+    private static SplitPane createSplitPane(AnnotatedMapManager annotedMapManager,
                                              ElevationProfileManager elevationProfileManager,
                                              RouteBean routeBean) {
         SplitPane splitPane = new SplitPane(annotedMapManager.pane());
@@ -116,7 +116,7 @@ public final class JaVelo extends Application {
      * @param routeBean the routeBean of Javelo
      */
     private static void highlightedPositionBindings
-            (AnnotedMapManager annotedMapManager,
+            (AnnotatedMapManager annotedMapManager,
              ElevationProfileManager elevationProfileManager,
              RouteBean routeBean) {
         BooleanProperty positiveMousePositionOnRoute = new SimpleBooleanProperty();
@@ -158,7 +158,7 @@ public final class JaVelo extends Application {
 
     //2. Also, is it okay qu'on mette l'initialisation, les bindings, et les events de ce petit morceau ensemble
     //en tant qu'entité, ou est-ce qu'il vaut mieux les séparer
-    private static Pane changeTilesPane(AnnotedMapManager annotedMapManager,
+    private static Pane changeTilesPane(AnnotatedMapManager annotatedMapManager,
                                         Path cacheBasePath) {
         Label label = new Label("Fond de carte");
         RadioButton osmButton = new RadioButton("OpenStreetMap");
@@ -166,9 +166,9 @@ public final class JaVelo extends Application {
         RadioButton cyclosmButton = new RadioButton("CyclOSM           ");
         osmButton.setSelected(true);
 
-        osmButton.setOnAction( e -> annotedMapManager.setTileManager(
+        osmButton.setOnAction( e -> annotatedMapManager.setTileManager(
                     new TileManager(cacheBasePath,"tile.openstreetmap.org")));
-        cyclosmButton.setOnAction( e -> annotedMapManager.setTileManager(
+        cyclosmButton.setOnAction( e -> annotatedMapManager.setTileManager(
                     new TileManager(cacheBasePath,"a.tile-cyclosm.openstreetmap.fr/cyclosm")));
 
         ToggleGroup tileButtons = new ToggleGroup();
