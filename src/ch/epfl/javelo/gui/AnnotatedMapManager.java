@@ -101,11 +101,11 @@ public final class AnnotatedMapManager {
             if(mousePositionP.get() == null) {
                 return Double.NaN;
             }
-            PointWebMercator webMercatorMouse = mapViewParametersP.get().pointAt(
+            PointWebMercator webMercatorMouse = mapViewParametersP.get().pointAtPointWebMercator(
                     mousePositionP.get().getX(),
                     mousePositionP.get().getY());
             PointCh pointChMouse = webMercatorMouse.toPointCh();
-            if (routeBean.route() != null && pointChMouse != null) {
+            if (! (routeBean.route() == null || pointChMouse == null)) {
                 RoutePoint routePointMouse = routeBean.route()
                                                       .pointClosestTo(pointChMouse);
                 PointWebMercator closestPoint =

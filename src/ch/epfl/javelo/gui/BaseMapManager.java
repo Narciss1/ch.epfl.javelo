@@ -219,7 +219,7 @@ public final class BaseMapManager {
 
         reverseItineraryB.setOnAction(e -> waypointsManager.reverseItinerary());
         removePointsButton.setOnAction(e -> waypointsManager.removeItinerary());
-        PointWebMercator centerPoint = mapProperty.get().pointAt(
+        PointWebMercator centerPoint = mapProperty.get().pointAtPointWebMercator(
                 pane.getWidth() / 2d,
                 pane.getHeight() / 2d);
         addZoomB.setOnAction( e -> {
@@ -259,7 +259,8 @@ public final class BaseMapManager {
         if (currentTime < minScrollTime.get()) return;
         minScrollTime.set(currentTime + MIN_SCROLL_TIME_DELTA);
         int zoomDelta = (int)Math.signum(e.getDeltaY());
-        PointWebMercator pointUnderMouse =  mapProperty.get().pointAt(e.getX(), e.getY());
+        PointWebMercator pointUnderMouse =  mapProperty.get().
+                pointAtPointWebMercator(e.getX(), e.getY());
         changeZoom(zoomDelta, pointUnderMouse);
     }
 

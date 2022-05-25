@@ -39,7 +39,7 @@ public class MapViewParametersTest {
     void pointAtWorksOnNapoleon(){
             PointWebMercator expected = PointWebMercator.of(19, 69561722,47468099);
             MapViewParameters mapViewParameters = new MapViewParameters(19, 0, 0);
-            assertEquals(expected, mapViewParameters.pointAt(69561722, 47468099));
+            assertEquals(expected, mapViewParameters.pointAtPointWebMercator(69561722, 47468099));
     }
 
     @Test
@@ -110,16 +110,16 @@ public class MapViewParametersTest {
 
     @Test
     public void  pointAtTest() {
-        PointWebMercator actual0 = mapViewParameters4.pointAt(135735, 92327);
+        PointWebMercator actual0 = mapViewParameters4.pointAtPointWebMercator(135735, 92327);
         PointWebMercator expected0 = PointWebMercator.of(10, 135735, 92327);
         assertEquals(actual0, expected0);
-        PointWebMercator actual1 = mapViewParameters5.pointAt(2056, 1028);
+        PointWebMercator actual1 = mapViewParameters5.pointAtPointWebMercator(2056, 1028);
         PointWebMercator expected1 = PointWebMercator.of(6, 2056, 1028);
         assertEquals(actual1, expected1);
-        PointWebMercator actual2 = mapViewParameters6.pointAt(356, 678);
+        PointWebMercator actual2 = mapViewParameters6.pointAtPointWebMercator(356, 678);
         PointWebMercator expected2 = PointWebMercator.of(8, 356, 678);
         assertEquals(actual2, expected2);
-        PointWebMercator actual3 = mapViewParameters7.pointAt(256, 125);
+        PointWebMercator actual3 = mapViewParameters7.pointAtPointWebMercator(256, 125);
         PointWebMercator expected3 = PointWebMercator.of(5, 256, 125);
         assertEquals(actual3, expected3);
     }

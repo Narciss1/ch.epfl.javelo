@@ -98,9 +98,8 @@ public final class RouteManager {
             return;
         }
         circle.setVisible(true);
-        PointWebMercator pointWebMercatorHighlightedPosition = PointWebMercator.ofPointCh(routeBean
-                           .route()
-                           .pointAt(position));
+        PointWebMercator pointWebMercatorHighlightedPosition = PointWebMercator.ofPointCh(
+                routeBean.route().pointAt(position));
         circle.setLayoutX(mapProperty.get().viewX(pointWebMercatorHighlightedPosition));
         circle.setLayoutY(mapProperty.get().viewY(pointWebMercatorHighlightedPosition));
     }
@@ -136,10 +135,8 @@ public final class RouteManager {
             //ces checks avec le if sont nécessaires (le programme marche pas sans), est-ce normal ?
             if(routeBean.route() != null && !isNaN(routeBean.highlightedPosition())) {
                 Point2D position = circle.localToParent(new Point2D(e.getX(), e.getY()));
-                //Je pense qu'on a vrmt besoin d'une version PointCh de pointAt pr le coup.
-                PointWebMercator pointMercator = mapProperty.get()
-                                                            .pointAt(position.getX(), position.getY());
-                PointCh pointCh = pointMercator.toPointCh();
+                PointCh pointCh = mapProperty.get()
+                        .pointAtPointCh(position.getX(), position.getY());
                 int closestNode = routeBean.route()
                                            .nodeClosestTo(routeBean.highlightedPosition());
                 Waypoint wayPoint = new Waypoint(pointCh, closestNode);

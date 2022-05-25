@@ -29,7 +29,7 @@ public final class WaypointsManager {
     private final ObservableList<Waypoint> wayPoints;
     private final Consumer<String> errorConsumer;
     private final AudioClip delete = new AudioClip(
-        getClass().getResource("/delete.wav").toString());
+        getClass().getResource("/delete.wav").toExternalForm());
 
     /**
      * Length of the side of a square centred on the mouse pointer
@@ -58,12 +58,12 @@ public final class WaypointsManager {
      */
     public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> mapProperty,
                             ObservableList<Waypoint> wayPoints, Consumer<String> errorConsumer) {
-        pane = new Pane();
-        pane.setPickOnBounds(false);
         this.graph = graph;
         this.mapProperty = mapProperty;
         this.wayPoints = wayPoints;
         this.errorConsumer = errorConsumer;
+        pane = new Pane();
+        pane.setPickOnBounds(false);
         addListeners();
     }
 
@@ -83,7 +83,9 @@ public final class WaypointsManager {
     public void addWaypoint(double x, double y) {
         PointWebMercator pointWebMercator = new PointWebMercator(x, y);
         PointCh pointCh = pointWebMercator.toPointCh();
-       if (graph.nodeClosestTo(pointCh, SQUARE_RADIUS) == -1 || pointCh == null) {
+        if (pointCh == null) {
+            errorConsumer.accept(ERROR_MESSAGE);
+        } else if (graph.nodeClosestTo(pointCh, SQUARE_RADIUS) == -1) {
             errorConsumer.accept(ERROR_MESSAGE);
         } else {
             wayPoints.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, SQUARE_RADIUS)));
@@ -102,7 +104,10 @@ public final class WaypointsManager {
      * Clears the list of wayPoints in order to remove the itinerary
      */
     //Extension
-    public void removeItinerary() { wayPoints.clear(); }
+    public void removeItinerary() {
+        delete.play();
+        wayPoints.clear();
+    }
 
     /**
      * Positions the markers at the coordinates of their corresponding waypoint
@@ -201,14 +206,14 @@ public final class WaypointsManager {
                 mousePositionProperty.setValue(new Point2D(e.getX() , e.getY()));
                 Point2D gap = mousePositionProperty.get().subtract(oldMousePosition);
 
-                PointWebMercator newMercatorPoint = mapProperty.get().pointAt(
+                PointCh newPointCh = mapProperty.get().pointAtPointCh(
                         group.getLayoutX() + gap.getX(),
                         group.getLayoutY() + gap.getY());
-                PointCh newPointCh = newMercatorPoint.toPointCh();
 
                 if(newPointCh != null && graph.nodeClosestTo(newPointCh, SQUARE_RADIUS) != -1) {
                     wayPoints.set(i,
-                            new Waypoint(newPointCh, graph.nodeClosestTo(newPointCh, SQUARE_RADIUS)));
+                            new Waypoint(newPointCh, graph.nodeClosestTo(newPointCh,
+                                    SQUARE_RADIUS)));
                 } else {
                     relocateSVGPaths();
                     errorConsumer.accept(ERROR_MESSAGE);

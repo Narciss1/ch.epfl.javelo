@@ -1,5 +1,6 @@
 package ch.epfl.javelo.gui;
 
+import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.geometry.Point2D;
 
@@ -42,8 +43,12 @@ public record MapViewParameters(int zoomLevel, double xCoordinate, double yCoord
      * @return an object of type PointWebMercator given its coordinates in comparison of the point
      * in the top left corner.
      */
-    public PointWebMercator pointAt(double x, double y) {
+    public PointWebMercator pointAtPointWebMercator(double x, double y) {
         return PointWebMercator.of(zoomLevel, x + xCoordinate, y + yCoordinate);
+    }
+
+    public PointCh pointAtPointCh(double x, double y) {
+        return pointAtPointWebMercator(x, y).toPointCh();
     }
 
     /**

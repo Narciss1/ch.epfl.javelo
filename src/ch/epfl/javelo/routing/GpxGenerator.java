@@ -1,5 +1,6 @@
 package ch.epfl.javelo.routing;
 
+import ch.epfl.javelo.projection.PointCh;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,10 +30,10 @@ public class GpxGenerator {
     private GpxGenerator() {}
 
     /**
-     * Creates a GPX document
+     * Creates a document containing the itinerary information
      * @param route the itinerary for which we want a GPX document
      * @param profile the route's profile
-     * @return the created GPX document
+     * @return the created document
      */
     public static Document createGpx(Route route, ElevationProfile profile) {
         Document doc = newDocument();
@@ -61,15 +62,16 @@ public class GpxGenerator {
 
         double position = 0;
         for (int i = 0; i < route.points().size(); ++i){
+            PointCh currentPoint = route.points().get(i);
             Element rtept = doc.createElement("rtept");
             rtept.setAttribute(
                     "lat",
                     String.format(Locale.ROOT,
-                    "%.5f", Math.toDegrees(route.points().get(i).lat())));
+                    "%.5f", Math.toDegrees(currentPoint.lat())));
             rtept.setAttribute(
                     "lon",
                     String.format(Locale.ROOT,
-                    "%.5f", Math.toDegrees(route.points().get(i).lon())));
+                    "%.5f", Math.toDegrees(currentPoint.lon())));
             rte.appendChild(rtept);
 
             Element ele = doc.createElement("ele");
@@ -97,7 +99,6 @@ public class GpxGenerator {
         Document doc = createGpx(route, profile);
         File file = new File(fileName);
         Writer w = Files.newBufferedWriter(file.toPath());
-
         try {
             Transformer transformer = TransformerFactory
                     .newDefaultInstance()

@@ -1,5 +1,6 @@
 package ch.epfl.javelo.gui;
 
+import ch.epfl.javelo.Cache;
 import ch.epfl.javelo.routing.*;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.*;
@@ -7,8 +8,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -23,7 +22,7 @@ public final class RouteBean {
     private final ObjectProperty<ElevationProfile> elevationProfileP;
     private final DoubleProperty highlightedPositionP;
     private final RouteComputer rc;
-    private final LinkedHashMap<Pair<Integer, Integer>, Route> cacheMemoryRoutes;
+    private final Cache<Pair<Integer, Integer>, Route> cacheMemoryRoutes;
 
     /**
      * The maximum capacity of the cache containing the last added routes
@@ -37,10 +36,6 @@ public final class RouteBean {
      * The minimum size of the list of the waypoints so that we attempt to calculate a route
      */
     private final static int WAYPOINTS_MINIMAL_SIZE_CHECK = 2;
-    /**
-     * Value of load factor
-     */
-    private final static float LOAD_FACTOR = 0.75f;
 
     /**
      * Constructor
@@ -48,7 +43,7 @@ public final class RouteBean {
      */
     public RouteBean (RouteComputer rc) {
         this.rc = rc;
-        cacheMemoryRoutes = new LinkedHashMap<>(CACHE_MEMORY_ROUTES_CAPACITY, LOAD_FACTOR, true);
+        cacheMemoryRoutes = new Cache<>(CACHE_MEMORY_ROUTES_CAPACITY);
         waypoints = FXCollections.observableArrayList();
         routeP = new SimpleObjectProperty<>();
         elevationProfileP = new SimpleObjectProperty<>();
@@ -141,15 +136,14 @@ public final class RouteBean {
             endNodeId = waypoints.get(i + 1).closestNodeId();
             if(startNodeId != endNodeId) {
                 if (cacheMemoryRoutes.containsKey(new Pair<>(startNodeId, endNodeId))) {
-                    routes.add(cacheMemoryRoutes.get(new Pair<>(startNodeId, endNodeId)));
+                    routes.add(cacheMemoryRoutes.getValue(new Pair<>(startNodeId, endNodeId)));
                 } else {
                     Route routeToAdd = rc.bestRouteBetween(startNodeId, endNodeId);
                     if (routeToAdd == null) {
                         routeAndItineraryToNull();
                         return;
                     }
-                    checkCacheCapacity();
-                    cacheMemoryRoutes.put(new Pair<>(startNodeId, endNodeId), routeToAdd);
+                    cacheMemoryRoutes.addToCache(new Pair<>(startNodeId, endNodeId), routeToAdd);
                     routes.add(routeToAdd);
                 }
             }
@@ -165,17 +159,6 @@ public final class RouteBean {
     private void routeAndItineraryToNull() {
         routeP.set(null);
         elevationProfileP.set(null);
-    }
-
-    /**
-     * Checks if the cache containing the route is full and, if it is, removes the
-     * first added element in it
-     */
-    private void checkCacheCapacity(){
-        if(cacheMemoryRoutes.size() == CACHE_MEMORY_ROUTES_CAPACITY) {
-            Iterator<Pair<Integer, Integer>> iterator = cacheMemoryRoutes.keySet().iterator();
-            cacheMemoryRoutes.remove(iterator.next());
-        }
     }
 
     /**

@@ -5,8 +5,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+
+import ch.epfl.javelo.Cache;
 import ch.epfl.javelo.Preconditions;
 import javafx.scene.image.Image;
 
@@ -19,16 +19,12 @@ public final class TileManager {
 
     private final Path basePath;
     private final String server;
-    private final LinkedHashMap<TileId, Image> cacheMemory;
+    private final Cache<TileId, Image> cacheMemory;
 
     /**
      * Represents the cache memory capacity
      */
      private final static int CACHE_MEMORY_CAPACITY = 100;
-    /**
-     * Value of load factor
-     */
-    private final static float LOAD_FACTOR = 0.75f;
 
     /**
      * A string containing ".png"
@@ -43,7 +39,7 @@ public final class TileManager {
     public TileManager(Path basePath, String server) {
         this.basePath = basePath;
         this.server = server;
-        cacheMemory = new LinkedHashMap<>(CACHE_MEMORY_CAPACITY, LOAD_FACTOR, true);
+        cacheMemory = new Cache<>(CACHE_MEMORY_CAPACITY);
     }
 
     /**
@@ -86,13 +82,14 @@ public final class TileManager {
     public Image imageForTileAt(TileId tileId) throws IOException {
         //Search in the cacheMemory
         if(cacheMemory.containsKey(tileId)) {
-            return cacheMemory.get(tileId);
+            return cacheMemory.getValue(tileId);
         }
 
         Path pathImage = basePath.resolve(String.valueOf(server))
                 .resolve(String.valueOf(tileId.zoomLevel))
                 .resolve(String.valueOf(tileId.indexX))
                 .resolve(tileId.indexY + PNG);
+        //Search in cacheDisk
         if (Files.exists(pathImage)) {
             return imageInCacheMemory(pathImage, tileId);
         }
@@ -126,11 +123,7 @@ public final class TileManager {
     private Image imageInCacheMemory(Path pathImage, TileId tileId) throws IOException {
         try(InputStream i = new FileInputStream(pathImage.toFile())) {
             Image image = new Image(i);
-            if(cacheMemory.size() == CACHE_MEMORY_CAPACITY) {
-                Iterator<TileId> iterator = cacheMemory.keySet().iterator();
-                cacheMemory.remove(iterator.next());
-            }
-            cacheMemory.put(tileId, image);
+            cacheMemory.addToCache(tileId, image);
             return image;
         }
     }

@@ -110,7 +110,8 @@ public final class ElevationProfileManager {
      * @param highlightedPositionProperty a read-only property containing the position along
      * the profile to be highlighted or NaN in case no position is to be highlighted
      */
-    public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty,
+    public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile>
+                                           elevationProfileProperty,
                                    ReadOnlyDoubleProperty highlightedPositionProperty) {
         this.elevationProfileProperty = elevationProfileProperty;
         this.highlightedPositionProperty = highlightedPositionProperty;
@@ -175,7 +176,8 @@ public final class ElevationProfileManager {
             while (positionP <= rectangle().getWidth() + insets.getLeft()) {
                 Point2D pointP = new Point2D(positionP, 0);
                 Point2D pointM = screenToWorld().transform(pointP);
-                Point2D pointToTransform = new Point2D(pointM.getX(), elevationProfile().elevationAt(pointM.getX()));
+                Point2D pointToTransform = new Point2D(pointM.getX(),
+                        elevationProfile().elevationAt(pointM.getX()));
                 Point2D pointToAdd = worldToScreen().transform(pointToTransform);
                 listPoints.add(pointToAdd.getX());
                 listPoints.add(pointToAdd.getY());
@@ -188,8 +190,8 @@ public final class ElevationProfileManager {
     }
 
     /**
-     * Determines the values to use to separate vertical and horizontal lines of position and altitude
-     * respectively, creates a grid accordingly and places position labels
+     * Determines the values to use to separate vertical and horizontal lines of position
+     *  and altitude respectively, creates a grid accordingly and places position labels
      */
     private void createGrid() {
         texts.getChildren().clear();
@@ -222,7 +224,8 @@ public final class ElevationProfileManager {
 
             for (int i = 0; i < posCondition; ++i) {
                 grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
-                grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangle().getHeight()));
+                grid.getElements().add(new LineTo(xPosition, insets.getTop() +
+                        rectangle().getHeight()));
 
                 setPosText(positionInText, xPosition);
 
@@ -233,13 +236,15 @@ public final class ElevationProfileManager {
             double gapM = elevationProfile().minElevation() % eleStep;
             double gapP = worldToScreen().deltaTransform(0, gapM).getY();
             double yPosition = insets.getTop() + rectangle().getHeight() + gapP;
-            int elevationInText = (int) Math.ceil(elevationProfile().minElevation() / eleStep) * eleStep;
+            int elevationInText = (int) Math.ceil(elevationProfile().minElevation() / eleStep)
+                    * eleStep;
             double eleCondition = Math.ceil(elevationProfile().maxElevation()
                     - elevationProfile().minElevation() / eleStep);
 
             for (int i = 0; i < eleCondition; ++i) {
                 grid.getElements().add(new MoveTo(insets.getLeft(), yPosition));
-                grid.getElements().add(new LineTo(insets.getLeft() + rectangle().getWidth(), yPosition));
+                grid.getElements().add(new LineTo(
+                        insets.getLeft() + rectangle().getWidth(), yPosition));
 
                 setEleText(elevationInText, yPosition);
 
@@ -324,18 +329,14 @@ public final class ElevationProfileManager {
         screenToWorld = new SimpleObjectProperty<>(new Affine());
         worldToScreen = new SimpleObjectProperty<>(new Affine());
 
-        pane = new Pane(profile,
-                line,
-                grid
-                ,texts
-                );
+        pane = new Pane(profile, line, grid,texts);
         borderPane = new BorderPane(pane, null, null, routeStatistics, null);
         borderPane.getStylesheets().add("elevation_profile.css");
     }
 
     /**
-     * Adds listeners to the properties containing : the transformation worldToScreen, the elevation profile
-     * and the rectangle that contains it
+     * Adds listeners to the properties containing : the transformation worldToScreen,
+     * the elevation profile and the rectangle that contains it
      */
     private void listeners() {
         elevationProfileProperty.addListener(l -> {
@@ -348,7 +349,6 @@ public final class ElevationProfileManager {
         rectangleProperty.addListener(l ->
             transformations());
 
-
         worldToScreen.addListener(l -> {
             createPolygon();
             createGrid();
@@ -356,8 +356,6 @@ public final class ElevationProfileManager {
         });
     }
 
-
-    //Ce n'est pas de sa faute.
     /**
      * Binds the rectangle containing the elevation profile and the pane
      */
@@ -377,8 +375,8 @@ public final class ElevationProfileManager {
     private void lineBindings() {
         line.visibleProperty().bind(highlightedPositionProperty.greaterThanOrEqualTo(0));
         line.layoutXProperty().bind(Bindings.createDoubleBinding( () ->
-                        worldToScreen().transform(new Point2D(highlightedPositionProperty.get(), 0))
-                                       .getX(),
+                        worldToScreen().transform(new Point2D(
+                                highlightedPositionProperty.get(), 0)).getX(),
                 worldToScreen, highlightedPositionProperty));
         line.startYProperty().bind(Bindings.select(rectangleProperty, "minY"));
         line.endYProperty().bind(Bindings.select(rectangleProperty, "maxY"));

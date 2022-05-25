@@ -12,11 +12,28 @@ public final class ErrorManager {
 
     private final VBox errorPane;
     private final Text errorText;
-
-    private final FadeTransition firstFdeTransition;
-    private final PauseTransition pauseTransition;
-    private final FadeTransition lastFadeTransition;
     private final SequentialTransition sequentialTransition;
+
+    /**
+     * duration of the first fade transition.
+     */
+    private final static int FIRST_FADE_DURATION = 200;
+    /**
+     * duration of the pause transition.
+     */
+    private final static int PAUSE_DURATION = 2000;
+    /**
+     * duration of the last fade transition.
+     */
+    private final static int LAST_FADE_DURATION = 500;
+    /**
+     * the start opacity of the error message.
+     */
+    private final static double START_OPACITY_MESSAGE = 0;
+    /**
+     * the last opacity of the error message.
+     */
+    private final static double LAST_OPACITY_MESSAGE = 0.8;
 
     /**
      * Constructor
@@ -27,13 +44,15 @@ public final class ErrorManager {
         errorPane.setMouseTransparent(true);
         errorText = new Text();
         errorPane.getChildren().add(errorText);
-        firstFdeTransition = new FadeTransition(new Duration(200), errorPane);
-        firstFdeTransition.setFromValue(0);
-        firstFdeTransition.setToValue(0.8);
-        pauseTransition = new PauseTransition(new Duration(2000));
-        lastFadeTransition = new FadeTransition(new Duration(500), errorPane);
-        lastFadeTransition.setFromValue(0.8);
-        lastFadeTransition.setToValue(0);
+        FadeTransition firstFdeTransition = new FadeTransition(new Duration(FIRST_FADE_DURATION),
+                errorPane);
+        firstFdeTransition.setFromValue(START_OPACITY_MESSAGE);
+        firstFdeTransition.setToValue(LAST_OPACITY_MESSAGE);
+        PauseTransition pauseTransition = new PauseTransition(new Duration(PAUSE_DURATION));
+        FadeTransition lastFadeTransition = new FadeTransition(new Duration(LAST_FADE_DURATION),
+                errorPane);
+        lastFadeTransition.setFromValue(LAST_OPACITY_MESSAGE);
+        lastFadeTransition.setToValue(START_OPACITY_MESSAGE);
         sequentialTransition = new SequentialTransition(firstFdeTransition,
                 pauseTransition, lastFadeTransition);
     }
@@ -51,9 +70,8 @@ public final class ErrorManager {
      * @param s error's message
      */
     public void displayError(String s) {
-        sequentialTransition.stop();
         errorText.setText(s);
-        sequentialTransition.play();
+        sequentialTransition.playFromStart();
         java.awt.Toolkit.getDefaultToolkit().beep();
     }
 }
