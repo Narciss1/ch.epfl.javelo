@@ -35,7 +35,6 @@ public final class RouteComputer {
      * @return  the best itinerary for a bike between the two nodes
      */
     public Route bestRouteBetween(int startNodeId, int endNodeId) {
-
         Preconditions.checkArgument(startNodeId != endNodeId);
 
         record WeightedNode(int nodeId, float distance)

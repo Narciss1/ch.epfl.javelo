@@ -44,39 +44,6 @@ public final class ElevationProfileManager {
     private Insets insets;
 
     /**
-     * Table containing the different values that can be used to separate the vertical lines of position
-     */
-    private final static int[] POS_STEPS =
-            { 1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000 };
-    /**
-     * Table containing the different values that can be used to separate the horizontal lines of altitude
-     */
-    private final static int[] ELE_STEPS =
-            { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
-    /**
-     *
-     */
-    private final static String VERTICAL = "vertical";
-    /**
-     *
-     */
-    private final static String HORIZONTAL = "horizontal";
-    /**
-     *
-     */
-    private final static String GRID_LABEL = "grid_label";
-    /**
-     *
-     */
-    private final static String FONT_AVENIR = "Avenir";
-
-    //A VOIR
-    private final static String LENGTH = "Longueur : %.1f km";
-    private final static String CLIMB = "     Montée : %.0f m";
-    private final static String DESCENT = "     Descente : %.0f m";
-    private final static String ALTITUDE = "     Altitude : de %.0f m à %.0f m";
-
-    /**
      * Value of text's size
      */
     private final static int TEXT_SIZE = 10;
@@ -89,11 +56,52 @@ public final class ElevationProfileManager {
      */
     private final static int MIN_ELE_SPACING = 25;
     /**
-     * Ratio used to convert values in meters to kilometers
+     * Dimensionless factor used to convert values in meters to kilometers
      */
     private final static int METER_KILOMETER_RATIO = 1/1000;
+    /**
+     * Distance in pixel subtracted to the position of the elevation
+     */
+    private final static int ELEVATION_LEFT_SHIFT = -2;
+    /**
+     * Dimensionless factor used to obtain half of an existing value
+     */
+    private final static int HALF_RATIO = 1/2;
 
-    private final static int X_LAYOUT_DELTA = 2; //A VOIR
+    /**
+     * Table containing the different values that can be used to separate the vertical lines of position
+     */
+    private final static int[] POS_STEPS =
+            { 1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000 };
+    /**
+     * Table containing the different values that can be used to separate the horizontal lines of altitude
+     */
+    private final static int[] ELE_STEPS =
+            { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
+
+    /**
+     * Style class for elevations
+     */
+    private final static String VERTICAL = "vertical";
+    /**
+     * Style class for positions
+     */
+    private final static String HORIZONTAL = "horizontal";
+    /**
+     * Style class for labels
+     */
+    private final static String GRID_LABEL = "grid_label";
+    /**
+     * Label's font
+     */
+    private final static String FONT_AVENIR = "Avenir";
+
+    /**
+     * Contains the distance between the top edge of the blue rectangle and the top edge
+     * of the panel, as well as the distance between their two right edges, their left edges and
+     * their bottom edges
+     */
+    private final static Insets FRAME_AND_PANE_GAP = new Insets(10, 10, 20, 40);
 
     /**
      * Constructs an elevation profile manager
@@ -210,21 +218,13 @@ public final class ElevationProfileManager {
 
             double xPosition = insets.getLeft();
             int positionInText = 0;
+            double posCondition = Math.ceil(elevationProfile().length() / posStep);
 
-            for (int i = 0; i < Math.ceil(elevationProfile().length() / posStep); ++i) {
-
+            for (int i = 0; i < posCondition; ++i) {
                 grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
                 grid.getElements().add(new LineTo(xPosition, insets.getTop() + rectangle().getHeight()));
 
-                Text posText = new Text();
-                posText.getStyleClass().add(GRID_LABEL);
-                posText.getStyleClass().add(HORIZONTAL);
-                posText.textOriginProperty().setValue(VPos.TOP);
-                posText.setText(String.valueOf(positionInText));
-                posText.setFont(Font.font(FONT_AVENIR, TEXT_SIZE));
-                posText.setLayoutX(xPosition - posText.prefWidth(0) / X_LAYOUT_DELTA);
-                posText.setLayoutY(insets.getTop() + rectangle().getHeight());
-                texts.getChildren().add(posText);
+                setPosText(positionInText, xPosition);
 
                 positionInText += posStep * METER_KILOMETER_RATIO;
                 xPosition += posSpacing;
@@ -232,25 +232,16 @@ public final class ElevationProfileManager {
 
             double gapM = elevationProfile().minElevation() % eleStep;
             double gapP = worldToScreen().deltaTransform(0, gapM).getY();
-
             double yPosition = insets.getTop() + rectangle().getHeight() + gapP;
             int elevationInText = (int) Math.ceil(elevationProfile().minElevation() / eleStep) * eleStep;
+            double eleCondition = Math.ceil(elevationProfile().maxElevation()
+                    - elevationProfile().minElevation() / eleStep);
 
-            for (int i = 0; i < Math.ceil(elevationProfile().maxElevation() - elevationProfile().minElevation()
-                    / eleStep); ++i) {
-
+            for (int i = 0; i < eleCondition; ++i) {
                 grid.getElements().add(new MoveTo(insets.getLeft(), yPosition));
                 grid.getElements().add(new LineTo(insets.getLeft() + rectangle().getWidth(), yPosition));
 
-                Text eleText = new Text();
-                eleText.getStyleClass().add(GRID_LABEL);
-                eleText.getStyleClass().add(VERTICAL);
-                eleText.textOriginProperty().setValue(VPos.CENTER);
-                eleText.setText(String.valueOf(elevationInText));
-                eleText.setFont(Font.font(FONT_AVENIR, TEXT_SIZE));
-                eleText.setLayoutX(insets.getLeft() - eleText.prefWidth(0) - X_LAYOUT_DELTA);
-                eleText.setLayoutY(yPosition);
-                texts.getChildren().add(eleText);
+                setEleText(elevationInText, yPosition);
 
                 elevationInText += eleStep;
                 yPosition -= eleSpacing;
@@ -259,11 +250,47 @@ public final class ElevationProfileManager {
     }
 
     /**
+     * Sets the position's text
+     * @param positionInText the value of the position
+     * @param xPosition the position of the text
+     */
+    public void setPosText(int positionInText, double xPosition) {
+        Text posText = new Text();
+        posText.getStyleClass().add(GRID_LABEL);
+        posText.getStyleClass().add(HORIZONTAL);
+        posText.textOriginProperty().setValue(VPos.TOP);
+        posText.setText(String.valueOf(positionInText));
+        posText.setFont(Font.font(FONT_AVENIR, TEXT_SIZE));
+        posText.setLayoutX(xPosition - posText.prefWidth(0) * HALF_RATIO);
+        posText.setLayoutY(insets.getTop() + rectangle().getHeight());
+        texts.getChildren().add(posText);
+    }
+
+    /**
+     * Sets the elevation's text
+     * @param elevationInText the value of the elevation
+     * @param yPosition the position of the text
+     */
+    public void setEleText(int elevationInText, double yPosition) {
+        Text eleText = new Text();
+        eleText.getStyleClass().add(GRID_LABEL);
+        eleText.getStyleClass().add(VERTICAL);
+        eleText.textOriginProperty().setValue(VPos.CENTER);
+        eleText.setText(String.valueOf(elevationInText));
+        eleText.setFont(Font.font(FONT_AVENIR, TEXT_SIZE));
+        eleText.setLayoutX(insets.getLeft() - eleText.prefWidth(0) + ELEVATION_LEFT_SHIFT);
+        eleText.setLayoutY(yPosition);
+        texts.getChildren().add(eleText);
+    }
+    /**
      * Adds the route statistics to the bottom of the panel
      */
     private void createStatistics() {
         if (elevationProfile() != null) {
-            stats.setText(String.format(LENGTH + CLIMB + DESCENT + ALTITUDE,
+            stats.setText(String.format("Longueur : %.1f km"
+                            + "     Montée : %.0f m"
+                            + "     Descente : %.0f m"
+                            + "     Altitude : de %.0f m à %.0f m",
                     elevationProfile().length() * METER_KILOMETER_RATIO,
                     elevationProfile().totalAscent(),
                     elevationProfile().totalDescent(),
@@ -278,7 +305,7 @@ public final class ElevationProfileManager {
     private void initialize() {
         mousePositionProperty = new SimpleDoubleProperty(Double.NaN);
 
-        insets = new Insets(10, 10, 20, 40);
+        insets = FRAME_AND_PANE_GAP;
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
 
         profile = new Polygon();

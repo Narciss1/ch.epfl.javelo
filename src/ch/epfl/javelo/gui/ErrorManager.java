@@ -56,5 +56,4 @@ public final class ErrorManager {
         sequentialTransition.play();
         java.awt.Toolkit.getDefaultToolkit().beep();
     }
-
 }

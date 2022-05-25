@@ -47,7 +47,6 @@ public final class AnnotatedMapManager {
      * @param routeBean a route bean
      * @param errorConsumer an "error consumer" to report an error
      */
-    //est-ce que c la classe qui se charge de la rendre readOnly? //manager
     public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean,
                                Consumer<String> errorConsumer) {
         mapViewParametersP = new SimpleObjectProperty<>(startMapViewParameters);
