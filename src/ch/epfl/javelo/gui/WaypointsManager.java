@@ -169,10 +169,10 @@ public final class WaypointsManager {
     }
 
     /**
-     *
-     * @param group
-     * @param wayPoint
-     * @param i
+     * Manages the events of the waypoints
+     * @param group a group corresponding to this given waypoint
+     * @param wayPoint a certain waypoint
+     * @param i index in the list of waypoints
      */
     private void wayPointsEvents(Group group, Waypoint wayPoint, int i){
         ObjectProperty<Point2D> mousePositionProperty = new SimpleObjectProperty<>();
