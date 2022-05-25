@@ -37,6 +37,14 @@ public final class WaypointsManager {
     private final static int SQUARE_RADIUS = 500;
 
     /**
+     * Content of SVG path representing the exterior of the pin
+     */
+    private final static String EXTERIOR = "M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20";
+    /**
+     * Content of SVG path representing the interior of the pin
+     */
+    private final static String INTERIOR = "M0-23A1 1 0 000-29 1 1 0 000-23";
+    /**
      * The error message when there is no route nearby
      */
     private final static String ERROR_MESSAGE = "Aucune route à proximité !";
@@ -56,7 +64,6 @@ public final class WaypointsManager {
         this.mapProperty = mapProperty;
         this.wayPoints = wayPoints;
         this.errorConsumer = errorConsumer;
-        //addSVGPaths(); useless now I guess vu que tt est initialement vide.
         addListeners();
     }
 
@@ -111,8 +118,8 @@ public final class WaypointsManager {
             SVGPath interior = new SVGPath();
             exterior.getStyleClass().add("pin_outside");
             interior.getStyleClass().add("pin_inside");
-            exterior.setContent("M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20");
-            interior.setContent("M0-23A1 1 0 000-29 1 1 0 000-23");
+            exterior.setContent(EXTERIOR);
+            interior.setContent(INTERIOR);
 
             if (counting == 0) {
                 group.getStyleClass().add("first");
