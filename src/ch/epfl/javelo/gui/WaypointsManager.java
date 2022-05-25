@@ -28,8 +28,8 @@ public final class WaypointsManager {
     private final ObjectProperty<MapViewParameters> mapProperty;
     private final ObservableList<Waypoint> wayPoints;
     private final Consumer<String> errorConsumer;
-    //private final AudioClip delete = new AudioClip(
-    // getClass().getResource("/delete.wav").toString());
+    private final AudioClip delete = new AudioClip(
+        getClass().getResource("/delete.wav").toString());
 
     /**
      * Length of the side of a square centred on the mouse pointer
@@ -207,7 +207,7 @@ public final class WaypointsManager {
                     errorConsumer.accept(ERROR_MESSAGE);
                 }
             } else {
-                //delete.play();
+                delete.play();
                 wayPoints.remove(wayPoint);
             }
         });

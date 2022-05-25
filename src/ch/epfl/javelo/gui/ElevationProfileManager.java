@@ -131,6 +131,8 @@ public final class ElevationProfileManager {
         return mousePositionProperty;
     }
 
+
+    //Pas de sa faute.
     /**
      * Computes the value of the transformation screenToWorld and its inverse worldToScreen,
      * each of which consists of a succession of translations and a scaling
@@ -295,7 +297,11 @@ public final class ElevationProfileManager {
         screenToWorld = new SimpleObjectProperty<>(new Affine());
         worldToScreen = new SimpleObjectProperty<>(new Affine());
 
-        pane = new Pane(profile, line, grid, texts);
+        pane = new Pane(profile,
+                line,
+                grid
+                ,texts
+                );
         borderPane = new BorderPane(pane, null, null, routeStatistics, null);
         borderPane.getStylesheets().add("elevation_profile.css");
     }
@@ -315,6 +321,7 @@ public final class ElevationProfileManager {
         rectangleProperty.addListener(l ->
             transformations());
 
+
         worldToScreen.addListener(l -> {
             createPolygon();
             createGrid();
@@ -322,6 +329,8 @@ public final class ElevationProfileManager {
         });
     }
 
+
+    //Ce n'est pas de sa faute.
     /**
      * Binds the rectangle containing the elevation profile and the pane
      */

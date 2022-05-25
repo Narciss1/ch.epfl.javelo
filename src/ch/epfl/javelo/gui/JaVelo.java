@@ -42,7 +42,7 @@ public final class JaVelo extends Application {
         RouteBean routeBean = new RouteBean(routeComputer);
         TileManager tileManager =
                new TileManager(cacheBasePath, tileServerHost);
-        AnnotedMapManager annotedMapManager = new AnnotedMapManager
+        AnnotatedMapManager annotatedMapManager = new AnnotatedMapManager
                 (graph, tileManager, routeBean, errorConsumer);
 
         ElevationProfileManager elevationProfileManager =
@@ -50,13 +50,13 @@ public final class JaVelo extends Application {
                         routeBean.highlightedPositionProperty());
 
         routeBean.highlightedPositionProperty().bind(
-                when(annotedMapManager.mousePositionOnRouteProperty().greaterThanOrEqualTo(0))
-                        .then(annotedMapManager.mousePositionOnRouteProperty())
+                when(annotatedMapManager.mousePositionOnRouteProperty().greaterThanOrEqualTo(0))
+                        .then(annotatedMapManager.mousePositionOnRouteProperty())
                         .otherwise(elevationProfileManager.mousePositionOnProfileProperty()));
 
-        StackPane mainPane = new StackPane(createSplitPane(annotedMapManager, elevationProfileManager,
+        StackPane mainPane = new StackPane(createSplitPane(annotatedMapManager, elevationProfileManager,
                 routeBean), errorManager.pane(),
-                changeTilesPane(annotedMapManager, cacheBasePath, routeBean));
+                changeTilesPane(annotatedMapManager, cacheBasePath, routeBean));
         BorderPane borderPane = new BorderPane(mainPane, exporter(routeBean),
         null, null, null);
 
@@ -85,7 +85,7 @@ public final class JaVelo extends Application {
      * @return the splitpane for JaVelo using the annotedMapManager, the elevationProfileManager,
      * and the routeBean.
      */
-    private static SplitPane createSplitPane(AnnotedMapManager annotedMapManager,
+    private static SplitPane createSplitPane(AnnotatedMapManager annotedMapManager,
                                              ElevationProfileManager elevationProfileManager,
                                              RouteBean routeBean) {
         SplitPane splitPane = new SplitPane(annotedMapManager.pane());
@@ -127,7 +127,7 @@ public final class JaVelo extends Application {
 
 
     //Créer une classe changeTilesManager pour ce panneau.
-    private static Pane changeTilesPane(AnnotedMapManager annotedMapManager,
+    private static Pane changeTilesPane(AnnotatedMapManager annotedMapManager,
                                         Path cacheBasePath, RouteBean routeBean) {
         Label label = new Label("Fond de carte");
         RadioButton osmButton = new RadioButton("OpenStreetMap");
