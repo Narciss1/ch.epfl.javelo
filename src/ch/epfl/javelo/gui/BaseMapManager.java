@@ -242,9 +242,10 @@ public final class BaseMapManager {
         Point2D oldMousePosition = mousePositionProperty.get();
         mousePositionProperty.setValue(new Point2D(e.getX(), e.getY()));
         Point2D gap = oldMousePosition.subtract(mousePositionProperty.get());
+        Point2D newTopLeft = mapProperty.get().topLeft().add(gap);
         mapProperty.setValue(mapProperty.get().withMinXY(
-                mapProperty.get().xCoordinate() + gap.getX(),
-                mapProperty.get().yCoordinate() + gap.getY()));
+                    newTopLeft.getX(),
+                    newTopLeft.getY()));
     }
 
     /**
@@ -278,13 +279,14 @@ public final class BaseMapManager {
         // after the zooming); therefore its distance to the old top left corner point
         //of the map regarding the old zoom level should be the same as its distance to the
         //new top left corner point regarding the new zoom level.
-        double newTopLeftX = pointToZoomIn.xAtZoomLevel(newZoom)
-                - pointToZoomIn.xAtZoomLevel(mapProperty.get().zoomLevel())
-                +  mapProperty.get().xCoordinate();
-        double newTopLeftY = pointToZoomIn.yAtZoomLevel(newZoom)
-                - pointToZoomIn.yAtZoomLevel(mapProperty.get().zoomLevel())
-                +  mapProperty.get().yCoordinate();
-        mapProperty.setValue(new MapViewParameters (newZoom, newTopLeftX, newTopLeftY));
+        Point2D zoomIn2D = new Point2D(
+                pointToZoomIn.xAtZoomLevel(newZoom)
+                - pointToZoomIn.xAtZoomLevel(mapProperty.get().zoomLevel()),
+                pointToZoomIn.yAtZoomLevel(newZoom)
+                - pointToZoomIn.yAtZoomLevel(mapProperty.get().zoomLevel()));
+        Point2D topLeft = mapProperty.get().topLeft();
+        Point2D newTopLeft = zoomIn2D.add(topLeft);
+        mapProperty.setValue(new MapViewParameters (newZoom, newTopLeft.getX(), newTopLeft.getY()));
     }
 
     /**
