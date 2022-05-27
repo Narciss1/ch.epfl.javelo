@@ -40,7 +40,8 @@ public final class SwissBounds {
      * @return true if both coordinates of the point are in the limits of Switzerland
      */
     public static boolean containsEN(double e, double n){
-        return !(e < MIN_E || e > MAX_E || n < MIN_N || n > MAX_N);
+      //  return !(e < MIN_E || e > MAX_E || n < MIN_N || n > MAX_N);
+        return e >= MIN_E && e <= MAX_E && n >= MIN_N && n <= MAX_N;
     }
 
 }

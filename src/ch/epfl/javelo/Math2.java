@@ -35,17 +35,17 @@ public final class Math2
     }
 
     /**
-     * takes a double v as an argument, returns it if the interval between the arguments min and max
+     * Takes a double v as an argument, returns it if the interval between the arguments min and max
      * contains v, returns min if the double is smaller than min, or returns max if v is bigger
-     * than max.
+     * than max
      * @throws IllegalArgumentException if min is strictly smaller than max
      * @param min the lower bound
-     * @param v the value we
+     * @param v the value that should be clamped
      * @param max the upper bound
      * @return min if v is inferior to min, max if v is superior to max, v otherwise.
      */
     public static double clamp(double min, double v, double max){
-        Preconditions.checkArgument(min < max);
+        Preconditions.checkArgument(min <= max);
         return Math.min(Math.max(min,v),max);
     }
 
@@ -54,7 +54,7 @@ public final class Math2
      * returns min if the double is smaller than min, or returns max if v is bigger than max.
      * @throws IllegalArgumentException if min is strictly smaller than max
      * @param min the lower bound
-     * @param v the value we
+     * @param v the value that should be clamped
      * @param max the upper bound
      * @return min if v is inferior to min, max if v is superior to max, v otherwise.
      */
@@ -69,7 +69,7 @@ public final class Math2
      * @return the inverse hyperbolic sine of x
      */
     public static double asinh(double x){
-        return Math.log(x + Math.sqrt(1 + x*x));
+        return Math.log(x + Math.hypot(1, x));
     }
 
     /**
@@ -93,7 +93,7 @@ public final class Math2
      * @return the squared norm of the vector
      */
     public static double squaredNorm(double uX, double uY){
-        return uX*uX + uY*uY;
+        return dotProduct(uX, uY, uX, uY);
     }
 
     /**

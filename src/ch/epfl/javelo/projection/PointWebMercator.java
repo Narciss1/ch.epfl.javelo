@@ -13,6 +13,19 @@ import static ch.epfl.javelo.projection.SwissBounds.containsEN;
 public record PointWebMercator(double x, double y) {
 
     /**
+     * Minimum value of zoom level
+     */
+    private final static int MIN_ZOOM_LEVEL = 8;
+    /**
+     * Minimum value of web mercator point's coordinate
+     */
+    private final static int MIN_COORDINATE = 0;
+    /**
+     * Minimum value of web mercator point's coordinate
+     */
+    private final static int MAX_COORDINATE = 1;
+
+    /**
      * Compact constructor
      * @param x coordinate of the point
      * @param y coordinate of the point
@@ -20,7 +33,8 @@ public record PointWebMercator(double x, double y) {
      * 0 and 1
      */
     public PointWebMercator {
-        checkArgument(x >= 0 && x <= 1 && y >= 0 && y <= 1 );
+        checkArgument(x >= MIN_COORDINATE && x <= MAX_COORDINATE &&
+                y >= MIN_COORDINATE && y <= MAX_COORDINATE );
     }
 
     /**
@@ -31,7 +45,8 @@ public record PointWebMercator(double x, double y) {
      * @return original point
      */
     public static PointWebMercator of(int zoomLevel, double x, double y) {
-        return new PointWebMercator(Math.scalb(x, -(zoomLevel + 8)), Math.scalb(y, -(zoomLevel + 8)));
+        return new PointWebMercator(Math.scalb(x, -(zoomLevel + MIN_ZOOM_LEVEL)),
+                Math.scalb(y, -(zoomLevel + MIN_ZOOM_LEVEL)));
     }
 
     /**
@@ -51,7 +66,7 @@ public record PointWebMercator(double x, double y) {
      * @return new coordinate x
      */
     public double xAtZoomLevel(int zoomLevel) {
-        return Math.scalb(x, 8 + zoomLevel);
+        return Math.scalb(x, MIN_ZOOM_LEVEL + zoomLevel);
     }
 
     /**
@@ -60,7 +75,7 @@ public record PointWebMercator(double x, double y) {
      * @return new coordinate y
      */
     public double yAtZoomLevel(int zoomLevel) {
-        return Math.scalb(y, 8 + zoomLevel);
+        return Math.scalb(y, MIN_ZOOM_LEVEL + zoomLevel);
     }
 
     /**
@@ -84,8 +99,8 @@ public record PointWebMercator(double x, double y) {
      * @return point in the swiss system or null if this point is not in the limits of Switzerland
      */
     public PointCh toPointCh() {
-        double e = e(WebMercator.lon(this.x), WebMercator.lat(this.y));
-        double n = n(WebMercator.lon(this.x), WebMercator.lat(this.y));
+        double e = e(lon(), lat());
+        double n = n(lon(), lat());
         if (containsEN(e, n)) {
             return new PointCh(e, n);
         }

@@ -6,13 +6,11 @@ import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
-import javafx.scene.media.AudioClip;
 import javafx.scene.shape.SVGPath;
 import java.util.function.Consumer;
 
@@ -28,8 +26,6 @@ public final class WaypointsManager {
     private final ObjectProperty<MapViewParameters> mapProperty;
     private final ObservableList<Waypoint> wayPoints;
     private final Consumer<String> errorConsumer;
-//    private final AudioClip delete = new AudioClip(
-//        getClass().getResource("/delete.wav").toExternalForm());
 
     /**
      * Length of the side of a square centred on the mouse pointer
@@ -83,28 +79,12 @@ public final class WaypointsManager {
     public void addWaypoint(double x, double y) {
         PointWebMercator pointWebMercator = new PointWebMercator(x, y);
         PointCh pointCh = pointWebMercator.toPointCh();
+
         if (! (pointCh != null && graph.nodeClosestTo(pointCh, SQUARE_RADIUS) != -1)) {
             errorConsumer.accept(ERROR_MESSAGE);
         } else {
             wayPoints.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, SQUARE_RADIUS)));
         }
-    }
-
-    /**
-     * Reverses the order of the wayPoints in their list in order to reverse the itinerary
-     */
-    //Extension
-    public void reverseItinerary() {
-        FXCollections.reverse(wayPoints);
-    }
-
-    /**
-     * Clears the list of wayPoints in order to remove the itinerary
-     */
-    //Extension
-    public void removeItinerary() {
-        //delete.play();
-        wayPoints.clear();
     }
 
     /**
@@ -217,7 +197,6 @@ public final class WaypointsManager {
                     errorConsumer.accept(ERROR_MESSAGE);
                 }
             } else {
-                //delete.play();
                 wayPoints.remove(wayPoint);
             }
         });

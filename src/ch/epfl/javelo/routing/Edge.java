@@ -3,14 +3,12 @@ package ch.epfl.javelo.routing;
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
-
 import java.util.function.DoubleUnaryOperator;
 
 /**
  * Represents an edge of the itinerary
  * @author Lina Sadgal (342075)
  */
-
 public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPoint, double length,
                    DoubleUnaryOperator profile) {
 

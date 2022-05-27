@@ -70,7 +70,7 @@ public record AttributeSet (long bits) {
 
         for (Attribute attribute : attributes){
             long mask = 1L << attribute.ordinal();
-            bitsIncremented = bitsIncremented + mask;
+            bitsIncremented = bitsIncremented | mask;
         }
 
         return new AttributeSet(bitsIncremented);
