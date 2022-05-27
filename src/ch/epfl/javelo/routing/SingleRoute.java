@@ -125,6 +125,7 @@ public final class SingleRoute implements Route {
         RoutePoint closestPoint = RoutePoint.NONE;
         double edgesLength = 0;
         for (Edge edge : edges) {
+
             double newPosition = clamp(0, edge.positionClosestTo(point), edge.length());
             PointCh newPoint = edge.pointAt(newPosition);
             double distance = point.distanceTo(newPoint);

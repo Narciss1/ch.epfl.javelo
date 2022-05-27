@@ -43,6 +43,9 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @return the PointCh in the given position in the edge.
      */
     public PointCh pointAt(double position){
+        if (length == 0) {
+            return fromPoint;
+        }
         //The percentage of the edge at which we find the position
         double percentage = position / length;
         double y = Math2.interpolate(fromPoint.n(), toPoint.n(), percentage);

@@ -64,6 +64,8 @@ public final class WaypointsManager {
         this.errorConsumer = errorConsumer;
         pane = new Pane();
         pane.setPickOnBounds(false);
+        addSVGPaths();
+        relocateSVGPaths();
         addListeners();
     }
 
@@ -83,9 +85,8 @@ public final class WaypointsManager {
     public void addWaypoint(double x, double y) {
         PointWebMercator pointWebMercator = new PointWebMercator(x, y);
         PointCh pointCh = pointWebMercator.toPointCh();
-        if (pointCh == null) {
-            errorConsumer.accept(ERROR_MESSAGE);
-        } else if (graph.nodeClosestTo(pointCh, SQUARE_RADIUS) == -1) {
+        //not.
+        if (! (pointCh != null && graph.nodeClosestTo(pointCh, SQUARE_RADIUS) != -1)) {
             errorConsumer.accept(ERROR_MESSAGE);
         } else {
             wayPoints.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, SQUARE_RADIUS)));
