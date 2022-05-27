@@ -60,8 +60,6 @@ public final class WaypointsManager {
         this.errorConsumer = errorConsumer;
         pane = new Pane();
         pane.setPickOnBounds(false);
-        addSVGPaths();
-        relocateSVGPaths();
         addListeners();
     }
 

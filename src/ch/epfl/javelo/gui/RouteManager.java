@@ -44,9 +44,6 @@ public final class RouteManager {
         circle.setId("highlight");
         pane = new Pane(polylineItinerary, circle);
         pane.setPickOnBounds(false);
-        /*//Etant donné qu'avec javelo initialement tout est vide est-ce qu'il faut tej ses trucs ou les garder?
-        createPolyline();
-        createCircle();*/
         addListeners();
         routeEvents();
     }
@@ -118,12 +115,10 @@ public final class RouteManager {
         });
         routeBean.routeProperty().addListener( l -> {
             createPolyline();
-            //createCircle(); pour moi techniquement useless mais sur piazza Albinos dit qu'il le faut (@1369_f2)
+            //createCircle(); pour moi techniquement useless mais sur piazza il le faut (@1369_f2)
         });
         routeBean.highlightedPositionProperty().addListener(l -> {
-            // Est-ce qu'on doit createPolyline quand la position change?
             createCircle();
-            //createPolyline(); pour moi useless.
         });
     }
 
