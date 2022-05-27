@@ -17,6 +17,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
+
+import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -210,9 +212,10 @@ public final class BaseMapManager {
             if (!e.isStillSincePress()) {
                 changeMapViewParametersAfterSlide(mousePositionProperty, e);
             } else {
-                double x = e.getX() + mapProperty.get().xCoordinate();
-                double y = e.getY() + mapProperty.get().yCoordinate();
-                PointWebMercator point = PointWebMercator.of(mapProperty.get().zoomLevel(), x, y);
+                Point2D mousePointer = new Point2D(e.getX(), e.getY());
+                Point2D newTopLeft = mousePointer.add(mapProperty.get().topLeft());
+                PointWebMercator point = PointWebMercator.of(mapProperty.get().zoomLevel(),
+                        newTopLeft.getX(), newTopLeft.getY());
                 waypointsManager.addWaypoint(point.x(), point.y());
             }
         });

@@ -57,7 +57,7 @@ public final class ElevationProfileManager {
     /**
      * Dimensionless factor used to convert values in meters to kilometers
      */
-    private final static int METER_KILOMETER_RATIO = 1/1000;
+    private final static double METER_KILOMETER_RATIO = 1d/1000d;
     /**
      * Distance in pixel subtracted to the position of the elevation
      */
@@ -229,6 +229,7 @@ public final class ElevationProfileManager {
                 setPosText(positionInText, xPosition);
 
                 positionInText += posStep * METER_KILOMETER_RATIO;
+                System.out.println(positionInText);
                 xPosition += posSpacing;
             }
 
