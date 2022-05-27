@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
+import java.util.Iterator;
 import java.util.Locale;
 
 /**
@@ -60,28 +61,32 @@ public class GpxGenerator {
         Element rte = doc.createElement("rte");
         root.appendChild(rte);
 
+        Iterator<PointCh> iPoints = route.points().iterator();
+        Iterator<Edge> iEdges = route.edges().iterator();
+
         double position = 0;
-        for (int i = 0; i < route.points().size(); ++i){
-            PointCh currentPoint = route.points().get(i);
+
+        while (iPoints.hasNext()) {
+            PointCh currentPoint = iPoints.next();
             Element rtept = doc.createElement("rtept");
             rtept.setAttribute(
                     "lat",
                     String.format(Locale.ROOT,
-                    "%.5f", Math.toDegrees(currentPoint.lat())));
+                            "%.5f", Math.toDegrees(currentPoint.lat())));
             rtept.setAttribute(
                     "lon",
                     String.format(Locale.ROOT,
-                    "%.5f", Math.toDegrees(currentPoint.lon())));
+                            "%.5f", Math.toDegrees(currentPoint.lon())));
             rte.appendChild(rtept);
 
             Element ele = doc.createElement("ele");
             rtept.appendChild(ele);
             ele.setTextContent(
                     String.format(Locale.ROOT, "%.2f",
-                    profile.elevationAt(position)));
-
-            if (i != route.points().size()- 1){
-                position += route.edges().get(i).length();
+                            profile.elevationAt(position)));
+            if (iEdges.hasNext()) {
+                System.out.println(position);
+                position += iEdges.next().length();
             }
         }
         return doc;
