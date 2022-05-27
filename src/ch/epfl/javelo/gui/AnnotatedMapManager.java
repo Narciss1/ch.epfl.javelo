@@ -20,14 +20,12 @@ import java.util.function.Consumer;
  */
 public final class AnnotatedMapManager {
 
-    private final BaseMapManager baseMapManager;
+    private final StackPane javeloPane;
+    private final RouteBean routeBean;
 
     private final ObjectProperty<MapViewParameters> mapViewParametersP;
     private final ObjectProperty<Point2D> mousePositionP;
     private final DoubleProperty mousePositionOnRouteProperty;
-
-    private final StackPane javeloPane;
-    private final RouteBean routeBean;
 
     /**
      * The parameters of the map at the start
@@ -56,7 +54,7 @@ public final class AnnotatedMapManager {
         WaypointsManager waypointsManager = new WaypointsManager(graph, mapViewParametersP,
                 routeBean.waypoints(), errorConsumer);
         RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP);
-        baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
+        BaseMapManager baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
 
         javeloPane = new StackPane(baseMapManager.pane(), routeManager.pane(),
                 waypointsManager.pane());
@@ -81,15 +79,6 @@ public final class AnnotatedMapManager {
      */
     public ReadOnlyDoubleProperty mousePositionOnRouteProperty() {
         return mousePositionOnRouteProperty;
-    }
-
-    //Extension
-    /**
-     * Sets the tile manager of the base map manager
-     * @param tileManager a new tile manager
-     */
-    public void setTileManager(TileManager tileManager) {
-        baseMapManager.setTileManager(tileManager);
     }
 
     /**

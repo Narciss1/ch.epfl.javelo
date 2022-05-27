@@ -122,11 +122,10 @@ public final class Graph {
        double minDistance = searchDistance*searchDistance;
        int closestNode = -1;
        List<GraphSectors.Sector> closeSectors = sectors.sectorsInArea(point, searchDistance);
-       for(GraphSectors.Sector sector : closeSectors){
-          for(int j = sector.startNodeId(); j < sector.endNodeId(); j++){
-              double distance = point.squaredDistanceTo(
-                      new PointCh(nodes.nodeE(j), nodes.nodeN(j)));
-              if(distance < minDistance){
+       for(GraphSectors.Sector sector : closeSectors) {
+          for(int j = sector.startNodeId(); j < sector.endNodeId(); j++) {
+              double distance = point.squaredDistanceTo(nodePoint(j));
+              if(distance < minDistance) {
                   minDistance = distance;
                   closestNode = j;
               }
@@ -197,9 +196,8 @@ public final class Graph {
      * has no profile, then this function must return Double.NaN for any argument.
      */
     public DoubleUnaryOperator edgeProfile(int edgeId){
-        if(edges.hasProfile(edgeId)){
-            return Functions.sampled(edges.profileSamples(edgeId), edges.length(edgeId));
-        }
-        return Functions.constant(Double.NaN);
+        return edges.hasProfile(edgeId)
+                ? Functions.sampled(edges.profileSamples(edgeId), edges.length(edgeId))
+                : Functions.constant(Double.NaN);
     }
 }

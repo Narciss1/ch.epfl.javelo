@@ -3,22 +3,16 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
-import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.shape.SVGPath;
-
-import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -35,10 +29,6 @@ public final class BaseMapManager {
     private final WaypointsManager waypointsManager;
     private final Pane pane;
     private final Canvas canvas;
-    private final Button reverseItineraryB;
-    private final Button addZoomB;
-    private final Button subtractZoomB;
-    private final Button removePointsButton;
     private boolean redrawNeeded;
 
     /**
@@ -76,14 +66,7 @@ public final class BaseMapManager {
         tileManagerP.set(tileManager);
         tileManagerP.addListener(l -> redrawOnNextPulse());
 
-        //buttons
-        reverseItineraryB = new Button();
-        removePointsButton = new Button();
-        addZoomB = new Button();
-        subtractZoomB = new Button();
-        buttonsIcons();
-
-        pane = new Pane(canvas, reverseItineraryB, removePointsButton, addZoomB, subtractZoomB);
+        pane = new Pane(canvas);
 
         bindings();
         addListeners();
@@ -96,15 +79,6 @@ public final class BaseMapManager {
      */
     public Pane pane() {
         return pane;
-    }
-
-    /**
-     * Changes the value contained in tile manager property
-     * @param tileManager a new tile manager
-     */
-    //Extension
-    public void setTileManager(TileManager tileManager) {
-        tileManagerP.set(tileManager);
     }
 
     /**
@@ -164,17 +138,6 @@ public final class BaseMapManager {
      * Binds the elements in the pane to its properties for their placement
      */
     private void bindings () {
-        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getHeight() - reverseItineraryB.getHeight(),
-                pane.heightProperty()));
-        removePointsButton.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getHeight() - reverseItineraryB.getHeight(),
-                pane.heightProperty()));
-        reverseItineraryB.layoutYProperty().bind(Bindings.createDoubleBinding( () ->
-                pane.getHeight() - reverseItineraryB.getHeight() - removePointsButton.getHeight(),
-                pane.heightProperty()));
-        subtractZoomB.layoutYProperty().bind(Bindings.createDoubleBinding(addZoomB::getHeight,
-                addZoomB.heightProperty()));
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
     }
@@ -218,20 +181,6 @@ public final class BaseMapManager {
                         newTopLeft.getX(), newTopLeft.getY());
                 waypointsManager.addWaypoint(point.x(), point.y());
             }
-        });
-
-        reverseItineraryB.setOnAction(e -> waypointsManager.reverseItinerary());
-        removePointsButton.setOnAction(e -> waypointsManager.removeItinerary());
-        PointWebMercator centerPoint = mapProperty.get().pointAtPointWebMercator(
-                pane.getWidth() / 2d,
-                pane.getHeight() / 2d);
-        addZoomB.setOnAction( e -> {
-            //We chose to add 1 zoom level per click
-            changeZoom(1, centerPoint);
-        });
-        subtractZoomB.setOnAction(e -> {
-            //We chose to subtract 1 zoom level per click
-            changeZoom(- 1, centerPoint);
         });
     }
 
@@ -290,41 +239,5 @@ public final class BaseMapManager {
         Point2D topLeft = mapProperty.get().topLeft();
         Point2D newTopLeft = zoomIn2D.add(topLeft);
         mapProperty.setValue(new MapViewParameters (newZoom, newTopLeft.getX(), newTopLeft.getY()));
-    }
-
-    /**
-     * Creates the icons and add them to the buttons
-     */
-    private void buttonsIcons() {
-        //ReverseItineraryExtension.
-        SVGPath reverseIcon2 = new SVGPath();
-        reverseIcon2.setContent("M5.79,9.71A1,1,0,1,0,7.21,8.29L5.91,7h12A1.56,1.56" +
-                ",0,0,1,19.5,8.53V11a1,1,0,0,0,2,0V8.53A3.56,3.56,0,0,0,17.91,5h-12l1.3-1.29a1" +
-                ",1,0,0,0,0-1.42,1,1,0,0,0-1.42,0l-3,3a1,1,0,0,0,0,1.42Z");
-        SVGPath reverseIcon1 = new SVGPath();
-        reverseIcon1.setContent("M6.09,19h12l-1.3,1.29a1,1,0,0,0,1.42,1.42l3-3a1," +
-                "1,0,0,0,0-1.42l-3-3a1,1,0,0,0-1.42,0,1,1,0,0,0,0,1.42L18.09,17h-12A1.56," +
-                "1.56,0,0,1,4.5,15.47V13a1,1,0,0,0-2,0v2.47A3.56,3.56,0,0,0,6.09,19Z");
-        Group reverseIcon = new Group(reverseIcon1, reverseIcon2);
-        reverseItineraryB.setGraphic(reverseIcon);
-
-        //+ and - for ZOOM buttons extension.
-        SVGPath plusIcon = new SVGPath();
-        plusIcon.setContent("M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 " +
-                "0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z");
-        addZoomB.setGraphic(plusIcon);
-        SVGPath minusIcon = new SVGPath();
-        minusIcon.setContent("M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z");
-        Group groupMinus = new Group(minusIcon);
-        subtractZoomB.setGraphic(groupMinus);
-
-        SVGPath removeIcon2 = new SVGPath();
-        removeIcon2.setContent("M6.8,8.8h11L17,22.6 H7.6L6.8,8.8z " +
-                "M4.9,7l1,17.4h12.8 l1-17.4 H4.9z");
-        SVGPath removeIcon1 = new SVGPath();
-        removeIcon1.setContent("M20.4,4h-4.8l-0.5-1.6 H9.5L9,4 H4.2 L3.5,8.6h17.6 L20.4,4z " +
-                "M9.9,3.2h4.8 L14.9,3.9h-5.2z M5.6,6.7l0.2-1 h13l0.2,1 H5.6z");
-        Group removeIcon = new Group(removeIcon1, removeIcon2);
-        removePointsButton.setGraphic(removeIcon);
     }
 }

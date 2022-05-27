@@ -59,8 +59,6 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
     private static final int DIFFERENCE_LENGTH_TYPE_3 = 4;
 
-
-
     /**
      * checks if an edge is inverted compared to the OSM way
      * @param edgeId the edge's (we want to check) identity
@@ -78,10 +76,10 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     public int targetNodeId(int edgeId){
         if (! isInverted(edgeId)){
             return Bits.extractUnsigned(edgesBuffer.getInt(EDGES_INTS * edgeId + OFFSET_NODE),
-                    0, 31);
+                    0, Integer.SIZE - 1);
         }
         return Bits.extractUnsigned(~edgesBuffer.getInt(EDGES_INTS * edgeId + OFFSET_NODE),
-                0, 31);
+                0, Integer.SIZE - 1);
     }
 
     /**

@@ -1,5 +1,7 @@
 package ch.epfl.javelo.projection;
 
+import ch.epfl.javelo.Math2;
+
 import static ch.epfl.javelo.Preconditions.checkArgument;
 import static ch.epfl.javelo.projection.SwissBounds.containsEN;
 
@@ -27,7 +29,7 @@ public record PointCh(double e, double n) {
      * @return squared distance between two points
      */
     public double squaredDistanceTo(PointCh that) {
-        return Math.pow(this.e - that.e, 2) + Math.pow(this.n - that.n, 2);
+        return Math2.squaredNorm(this.e - that.e, this.n - that.n);
     }
 
     /**
@@ -36,7 +38,7 @@ public record PointCh(double e, double n) {
      * @return distance between two points
      */
     public double distanceTo(PointCh that) {
-        return Math.sqrt(Math.pow(this.e - that.e, 2) + Math.pow(this.n - that.n, 2));
+        return Math.sqrt(squaredDistanceTo(that));
     }
 
     /**

@@ -10,7 +10,6 @@ import java.util.function.DoubleUnaryOperator;
  * Represents the profile of a simple or multiple itinerary
  * @author Lina Sadgal (342075)
  */
-
 public final class ElevationProfile {
 
     private final double length;

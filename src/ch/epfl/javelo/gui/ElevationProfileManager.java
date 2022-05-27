@@ -65,7 +65,7 @@ public final class ElevationProfileManager {
     /**
      * Dimensionless factor used to obtain the half of an existing value
      */
-    private final static int HALF_RATIO = 1/2;
+    private final static double HALF_RATIO = 1d/2d;
 
     /**
      * Table containing the different values that can be used to separate the vertical lines of position
@@ -139,8 +139,6 @@ public final class ElevationProfileManager {
         return mousePositionProperty;
     }
 
-
-    //Pas de sa faute.
     /**
      * Computes the value of the transformation screenToWorld and its inverse worldToScreen,
      * each of which consists of a succession of translations and a scaling
@@ -220,7 +218,6 @@ public final class ElevationProfileManager {
             double xPosition = FRAME_AND_PANE_GAP.getLeft();
             int positionInText = 0;
             double posCondition = Math.ceil(elevationProfile().length() / posStep);
-
             for (int i = 0; i < posCondition; ++i) {
                 grid.getElements().add(new MoveTo(xPosition, FRAME_AND_PANE_GAP.getTop()));
                 grid.getElements().add(new LineTo(xPosition, FRAME_AND_PANE_GAP.getTop() +
@@ -229,25 +226,21 @@ public final class ElevationProfileManager {
                 setPosText(positionInText, xPosition);
 
                 positionInText += posStep * METER_KILOMETER_RATIO;
-                System.out.println(positionInText);
                 xPosition += posSpacing;
             }
 
-            double gapM = elevationProfile().minElevation() % eleStep;
-            double gapP = worldToScreen().deltaTransform(0, gapM).getY();
-            double yPosition = FRAME_AND_PANE_GAP.getTop() + rectangle().getHeight() + gapP;
             int elevationInText = (int) Math.ceil(elevationProfile().minElevation() / eleStep)
                     * eleStep;
+            double gapM = elevationInText - elevationProfile().minElevation();
+            double gapP = worldToScreen().deltaTransform(0, gapM).getY();
+            double yPosition = FRAME_AND_PANE_GAP.getTop() + rectangle().getHeight() + gapP;
             double eleCondition = Math.ceil(elevationProfile().maxElevation()
-                    - elevationProfile().minElevation() / eleStep);
-
+                    - elevationProfile().minElevation() / eleStep) - 1;
             for (int i = 0; i < eleCondition; ++i) {
                 grid.getElements().add(new MoveTo(FRAME_AND_PANE_GAP.getLeft(), yPosition));
                 grid.getElements().add(new LineTo(
                         FRAME_AND_PANE_GAP.getLeft() + rectangle().getWidth(), yPosition));
-
                 setEleText(elevationInText, yPosition);
-
                 elevationInText += eleStep;
                 yPosition -= eleSpacing;
             }
