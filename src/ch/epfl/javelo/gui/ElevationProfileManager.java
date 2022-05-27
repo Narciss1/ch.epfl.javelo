@@ -229,19 +229,21 @@ public final class ElevationProfileManager {
                 setPosText(positionInText, xPosition);
 
                 positionInText += posStep * METER_KILOMETER_RATIO;
-                System.out.println(positionInText);
                 xPosition += posSpacing;
             }
 
-            double gapM = elevationProfile().minElevation() % eleStep;
-            double gapP = worldToScreen().deltaTransform(0, gapM).getY();
-            double yPosition = FRAME_AND_PANE_GAP.getTop() + rectangle().getHeight() + gapP;
+//            double gapM = elevationProfile().minElevation() % eleStep;
+//            double gapP = worldToScreen().deltaTransform(0, gapM).getY();
+//            double yPosition = FRAME_AND_PANE_GAP.getTop() + rectangle().getHeight() + gapP;
             int elevationInText = (int) Math.ceil(elevationProfile().minElevation() / eleStep)
                     * eleStep;
-            double eleCondition = Math.ceil(elevationProfile().maxElevation()
-                    - elevationProfile().minElevation() / eleStep);
+            double eleCondition = Math.ceil((elevationProfile().maxElevation()
+                    - elevationProfile().minElevation()) / eleStep);
 
             for (int i = 0; i < eleCondition; ++i) {
+                System.out.println("Elevation en metres." + elevationInText);
+                double yPosition = worldToScreen().deltaTransform(0, elevationInText).getY();
+                System.out.println(yPosition);
                 grid.getElements().add(new MoveTo(FRAME_AND_PANE_GAP.getLeft(), yPosition));
                 grid.getElements().add(new LineTo(
                         FRAME_AND_PANE_GAP.getLeft() + rectangle().getWidth(), yPosition));
@@ -249,7 +251,6 @@ public final class ElevationProfileManager {
                 setEleText(elevationInText, yPosition);
 
                 elevationInText += eleStep;
-                yPosition -= eleSpacing;
             }
         }
     }

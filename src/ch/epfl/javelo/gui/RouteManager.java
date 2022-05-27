@@ -115,7 +115,7 @@ public final class RouteManager {
         });
         routeBean.routeProperty().addListener( l -> {
             createPolyline();
-            //createCircle(); pour moi techniquement useless mais sur piazza il le faut (@1369_f2)
+            createCircle();
         });
         routeBean.highlightedPositionProperty().addListener(l -> {
             createCircle();
@@ -128,7 +128,7 @@ public final class RouteManager {
     private void routeEvents() {
         circle.setOnMouseClicked(e -> {
             //ces checks avec le if sont nécessaires (le programme marche pas sans), est-ce normal ?
-            if(routeBean.route() != null && !isNaN(routeBean.highlightedPosition())) {
+            //if(routeBean.route() != null && !isNaN(routeBean.highlightedPosition())) {
                 Point2D position = circle.localToParent(new Point2D(e.getX(), e.getY()));
                 PointCh pointCh = mapProperty.get()
                         .pointAtPointCh(position.getX(), position.getY());
@@ -137,7 +137,7 @@ public final class RouteManager {
                 Waypoint wayPoint = new Waypoint(pointCh, closestNode);
                 int index = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition()) + 1;
                 routeBean.waypoints().add(index, wayPoint);
-            }
+            //}
         });
     }
 

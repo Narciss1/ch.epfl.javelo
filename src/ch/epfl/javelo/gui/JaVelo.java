@@ -18,9 +18,18 @@ import static javafx.beans.binding.Bindings.when;
 public final class JaVelo extends Application {
 
 
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args) { launch(args); }
 
     //On est d'accord que cette méthode n'a pas à être commentée ? (Override)
+
+    /**
+     *
+     * @inheritedDoc
+     */
     @Override
     public void start(Stage primaryStage) throws Exception {
         Graph graph = Graph.loadFrom(Path.of("javelo-data"));
