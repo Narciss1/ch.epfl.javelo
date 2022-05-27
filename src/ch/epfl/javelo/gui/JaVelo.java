@@ -49,7 +49,6 @@ public final class JaVelo extends Application {
 
         SplitPane splitPane = new SplitPane(annotatedMapManager.pane());
         splitPane.setOrientation(Orientation.VERTICAL);
-        SplitPane.setResizableWithParent(elevationProfileManager.pane(), false);
         routeBean.elevationProfileProperty().addListener(l -> {
             if(routeBean.elevationProfileProperty().get() == null) {
                 splitPane.getItems().removeAll(elevationProfileManager.pane());
@@ -57,6 +56,9 @@ public final class JaVelo extends Application {
                 splitPane.getItems().add(elevationProfileManager.pane());
             }
         });
+        SplitPane.setResizableWithParent(elevationProfileManager.pane(), false);
+
+        StackPane mainPane = new StackPane(splitPane, errorManager.pane());
 
         MenuItem gpxExporter = new MenuItem("Exporter GPX");
         MenuBar menuBar = new MenuBar(new Menu("Fichier", null, gpxExporter));
@@ -72,7 +74,6 @@ public final class JaVelo extends Application {
             }
         });
 
-        StackPane mainPane = new StackPane(splitPane, errorManager.pane());
         BorderPane borderPane = new BorderPane(mainPane, menuBar, null, null, null);
 
         primaryStage.setMinWidth(800);
