@@ -19,16 +19,14 @@ public final class JaVelo extends Application {
 
 
     /**
-     *
-     * @param args
+     * main method to run the application JaVelo
+     * @param args the arguments are totally ignored
      */
     public static void main(String[] args) { launch(args); }
 
-    //On est d'accord que cette méthode n'a pas à être commentée ? (Override)
 
     /**
-     *
-     * @inheritedDoc
+     * constructs the graphic interface of JaVelo
      */
     @Override
     public void start(Stage primaryStage) throws Exception {

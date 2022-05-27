@@ -54,7 +54,8 @@ public final class AnnotatedMapManager {
         WaypointsManager waypointsManager = new WaypointsManager(graph, mapViewParametersP,
                 routeBean.waypoints(), errorConsumer);
         RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP);
-        BaseMapManager baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
+        BaseMapManager baseMapManager = new BaseMapManager(tileManager,
+                waypointsManager, mapViewParametersP);
 
         javeloPane = new StackPane(baseMapManager.pane(), routeManager.pane(),
                 waypointsManager.pane());

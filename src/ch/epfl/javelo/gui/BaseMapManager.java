@@ -23,8 +23,6 @@ import java.io.IOException;
 public final class BaseMapManager {
 
     private final ObjectProperty<MapViewParameters> mapProperty;
-    //Extension
-    private final ObjectProperty<TileManager> tileManagerP;
     private final TileManager tileManager;
     private final WaypointsManager waypointsManager;
     private final Pane pane;
@@ -61,11 +59,6 @@ public final class BaseMapManager {
         this.waypointsManager = waypointsManager;
         canvas = new Canvas();
 
-        //Extension qui permet le changement de visuel pour les tuiles.
-        this.tileManagerP = new SimpleObjectProperty<>();
-        tileManagerP.set(tileManager);
-        tileManagerP.addListener(l -> redrawOnNextPulse());
-
         pane = new Pane(canvas);
 
         bindings();
@@ -99,18 +92,22 @@ public final class BaseMapManager {
 
         for(double y = 0; y <= yNumberTiles; ++y) {
             double newXTopLeft = xTopLeft;
-            for(double x = 0; x <= xNumberTiles; ++x) {
+            for (double x = 0; x <= xNumberTiles; ++x) {
                 indexX = (int) (newXTopLeft / PIXELS_IN_TILE);
                 indexY = (int) (yTopLeft / PIXELS_IN_TILE);
-                TileManager.TileId tileId = new TileManager.TileId(mapProperty.get().zoomLevel(),
-                        indexX, indexY);
-                try {
-                    Image image = tileManagerP.get().imageForTileAt(tileId);
-                    canvasGraphicsContext.drawImage(image,
-                            PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
-                            PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate());
-                } catch (IOException e) {}
-                newXTopLeft += PIXELS_IN_TILE;
+                if (TileManager.TileId.isValid(mapProperty.get().zoomLevel(),
+                        indexX, indexY)) {
+                    TileManager.TileId tileId = new TileManager.TileId(
+                            mapProperty.get().zoomLevel(), indexX, indexY);
+                    try {
+                        Image image = tileManager.imageForTileAt(tileId);
+                        canvasGraphicsContext.drawImage(image,
+                                PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
+                                PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate());
+                    } catch (IOException e) {
+                    }
+                    newXTopLeft += PIXELS_IN_TILE;
+                }
             }
             yTopLeft += PIXELS_IN_TILE;
         }

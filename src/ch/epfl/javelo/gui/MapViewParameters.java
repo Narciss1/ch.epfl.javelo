@@ -47,6 +47,16 @@ public record MapViewParameters(int zoomLevel, double xCoordinate, double yCoord
         return PointWebMercator.of(zoomLevel, x + xCoordinate, y + yCoordinate);
     }
 
+    /**
+     * Gives us a point as an instance of PointCh through its coordinates compared
+     * to the point in the top left corner of the map background
+     * @param x the coordinate x of the point compared to the point
+     * in the top left corner of the map background
+     * @param y the coordinate y of the point compared to the point
+     * in the top left corner of the map background
+     * @return an object of type PointCh given its coordinates in comparison of the point
+     * in the top left corner.
+     */
     public PointCh pointAtPointCh(double x, double y) {
         return pointAtPointWebMercator(x, y).toPointCh();
     }

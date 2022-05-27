@@ -68,12 +68,14 @@ public final class ElevationProfileManager {
     private final static double HALF_RATIO = 1d/2d;
 
     /**
-     * Table containing the different values that can be used to separate the vertical lines of position
+     * Table containing the different values that can be used to separate
+     * the vertical lines of position
      */
     private final static int[] POS_STEPS =
             { 1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000 };
     /**
-     * Table containing the different values that can be used to separate the horizontal lines of altitude
+     * Table containing the different values that can be used to separate
+     * the horizontal lines of altitude
      */
     private final static int[] ELE_STEPS =
             { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
@@ -146,7 +148,8 @@ public final class ElevationProfileManager {
     private void transformations() {
         Affine affine = new Affine();
         if(elevationProfile() != null) {
-            affine.prependTranslation(-FRAME_AND_PANE_GAP.getLeft(), -FRAME_AND_PANE_GAP.getTop());
+            affine.prependTranslation(-FRAME_AND_PANE_GAP.getLeft(),
+                    -FRAME_AND_PANE_GAP.getTop());
             affine.prependScale(
                     elevationProfile().length() / rectangle().getWidth(),
                     (elevationProfile().minElevation()
@@ -199,7 +202,6 @@ public final class ElevationProfileManager {
         double posSpacing = 0;
         double eleSpacing = 0;
 
-        if(worldToScreen() != null) {
             for (int step : POS_STEPS) {
                 posSpacing = worldToScreen().deltaTransform(step, 0).getX();
                 posStep = step;
@@ -244,7 +246,6 @@ public final class ElevationProfileManager {
                 elevationInText += eleStep;
                 yPosition -= eleSpacing;
             }
-        }
     }
 
     /**
@@ -276,7 +277,8 @@ public final class ElevationProfileManager {
         eleText.textOriginProperty().setValue(VPos.CENTER);
         eleText.setText(String.valueOf(elevationInText));
         eleText.setFont(Font.font(FONT_AVENIR, TEXT_SIZE));
-        eleText.setLayoutX(FRAME_AND_PANE_GAP.getLeft() - eleText.prefWidth(0) + ELEVATION_LEFT_SHIFT);
+        eleText.setLayoutX(FRAME_AND_PANE_GAP.getLeft() - eleText.prefWidth(0)
+                + ELEVATION_LEFT_SHIFT);
         eleText.setLayoutY(yPosition);
         texts.getChildren().add(eleText);
     }
@@ -354,8 +356,10 @@ public final class ElevationProfileManager {
         rectangleProperty.bind(Bindings.createObjectBinding((() ->new Rectangle2D(
                     FRAME_AND_PANE_GAP.getLeft(),
                     FRAME_AND_PANE_GAP.getTop(),
-                    Math.max(pane.getWidth() - FRAME_AND_PANE_GAP.getRight() - FRAME_AND_PANE_GAP.getLeft(),0),
-                    Math.max(pane.getHeight() - FRAME_AND_PANE_GAP.getTop() - FRAME_AND_PANE_GAP.getBottom(),0))),
+                    Math.max(pane.getWidth() - FRAME_AND_PANE_GAP.getRight() -
+                            FRAME_AND_PANE_GAP.getLeft(),0),
+                    Math.max(pane.getHeight() - FRAME_AND_PANE_GAP.getTop() -
+                            FRAME_AND_PANE_GAP.getBottom(),0))),
                 pane.widthProperty(), pane.heightProperty()));
     }
 

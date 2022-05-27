@@ -150,7 +150,8 @@ public final class RouteBean {
         }
         MultiRoute theRoute = new MultiRoute(routes);
         routeP.set(theRoute);
-        elevationProfileP.set(ElevationProfileComputer.elevationProfile(theRoute, MAX_STEP_LENGTH));
+        elevationProfileP.set(ElevationProfileComputer.elevationProfile(theRoute,
+                MAX_STEP_LENGTH));
     }
 
     /**
