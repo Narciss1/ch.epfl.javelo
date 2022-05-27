@@ -25,7 +25,10 @@ public final class TileManager {
      * Represents the cache memory capacity
      */
      private final static int CACHE_MEMORY_CAPACITY = 100;
-
+    /**
+     * Dimensionless factor used to obtain the double of an existing value
+     */
+    private final static int DOUBLE_RATIO = 2;
     /**
      * A string containing ".png"
      */
@@ -68,7 +71,7 @@ public final class TileManager {
          * false if one or both of them are not
          */
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
-            int limit = (int)Math.pow(2,zoomLevel) - 1;
+            int limit = (int)Math.pow(DOUBLE_RATIO ,zoomLevel) - 1;
             return (indexX <= limit && indexY <= limit && zoomLevel >= 0);
         }
     }

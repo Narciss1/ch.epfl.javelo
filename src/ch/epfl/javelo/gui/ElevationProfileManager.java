@@ -41,7 +41,6 @@ public final class ElevationProfileManager {
     private Text stats;
     private Polygon profile;
     private Group texts;
-    private Insets insets;
 
     /**
      * Value of text's size
@@ -64,7 +63,7 @@ public final class ElevationProfileManager {
      */
     private final static int ELEVATION_LEFT_SHIFT = -2;
     /**
-     * Dimensionless factor used to obtain half of an existing value
+     * Dimensionless factor used to obtain the half of an existing value
      */
     private final static int HALF_RATIO = 1/2;
 
@@ -149,7 +148,7 @@ public final class ElevationProfileManager {
     private void transformations() {
         Affine affine = new Affine();
         if(elevationProfile() != null) {
-            affine.prependTranslation(-insets.getLeft(), -insets.getTop());
+            affine.prependTranslation(-FRAME_AND_PANE_GAP.getLeft(), -FRAME_AND_PANE_GAP.getTop());
             affine.prependScale(
                     elevationProfile().length() / rectangle().getWidth(),
                     (elevationProfile().minElevation()
@@ -169,11 +168,11 @@ public final class ElevationProfileManager {
      */
     private void createPolygon() {
         List<Double> listPoints = new ArrayList<>();
-        double positionP = insets.getLeft();
+        double positionP = FRAME_AND_PANE_GAP.getLeft();
 
-            listPoints.add(insets.getLeft());
-            listPoints.add(insets.getTop() + rectangle().getHeight());
-            while (positionP <= rectangle().getWidth() + insets.getLeft()) {
+            listPoints.add(FRAME_AND_PANE_GAP.getLeft());
+            listPoints.add(FRAME_AND_PANE_GAP.getTop() + rectangle().getHeight());
+            while (positionP <= rectangle().getWidth() + FRAME_AND_PANE_GAP.getLeft()) {
                 Point2D pointP = new Point2D(positionP, 0);
                 Point2D pointM = screenToWorld().transform(pointP);
                 Point2D pointToTransform = new Point2D(pointM.getX(),
@@ -183,8 +182,8 @@ public final class ElevationProfileManager {
                 listPoints.add(pointToAdd.getY());
                 positionP += 1;
             }
-            listPoints.add(insets.getLeft() + rectangle().getWidth());
-            listPoints.add(insets.getTop() + rectangle().getHeight());
+            listPoints.add(FRAME_AND_PANE_GAP.getLeft() + rectangle().getWidth());
+            listPoints.add(FRAME_AND_PANE_GAP.getTop() + rectangle().getHeight());
 
         profile.getPoints().setAll(listPoints);
     }
@@ -218,13 +217,13 @@ public final class ElevationProfileManager {
                 }
             }
 
-            double xPosition = insets.getLeft();
+            double xPosition = FRAME_AND_PANE_GAP.getLeft();
             int positionInText = 0;
             double posCondition = Math.ceil(elevationProfile().length() / posStep);
 
             for (int i = 0; i < posCondition; ++i) {
-                grid.getElements().add(new MoveTo(xPosition, insets.getTop()));
-                grid.getElements().add(new LineTo(xPosition, insets.getTop() +
+                grid.getElements().add(new MoveTo(xPosition, FRAME_AND_PANE_GAP.getTop()));
+                grid.getElements().add(new LineTo(xPosition, FRAME_AND_PANE_GAP.getTop() +
                         rectangle().getHeight()));
 
                 setPosText(positionInText, xPosition);
@@ -235,16 +234,16 @@ public final class ElevationProfileManager {
 
             double gapM = elevationProfile().minElevation() % eleStep;
             double gapP = worldToScreen().deltaTransform(0, gapM).getY();
-            double yPosition = insets.getTop() + rectangle().getHeight() + gapP;
+            double yPosition = FRAME_AND_PANE_GAP.getTop() + rectangle().getHeight() + gapP;
             int elevationInText = (int) Math.ceil(elevationProfile().minElevation() / eleStep)
                     * eleStep;
             double eleCondition = Math.ceil(elevationProfile().maxElevation()
                     - elevationProfile().minElevation() / eleStep);
 
             for (int i = 0; i < eleCondition; ++i) {
-                grid.getElements().add(new MoveTo(insets.getLeft(), yPosition));
+                grid.getElements().add(new MoveTo(FRAME_AND_PANE_GAP.getLeft(), yPosition));
                 grid.getElements().add(new LineTo(
-                        insets.getLeft() + rectangle().getWidth(), yPosition));
+                        FRAME_AND_PANE_GAP.getLeft() + rectangle().getWidth(), yPosition));
 
                 setEleText(elevationInText, yPosition);
 
@@ -267,7 +266,7 @@ public final class ElevationProfileManager {
         posText.setText(String.valueOf(positionInText));
         posText.setFont(Font.font(FONT_AVENIR, TEXT_SIZE));
         posText.setLayoutX(xPosition - posText.prefWidth(0) * HALF_RATIO);
-        posText.setLayoutY(insets.getTop() + rectangle().getHeight());
+        posText.setLayoutY(FRAME_AND_PANE_GAP.getTop() + rectangle().getHeight());
         texts.getChildren().add(posText);
     }
 
@@ -283,7 +282,7 @@ public final class ElevationProfileManager {
         eleText.textOriginProperty().setValue(VPos.CENTER);
         eleText.setText(String.valueOf(elevationInText));
         eleText.setFont(Font.font(FONT_AVENIR, TEXT_SIZE));
-        eleText.setLayoutX(insets.getLeft() - eleText.prefWidth(0) + ELEVATION_LEFT_SHIFT);
+        eleText.setLayoutX(FRAME_AND_PANE_GAP.getLeft() - eleText.prefWidth(0) + ELEVATION_LEFT_SHIFT);
         eleText.setLayoutY(yPosition);
         texts.getChildren().add(eleText);
     }
@@ -309,8 +308,6 @@ public final class ElevationProfileManager {
      */
     private void initialize() {
         mousePositionProperty = new SimpleDoubleProperty(Double.NaN);
-
-        insets = FRAME_AND_PANE_GAP;
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
 
         profile = new Polygon();
@@ -361,10 +358,10 @@ public final class ElevationProfileManager {
      */
     private void rectangleBinding() {
         rectangleProperty.bind(Bindings.createObjectBinding((() ->new Rectangle2D(
-                    insets.getLeft(),
-                    insets.getTop(),
-                    Math.max(pane.getWidth() - insets.getRight() - insets.getLeft(),0),
-                    Math.max(pane.getHeight() - insets.getTop() - insets.getBottom(),0))),
+                    FRAME_AND_PANE_GAP.getLeft(),
+                    FRAME_AND_PANE_GAP.getTop(),
+                    Math.max(pane.getWidth() - FRAME_AND_PANE_GAP.getRight() - FRAME_AND_PANE_GAP.getLeft(),0),
+                    Math.max(pane.getHeight() - FRAME_AND_PANE_GAP.getTop() - FRAME_AND_PANE_GAP.getBottom(),0))),
                 pane.widthProperty(), pane.heightProperty()));
     }
 
