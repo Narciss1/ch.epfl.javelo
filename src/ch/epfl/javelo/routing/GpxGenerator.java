@@ -85,7 +85,6 @@ public class GpxGenerator {
                     String.format(Locale.ROOT, "%.2f",
                             profile.elevationAt(position)));
             if (iEdges.hasNext()) {
-                System.out.println(position);
                 position += iEdges.next().length();
             }
         }

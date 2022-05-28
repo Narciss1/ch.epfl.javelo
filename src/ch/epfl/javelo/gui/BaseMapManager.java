@@ -23,7 +23,7 @@ import java.io.IOException;
 public final class BaseMapManager {
 
     private final ObjectProperty<MapViewParameters> mapProperty;
-    private final TileManager tileManager;
+    private final ObjectProperty<TileManager> tileManagerP;
     private final WaypointsManager waypointsManager;
     private final Pane pane;
     private final Canvas canvas;
@@ -54,7 +54,7 @@ public final class BaseMapManager {
      */
     public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager,
                           ObjectProperty<MapViewParameters> mapProperty) {
-        this.tileManager = tileManager;
+        this.tileManagerP = new SimpleObjectProperty<>(tileManager);
         this.mapProperty = mapProperty;
         this.waypointsManager = waypointsManager;
         canvas = new Canvas();
@@ -100,7 +100,7 @@ public final class BaseMapManager {
                     TileManager.TileId tileId = new TileManager.TileId(
                             mapProperty.get().zoomLevel(), indexX, indexY);
                     try {
-                        Image image = tileManager.imageForTileAt(tileId);
+                        Image image = tileManagerP.get().imageForTileAt(tileId);
                         canvasGraphicsContext.drawImage(image,
                                 PIXELS_IN_TILE * indexX - mapProperty.get().xCoordinate(),
                                 PIXELS_IN_TILE * indexY - mapProperty.get().yCoordinate());
@@ -153,6 +153,7 @@ public final class BaseMapManager {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
+        tileManagerP.addListener(l -> redrawOnNextPulse());
     }
 
     /**
@@ -237,4 +238,13 @@ public final class BaseMapManager {
         Point2D newTopLeft = zoomIn2D.add(topLeft);
         mapProperty.setValue(new MapViewParameters (newZoom, newTopLeft.getX(), newTopLeft.getY()));
     }
+
+    /**
+     * Changes the value contained in tile manager property
+     * @param tileManager a new tile manager
+     */
+    public void setTileManager(TileManager tileManager) {
+        tileManagerP.set(tileManager);
+    }
+
 }

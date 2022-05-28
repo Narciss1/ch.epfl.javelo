@@ -45,6 +45,9 @@ public final class JaVelo extends Application {
         AnnotatedMapManager annotatedMapManager = new AnnotatedMapManager
                 (graph, tileManager, routeBean, errorConsumer);
 
+        SwitchBackgroundManager switchBackground = new SwitchBackgroundManager(annotatedMapManager,
+                cacheBasePath);
+
         ElevationProfileManager elevationProfileManager =
                 new ElevationProfileManager(routeBean.elevationProfileProperty(),
                         routeBean.highlightedPositionProperty());
@@ -65,7 +68,8 @@ public final class JaVelo extends Application {
         });
         SplitPane.setResizableWithParent(elevationProfileManager.pane(), false);
 
-        StackPane mainPane = new StackPane(splitPane, errorManager.pane());
+        StackPane mainPane = new StackPane(splitPane, errorManager.pane(),
+                switchBackground.pane());
 
         MenuItem gpxExporter = new MenuItem("Exporter GPX");
         MenuBar menuBar = new MenuBar(new Menu("Fichier", null, gpxExporter));

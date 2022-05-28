@@ -2,13 +2,20 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
+import ch.epfl.javelo.routing.Edge;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
-import java.util.ArrayList;
-import java.util.List;
+import javafx.scene.shape.StrokeLineJoin;
+
+import java.util.*;
+
 import static java.lang.Double.isNaN;
 
 /**
@@ -24,6 +31,9 @@ public final class RouteManager {
     private final Polyline polylineItinerary;
     private final Circle circle;
 
+    private final Map<Integer, Color> colors_correspondance = new HashMap<>();
+
+
     /**
      * Radius of the highlighted position
      */
@@ -36,10 +46,15 @@ public final class RouteManager {
      */
     public RouteManager(RouteBean routeBean,
                         ReadOnlyObjectProperty<MapViewParameters> mapViewParametersProperty) {
+        colors_correspondance.put(0, Color.GREEN);
+        colors_correspondance.put(1, Color.YELLOW);
+        colors_correspondance.put(2, Color.RED);
         this.routeBean = routeBean;
         this.mapProperty = mapViewParametersProperty;
         polylineItinerary = new Polyline();
-        polylineItinerary.setId("route");
+        //polylineItinerary.setId("route");
+        polylineItinerary.setStrokeWidth(4);
+        polylineItinerary.setStrokeLineJoin(StrokeLineJoin.ROUND);
         circle = new Circle(HIGHLIGHTED_POSITION_RADIUS);
         circle.setId("highlight");
         pane = new Pane(polylineItinerary, circle);
@@ -68,11 +83,45 @@ public final class RouteManager {
         }
         List<PointCh> pointsItinerary = routeBean.route().points();
         List<Double> pointsCoordinates = new ArrayList<>();
+        List<Color> colors = new ArrayList<>();
+        StringJoiner stringJoiner = new StringJoiner(",");
+        stringJoiner.add("linear-gradient(to right)");
+        double currentElevation = -1;
+        double nextElevation = 0;
+        double position = 0;
+        double offset = 0;
+        Iterator<Edge> iEdges = routeBean.route().edges().iterator();
         for (PointCh point : pointsItinerary) {
             PointWebMercator pointMercator = PointWebMercator.ofPointCh(point);
             pointsCoordinates.add(pointMercator.xAtZoomLevel(mapProperty.get().zoomLevel()));
             pointsCoordinates.add(pointMercator.yAtZoomLevel(mapProperty.get().zoomLevel()));
+            if (routeBean.elevationProfile() != null) {
+                nextElevation = routeBean.elevationProfile().elevationAt(position);
+                if (iEdges.hasNext()) {
+                    position += iEdges.next().length();
+                }
+                if (nextElevation <= 500) {
+                    nextElevation = 0;
+                } else if (nextElevation <= 1000) {
+                    nextElevation = 1;
+                } else {
+                    nextElevation = 2;
+                }
+                if (nextElevation != currentElevation) {
+                    colors.add(colors_correspondance.get((int)nextElevation));
+                    currentElevation = nextElevation;
+                }
+            }
         }
+        Stop[] stops1 = new Stop[colors.size()];
+        for (int i = 0; i < colors.size(); ++i) {
+            stops1[i] = new Stop(offset, colors.get(i));
+            offset = offset + (1d / (colors.size()));
+        }
+        LinearGradient gradient =
+                new LinearGradient(0, 0, 1, 0, true,
+                        CycleMethod.NO_CYCLE, stops1);
+        polylineItinerary.setStroke(gradient);
         polylineItinerary.getPoints().setAll(pointsCoordinates);
         moveItinerary();
     }
@@ -81,6 +130,7 @@ public final class RouteManager {
      * Relocates the itinerary
      */
     private void moveItinerary() {
+        //Pr que ce soit valable même ici on devrait créer une propriété de LinearGradient maybe.
         polylineItinerary.setLayoutX(-mapProperty.get().xCoordinate());
         polylineItinerary.setLayoutY(-mapProperty.get().yCoordinate());
     }
