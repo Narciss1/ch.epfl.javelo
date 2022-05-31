@@ -33,6 +33,7 @@ public final class ElevationProfileManager {
     private ObjectProperty<Rectangle2D> rectangleProperty;
     private ObjectProperty<Transform> worldToScreen;
     private ObjectProperty<Transform> screenToWorld;
+    private ObjectProperty<Text> statsProperty;
 
     private BorderPane borderPane;
     private Pane pane;
@@ -66,7 +67,7 @@ public final class ElevationProfileManager {
      * Dimensionless factor used to obtain the half of an existing value
      */
     private final static double HALF_RATIO = 1d/2d;
-
+    private final static double DEFAULT_AVERAGE_SPEED = 25d / 60d;
     /**
      * Table containing the different values that can be used to separate
      * the vertical lines of position
@@ -129,6 +130,35 @@ public final class ElevationProfileManager {
      */
     public Pane pane() {
         return borderPane;
+    }
+
+    /**
+     * Returns a read-only property containing the position of the mouse pointer along the profile
+     * (in meters, rounded to the nearest integer) or NaN if the mouse pointer is not above the
+     * profile
+     * @return the property of the mouse position on the profile
+     */
+    public ReadOnlyObjectProperty
+            <ch.epfl.javelo.routing.ElevationProfile>elevationProfileProperty() {
+        return elevationProfileProperty;
+    }
+
+    /**
+     * Computes the statistics with the new value of the user's speed
+     * @param speed user's speed in kilometers per minute
+     */
+    public void setStatsProperty(double speed) {
+        statsProperty.get().setText(String.format("Longueur : %.1f km"
+                        + "     Montée : %.0f m"
+                        + "     Descente : %.0f m"
+                        + "     Altitude : de %.0f m à %.0f m"
+                        + "     Durée moyenne : %.0f min" ,
+                elevationProfile().length() * METER_KILOMETER_RATIO,
+                elevationProfile().totalAscent(),
+                elevationProfile().totalDescent(),
+                elevationProfile().minElevation(),
+                elevationProfile().maxElevation(),
+                elevationProfile().length() * METER_KILOMETER_RATIO / speed));
     }
 
     /**
@@ -290,12 +320,14 @@ public final class ElevationProfileManager {
             stats.setText(String.format("Longueur : %.1f km"
                             + "     Montée : %.0f m"
                             + "     Descente : %.0f m"
-                            + "     Altitude : de %.0f m à %.0f m",
+                            + "     Altitude : de %.0f m à %.0f m"
+                            + "     Durée moyenne : %.0f min" ,
                     elevationProfile().length() * METER_KILOMETER_RATIO,
                     elevationProfile().totalAscent(),
                     elevationProfile().totalDescent(),
                     elevationProfile().minElevation(),
-                    elevationProfile().maxElevation()));
+                    elevationProfile().maxElevation(),
+                    elevationProfile().length() * METER_KILOMETER_RATIO / DEFAULT_AVERAGE_SPEED));
         }
     }
 
@@ -316,7 +348,8 @@ public final class ElevationProfileManager {
         line = new Line();
 
         stats = new Text();
-        VBox routeStatistics = new VBox(stats);
+        statsProperty =  new SimpleObjectProperty<>(stats);
+        VBox routeStatistics = new VBox(statsProperty.get());
         routeStatistics.setId("profile_data");
 
         screenToWorld = new SimpleObjectProperty<>(new Affine());

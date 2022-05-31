@@ -45,12 +45,12 @@ public final class JaVelo extends Application {
         AnnotatedMapManager annotatedMapManager = new AnnotatedMapManager
                 (graph, tileManager, routeBean, errorConsumer);
 
-        SwitchBackgroundManager switchBackground = new SwitchBackgroundManager(annotatedMapManager,
-                cacheBasePath);
-
         ElevationProfileManager elevationProfileManager =
                 new ElevationProfileManager(routeBean.elevationProfileProperty(),
                         routeBean.highlightedPositionProperty());
+
+        SwitchBackgroundManager switchBackground = new SwitchBackgroundManager(annotatedMapManager,
+                elevationProfileManager, cacheBasePath, errorConsumer);
 
         routeBean.highlightedPositionProperty().bind(
                 when(annotatedMapManager.mousePositionOnRouteProperty().greaterThanOrEqualTo(0))
