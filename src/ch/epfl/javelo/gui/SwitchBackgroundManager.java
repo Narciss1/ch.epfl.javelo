@@ -9,13 +9,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
@@ -74,7 +67,6 @@ public final class SwitchBackgroundManager {
                 , osmButton.heightProperty(), cyclosmButton.heightProperty(),
                 label.heightProperty()));
 
-
         speedLabel = new Label(LABEL_SPEED);
         speedLabel.setMaxWidth(150);
         averageSpeed = new TextField(DEFAULT_AVERAGE_SPEED);
@@ -99,11 +91,14 @@ public final class SwitchBackgroundManager {
                         canCompute = false;
                     }
                 }*/
-                try {
-                    averageSpeed.setOnAction(e -> elevationProfileManager.setStatsProperty(Double.valueOf(newText) / 60d));;
-                } catch (NumberFormatException e) {
-                    errorConsumer.accept(ERROR_MESSAGE);
-                }
+                    averageSpeed.setOnAction(l -> {
+                        try {
+                        elevationProfileManager.setStatsProperty(Double.valueOf(newText) / 60d);
+                        } catch (NumberFormatException e) {
+                            errorConsumer.accept(ERROR_MESSAGE);
+                        }
+                    });
+
             }
         });
 
