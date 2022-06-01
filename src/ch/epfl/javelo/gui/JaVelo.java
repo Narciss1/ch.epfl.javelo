@@ -3,14 +3,12 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.routing.*;
 import javafx.application.Application;
-import javafx.beans.binding.Bindings;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import java.io.IOException;
-import java.io.UncheckedIOException;
+
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import static javafx.beans.binding.Bindings.when;
@@ -71,21 +69,11 @@ public final class JaVelo extends Application {
         StackPane mainPane = new StackPane(splitPane, errorManager.pane(),
                 switchBackground.pane());
 
-        MenuItem gpxExporter = new MenuItem("Exporter GPX");
-        MenuBar menuBar = new MenuBar(new Menu("Fichier", null, gpxExporter));
-        gpxExporter.disableProperty().bind(Bindings.createBooleanBinding(
-                () -> routeBean.route() == null, routeBean.routeProperty()));
-        gpxExporter.setOnAction(e  -> {
-            try {
-                GpxGenerator.writeGpx("Javelo.gpx", routeBean.route(),
-                        routeBean.elevationProfile());
-            }
-            catch(IOException exception) {
-                throw new UncheckedIOException(exception);
-            }
-        });
+        MenuManager menuManager = new MenuManager(routeBean, annotatedMapManager,
+                switchBackground);
 
-        BorderPane borderPane = new BorderPane(mainPane, menuBar, null, null, null);
+        BorderPane borderPane = new BorderPane(mainPane, menuManager.menuBar(),
+                null, null, null);
 
         primaryStage.setMinWidth(800);
         primaryStage.setMinHeight(600);

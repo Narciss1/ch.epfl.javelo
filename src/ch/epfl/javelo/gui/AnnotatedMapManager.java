@@ -10,6 +10,8 @@ import javafx.beans.property.*;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import ch.epfl.javelo.parameters.Language;
+
 import java.util.function.Consumer;
 
 /**
@@ -21,6 +23,7 @@ import java.util.function.Consumer;
 public final class AnnotatedMapManager {
 
     private final BaseMapManager baseMapManager;
+    private final WaypointsManager waypointsManager;
 
     private final StackPane javeloPane;
     private final RouteBean routeBean;
@@ -30,7 +33,7 @@ public final class AnnotatedMapManager {
     private final DoubleProperty mousePositionOnRouteProperty;
 
     /**
-     * The parameters of the map at the start
+     * The ch.epfl.javelo.parameters of the map at the start
      */
     private static final MapViewParameters startMapViewParameters =
             new MapViewParameters(12, 543200, 370650);
@@ -53,7 +56,7 @@ public final class AnnotatedMapManager {
         mousePositionP = new SimpleObjectProperty<>();
         mousePositionOnRouteProperty = new SimpleDoubleProperty();
 
-        WaypointsManager waypointsManager = new WaypointsManager(graph, mapViewParametersP,
+        waypointsManager = new WaypointsManager(graph, mapViewParametersP,
                 routeBean.waypoints(), errorConsumer);
         RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP);
         baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
@@ -85,7 +88,7 @@ public final class AnnotatedMapManager {
 
     /**
      * Binds the property containing the mouse position on the route and other
-     * properties containing the map view parameters, the mouse position and the route
+     * properties containing the map view ch.epfl.javelo.parameters, the mouse position and the route
      */
     private void mousePositionOnRouteBinding() {
         mousePositionOnRouteProperty.bind(Bindings.createDoubleBinding((() -> {
@@ -128,5 +131,10 @@ public final class AnnotatedMapManager {
      */
     public void setTileManager(TileManager tileManager) {
         baseMapManager.setTileManager(tileManager);
+    }
+
+
+    public void changeLanguage(Language language) {
+        waypointsManager.changeLanguage(language);
     }
 }

@@ -35,7 +35,7 @@ public final class SwitchBackgroundManager {
     private final TilePane speedPane;
     private final Consumer<String> errorConsumer;
 
-    private final static String LABEL_TEXT = "Fond de carte :";
+    private final static String DEFAULT_LABEL_TEXT = "Fond de carte :";
     private final static String LABEL_SPEED = "  Vitesse moyenne :";
     private final static String DEFAULT_AVERAGE_SPEED = "25";
     private final static String OPEN_STREET_MAP = "OpenStreetMap";

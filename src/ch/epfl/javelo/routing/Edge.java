@@ -10,7 +10,7 @@ import java.util.function.DoubleUnaryOperator;
  * @author Lina Sadgal (342075)
  */
 public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPoint, double length,
-                   DoubleUnaryOperator profile) {
+                   double elevationGain, DoubleUnaryOperator profile) {
 
     /**
      *creates a new Edge
@@ -21,8 +21,9 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @return a new Edge
      */
     public static Edge of(Graph graph, int edgeId, int fromNodeId, int toNodeId){
-        return new Edge(fromNodeId, toNodeId, graph.nodePoint(fromNodeId), graph.nodePoint(toNodeId),
-                graph.edgeLength(edgeId), graph.edgeProfile(edgeId));
+        return new Edge(fromNodeId, toNodeId, graph.nodePoint(fromNodeId),
+                graph.nodePoint(toNodeId), graph.edgeLength(edgeId),
+                graph.edgeElevationGain(edgeId), graph.edgeProfile(edgeId));
     }
 
     /**
@@ -33,6 +34,10 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
     public double positionClosestTo(PointCh point){
         return Math2.projectionLength(fromPoint.e(), fromPoint.n(), toPoint.e(),
                     toPoint.n(), point.e(), point.n());
+    }
+
+    public double averageElevationGain() {
+        return elevationGain/length;
     }
 
     /**

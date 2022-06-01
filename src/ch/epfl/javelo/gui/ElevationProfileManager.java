@@ -321,7 +321,7 @@ public final class ElevationProfileManager {
                             + "     Montée : %.0f m"
                             + "     Descente : %.0f m"
                             + "     Altitude : de %.0f m à %.0f m"
-                            + "     Durée moyenne : %.0f min" ,
+                            + "     Durée : %.0f min" ,
                     elevationProfile().length() * METER_KILOMETER_RATIO,
                     elevationProfile().totalAscent(),
                     elevationProfile().totalDescent(),

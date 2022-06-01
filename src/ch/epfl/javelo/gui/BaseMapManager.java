@@ -50,7 +50,7 @@ public final class BaseMapManager {
      * Constructor
      * @param tileManager a tile manager used to get the tiles from the map
      * @param waypointsManager a crossing points manager
-     * @param mapProperty a JavaFX property containing the parameters of the displayed map
+     * @param mapProperty a JavaFX property containing the ch.epfl.javelo.parameters of the displayed map
      */
     public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager,
                           ObjectProperty<MapViewParameters> mapProperty) {

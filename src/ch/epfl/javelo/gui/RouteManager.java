@@ -3,7 +3,10 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import ch.epfl.javelo.routing.Edge;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -13,7 +16,6 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.StrokeLineJoin;
-
 import java.util.*;
 
 import static java.lang.Double.isNaN;
@@ -27,6 +29,7 @@ public final class RouteManager {
 
     private final RouteBean routeBean;
     private final ReadOnlyObjectProperty<MapViewParameters> mapProperty;
+    private final DoubleProperty lengthDiv;
     private final Pane pane;
     private final Polyline polylineItinerary;
     private final Circle circle;
@@ -42,15 +45,18 @@ public final class RouteManager {
     /**
      * Constructor
      * @param routeBean a bean grouping all properties linked to the waypoints and the itinerary
-     * @param mapViewParametersProperty a property containing the map view parameters
+     * @param mapViewParametersProperty a property containing the map view ch.epfl.javelo.parameters
      */
     public RouteManager(RouteBean routeBean,
                         ReadOnlyObjectProperty<MapViewParameters> mapViewParametersProperty) {
         colors_correspondance.put(0, Color.GREEN);
         colors_correspondance.put(1, Color.YELLOW);
-        colors_correspondance.put(2, Color.RED);
+        colors_correspondance.put(2, Color.ORANGE);
+        colors_correspondance.put(3, Color.RED);
+        colors_correspondance.put(4, Color.DARKRED);
         this.routeBean = routeBean;
         this.mapProperty = mapViewParametersProperty;
+        this.lengthDiv = new SimpleDoubleProperty(2000);
         polylineItinerary = new Polyline();
         //polylineItinerary.setId("route");
         polylineItinerary.setStrokeWidth(4);
@@ -61,7 +67,22 @@ public final class RouteManager {
         pane.setPickOnBounds(false);
         addListeners();
         routeEvents();
+        binding();
     }
+
+    private void binding() {
+      lengthDiv.bind(Bindings.createDoubleBinding((() -> {
+                  switch (mapProperty.get().zoomLevel()) {
+                      case 8, 9 -> { return 1200.0; }
+                      case 10 -> { return 1100.0; }
+                      case 11, 12, 13 -> { return 1000.0; }
+                      case 14, 15, 16, 17 -> { return 800.0; }
+                      case 18, 19 -> { return 500.0; }
+                      default -> { return 0.0; }
+                  }
+              }), mapProperty));
+    }
+
 
     /**
      * Returns the JavaFX panel displaying the route
@@ -84,45 +105,56 @@ public final class RouteManager {
         List<PointCh> pointsItinerary = routeBean.route().points();
         List<Double> pointsCoordinates = new ArrayList<>();
         List<Color> colors = new ArrayList<>();
-        StringJoiner stringJoiner = new StringJoiner(",");
-        stringJoiner.add("linear-gradient(to right)");
-        double currentElevation = -1;
-        double nextElevation = 0;
-        double position = 0;
+        double currentElevationGain = -1;
+        double nextElevationGain = 0;
         double offset = 0;
+        double position = 0;
+        double cap = 0;
+        double averageGain = 0;
         Iterator<Edge> iEdges = routeBean.route().edges().iterator();
         for (PointCh point : pointsItinerary) {
             PointWebMercator pointMercator = PointWebMercator.ofPointCh(point);
             pointsCoordinates.add(pointMercator.xAtZoomLevel(mapProperty.get().zoomLevel()));
             pointsCoordinates.add(pointMercator.yAtZoomLevel(mapProperty.get().zoomLevel()));
+
+            //Creer une methode auxiliaire et remplacer tt ce bordel par un case.
             if (routeBean.elevationProfile() != null) {
-                nextElevation = routeBean.elevationProfile().elevationAt(position);
                 if (iEdges.hasNext()) {
-                    position += iEdges.next().length();
+                    Edge currentEdge = iEdges.next();
+                    if (position >= cap) {
+                        cap += lengthDiv.get();
+                        nextElevationGain = averageGain;
+                        averageGain = 0;
+                    }
+                    averageGain += currentEdge.averageElevationGain();
+                    position += currentEdge.length();
                 }
-                if (nextElevation <= 500) {
-                    nextElevation = 0;
-                } else if (nextElevation <= 1000) {
-                    nextElevation = 1;
+                if (nextElevationGain < 0.1) {
+                    nextElevationGain = 0;
+                } else if (nextElevationGain < 0.3) {
+                    nextElevationGain = 1;
+                } else if (nextElevationGain < 0.5)
+                    nextElevationGain = 2;
+                } else if (nextElevationGain < 0.10) {
+                    nextElevationGain = 3;
                 } else {
-                    nextElevation = 2;
+                    nextElevationGain = 4;
                 }
-                if (nextElevation != currentElevation) {
-                    colors.add(colors_correspondance.get((int)nextElevation));
-                    currentElevation = nextElevation;
+                if (nextElevationGain != currentElevationGain) {
+                    colors.add(colors_correspondance.get((int)nextElevationGain));
+                    currentElevationGain = nextElevationGain;
                 }
             }
-        }
         Stop[] stops1 = new Stop[colors.size()];
         for (int i = 0; i < colors.size(); ++i) {
             stops1[i] = new Stop(offset, colors.get(i));
             offset = offset + (1d / (colors.size()));
         }
-        LinearGradient gradient =
+        LinearGradient linearGradient =
                 new LinearGradient(0, 0, 1, 0, true,
                         CycleMethod.NO_CYCLE, stops1);
-        polylineItinerary.setStroke(gradient);
         polylineItinerary.getPoints().setAll(pointsCoordinates);
+        polylineItinerary.setStroke(linearGradient);
         moveItinerary();
     }
 
@@ -130,10 +162,10 @@ public final class RouteManager {
      * Relocates the itinerary
      */
     private void moveItinerary() {
-        //Pr que ce soit valable même ici on devrait créer une propriété de LinearGradient maybe.
         polylineItinerary.setLayoutX(-mapProperty.get().xCoordinate());
         polylineItinerary.setLayoutY(-mapProperty.get().yCoordinate());
     }
+
 
     /**
      * Creates the circle representing the highlighted position
