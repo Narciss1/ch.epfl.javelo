@@ -8,7 +8,6 @@ import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -46,9 +45,7 @@ public final class ElevationProfileManager {
     private TextField averageSpeed;
     private TilePane speedPane;
     private final Consumer<String> errorConsumer;
-    private final static String LABEL_SPEED = " Vitesse moyenne";
-    private final static String DEFAULT_AVERAGE_SPEED_STRING = "25";
-    private final static String ERROR_MESSAGE = "Entrée invalide";
+
 
     /**
      * Value of text's size
@@ -63,18 +60,28 @@ public final class ElevationProfileManager {
      */
     private final static int MIN_ELE_SPACING = 25;
     /**
+     * Distance in pixel subtracted to the position of the elevation
+     */
+    private final static int ELEVATION_LEFT_SHIFT = -2;
+
+
+    /**
+     * Number of minutes per hour
+     */
+    private final static double MINUTES_PER_HOUR = 60d;
+    /**
      * Dimensionless factor used to convert values in meters to kilometers
      */
     private final static double METER_KILOMETER_RATIO = 1d/1000d;
     /**
-     * Distance in pixel subtracted to the position of the elevation
-     */
-    private final static int ELEVATION_LEFT_SHIFT = -2;
-    /**
      * Dimensionless factor used to obtain the half of an existing value
      */
     private final static double HALF_RATIO = 1d/2d;
-    private final static double DEFAULT_AVERAGE_SPEED = 25d / 60d;
+    /**
+     * Default value for the average speed in kilometers per minute
+     */
+    private final static double DEFAULT_AVERAGE_SPEED = 25d / MINUTES_PER_HOUR;
+
     /**
      * Table containing the different values that can be used to separate
      * the vertical lines of position
@@ -104,6 +111,18 @@ public final class ElevationProfileManager {
      * Label's font
      */
     private final static String FONT_AVENIR = "Avenir";
+    /**
+     * Label corresponding to the average speed
+     */
+    private final static String LABEL_SPEED = " Vitesse moyenne";
+    /**
+     * Default value for the average speed that appears on the pane containing the elevation profile
+     */
+    private final static String DEFAULT_AVERAGE_SPEED_STRING = "25";
+    /**
+     * String indicating that the value entered by the user is invalid
+     */
+    private final static String ERROR_MESSAGE = "Entrée invalide";
 
     /**
      * Contains the distance between the top edge of the blue rectangle and the top edge
@@ -111,7 +130,7 @@ public final class ElevationProfileManager {
      * their bottom edges
      */
     private final static Insets FRAME_AND_PANE_GAP = new Insets(10, 10, 20, 40);
-    private final static Insets FRAME = new Insets(10, 10, 20, 40);
+
     /**
      * Constructs an elevation profile manager
      * @param elevationProfileProperty a read-only property, containing the profile to
@@ -130,6 +149,7 @@ public final class ElevationProfileManager {
         listeners();
         rectangleBinding();
         lineBindings();
+        speedPaneBindings();
         events();
     }
 
@@ -362,51 +382,23 @@ public final class ElevationProfileManager {
         screenToWorld = new SimpleObjectProperty<>(new Affine());
         worldToScreen = new SimpleObjectProperty<>(new Affine());
 
+        VBox routeStatistics = new VBox(statsProperty.get());
+        routeStatistics.setId("profile_data");
+
         speedLabel = new Label(LABEL_SPEED);
         averageSpeed = new TextField(DEFAULT_AVERAGE_SPEED_STRING);
         averageSpeed.setAlignment(Pos.BASELINE_CENTER);
 
-
+        pane = new Pane(profile, line, grid, texts);
         speedPane = new TilePane(speedLabel, averageSpeed);
         speedPane.setOrientation(Orientation.HORIZONTAL);
-        speedPane.maxWidthProperty().bind(Bindings.createDoubleBinding(() ->
-                        speedLabel.getWidth() + averageSpeed.getWidth(),
-                speedLabel.widthProperty(), averageSpeed.widthProperty()));
-        speedPane.maxHeightProperty().bind(Bindings.createDoubleBinding(() ->
-                        Math.max(speedLabel.getHeight(), averageSpeed.getHeight()),
-                speedLabel.heightProperty(), averageSpeed.heightProperty()));
-        averageSpeed.textProperty().addListener((p, oldText, newText) -> {
-            if(elevationProfileProperty().get() != null) {
-                averageSpeed.setOnAction(l -> {
-                    try {
-                        setStatsProperty(Double.valueOf(newText) / 60d);
-                    } catch (NumberFormatException e) {
-                        errorConsumer.accept(ERROR_MESSAGE);
-                    }
-                });
-
-            }
-        });
-
-        pane = new Pane(profile, line, grid, texts);
-        VBox routeStatistics = new VBox(statsProperty.get());
-        routeStatistics.setId("profile_data");
         borderPane = new BorderPane(pane, null, speedPane, routeStatistics, null);
         borderPane.getStylesheets().add("elevation_profile.css");
-
-       /* speedPane.layoutXProperty().bind(Bindings.createDoubleBinding(
-                () -> pane.getWidth() - speedPane.getWidth(),
-                pane.widthProperty(), speedPane.widthProperty()
-        ));
-        speedPane.layoutYProperty().bind(Bindings.createDoubleBinding(
-                () -> pane.getHeight() - speedPane.getHeight(),
-                pane.heightProperty(), speedPane.heightProperty()
-        ));*/
     }
 
     /**
      * Adds listeners to the properties containing : the transformation worldToScreen,
-     * the elevation profile and the rectangle that contains it
+     * the elevation profile, the rectangle that contains it and the the average speed
      */
     private void listeners() {
         elevationProfileProperty.addListener(l -> {
@@ -423,6 +415,18 @@ public final class ElevationProfileManager {
             createPolygon();
             createGrid();
             createStatistics();
+        });
+
+        averageSpeed.textProperty().addListener((p, oldText, newText) -> {
+            if(elevationProfileProperty().get() != null) {
+                averageSpeed.setOnAction(l -> {
+                    try {
+                        setStatsProperty(Double.valueOf(newText) / MINUTES_PER_HOUR);
+                    } catch (NumberFormatException e) {
+                        errorConsumer.accept(ERROR_MESSAGE);
+                    }
+                });
+            }
         });
     }
 
@@ -452,6 +456,20 @@ public final class ElevationProfileManager {
                 worldToScreen, highlightedPositionProperty));
         line.startYProperty().bind(Bindings.select(rectangleProperty, "minY"));
         line.endYProperty().bind(Bindings.select(rectangleProperty, "maxY"));
+    }
+
+    /**
+     * Binds the properties of the pane containing the average speed
+     * with the properties containing of its components
+     */
+    private void speedPaneBindings() {
+        speedPane.maxWidthProperty().bind(Bindings.createDoubleBinding(() ->
+                        speedLabel.getWidth() + averageSpeed.getWidth(),
+                speedLabel.widthProperty(), averageSpeed.widthProperty()));
+
+        speedPane.maxHeightProperty().bind(Bindings.createDoubleBinding(() ->
+                        Math.max(speedLabel.getHeight(), averageSpeed.getHeight()),
+                speedLabel.heightProperty(), averageSpeed.heightProperty()));
     }
 
     /**
