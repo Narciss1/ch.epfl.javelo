@@ -71,7 +71,8 @@ public final class Stage8Test extends Application {
 
         ElevationProfile ec =ElevationProfileComputer.elevationProfile(routeBean.route(), 5);
         ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty = new SimpleObjectProperty<>(ec);
-        ElevationProfileManager em = new ElevationProfileManager(elevationProfileProperty, routeBean.highlightedPositionProperty());
+        ElevationProfileManager em = new ElevationProfileManager(elevationProfileProperty,
+                routeBean.highlightedPositionProperty(), errorConsumer);
         StackPane mainPane =
                 new StackPane( baseMapManager.pane(),
                         waypointsManager.pane()

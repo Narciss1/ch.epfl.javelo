@@ -3,14 +3,12 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.routing.ElevationProfile;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
-import javafx.geometry.Rectangle2D;
-import javafx.geometry.VPos;
+import javafx.geometry.*;
 import javafx.scene.Group;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -19,6 +17,7 @@ import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Manages the display of the longitudinal profile of the route and the interaction with it
@@ -42,6 +41,14 @@ public final class ElevationProfileManager {
     private Text stats;
     private Polygon profile;
     private Group texts;
+
+    private Label speedLabel;
+    private TextField averageSpeed;
+    private TilePane speedPane;
+    private final Consumer<String> errorConsumer;
+    private final static String LABEL_SPEED = " Vitesse moyenne";
+    private final static String DEFAULT_AVERAGE_SPEED_STRING = "25";
+    private final static String ERROR_MESSAGE = "Entrée invalide";
 
     /**
      * Value of text's size
@@ -104,7 +111,7 @@ public final class ElevationProfileManager {
      * their bottom edges
      */
     private final static Insets FRAME_AND_PANE_GAP = new Insets(10, 10, 20, 40);
-
+    private final static Insets FRAME = new Insets(10, 10, 20, 40);
     /**
      * Constructs an elevation profile manager
      * @param elevationProfileProperty a read-only property, containing the profile to
@@ -114,9 +121,11 @@ public final class ElevationProfileManager {
      */
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile>
                                            elevationProfileProperty,
-                                   ReadOnlyDoubleProperty highlightedPositionProperty) {
+                                   ReadOnlyDoubleProperty highlightedPositionProperty,
+                                   Consumer<String> errorConsumer) {
         this.elevationProfileProperty = elevationProfileProperty;
         this.highlightedPositionProperty = highlightedPositionProperty;
+        this.errorConsumer = errorConsumer;
         initialize();
         listeners();
         rectangleBinding();
@@ -349,15 +358,50 @@ public final class ElevationProfileManager {
 
         stats = new Text();
         statsProperty =  new SimpleObjectProperty<>(stats);
-        VBox routeStatistics = new VBox(statsProperty.get());
-        routeStatistics.setId("profile_data");
 
         screenToWorld = new SimpleObjectProperty<>(new Affine());
         worldToScreen = new SimpleObjectProperty<>(new Affine());
 
-        pane = new Pane(profile, line, grid,texts);
-        borderPane = new BorderPane(pane, null, null, routeStatistics, null);
+        speedLabel = new Label(LABEL_SPEED);
+        averageSpeed = new TextField(DEFAULT_AVERAGE_SPEED_STRING);
+        averageSpeed.setAlignment(Pos.BASELINE_CENTER);
+
+
+        speedPane = new TilePane(speedLabel, averageSpeed);
+        speedPane.setOrientation(Orientation.HORIZONTAL);
+        speedPane.maxWidthProperty().bind(Bindings.createDoubleBinding(() ->
+                        speedLabel.getWidth() + averageSpeed.getWidth(),
+                speedLabel.widthProperty(), averageSpeed.widthProperty()));
+        speedPane.maxHeightProperty().bind(Bindings.createDoubleBinding(() ->
+                        Math.max(speedLabel.getHeight(), averageSpeed.getHeight()),
+                speedLabel.heightProperty(), averageSpeed.heightProperty()));
+        averageSpeed.textProperty().addListener((p, oldText, newText) -> {
+            if(elevationProfileProperty().get() != null) {
+                averageSpeed.setOnAction(l -> {
+                    try {
+                        setStatsProperty(Double.valueOf(newText) / 60d);
+                    } catch (NumberFormatException e) {
+                        errorConsumer.accept(ERROR_MESSAGE);
+                    }
+                });
+
+            }
+        });
+
+        pane = new Pane(profile, line, grid, texts);
+        VBox routeStatistics = new VBox(statsProperty.get());
+        routeStatistics.setId("profile_data");
+        borderPane = new BorderPane(pane, null, speedPane, routeStatistics, null);
         borderPane.getStylesheets().add("elevation_profile.css");
+
+       /* speedPane.layoutXProperty().bind(Bindings.createDoubleBinding(
+                () -> pane.getWidth() - speedPane.getWidth(),
+                pane.widthProperty(), speedPane.widthProperty()
+        ));
+        speedPane.layoutYProperty().bind(Bindings.createDoubleBinding(
+                () -> pane.getHeight() - speedPane.getHeight(),
+                pane.heightProperty(), speedPane.heightProperty()
+        ));*/
     }
 
     /**

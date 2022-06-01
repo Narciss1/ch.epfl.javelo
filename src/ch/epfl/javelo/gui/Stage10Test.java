@@ -1,3 +1,4 @@
+/*
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.data.Graph;
@@ -34,7 +35,7 @@ public final class Stage10Test extends Application {
 
         ElevationProfileManager profileManager =
                 new ElevationProfileManager(profileProperty,
-                        highlightProperty);
+                        highlightProperty, );
 
         highlightProperty.bind(profileManager.mousePositionOnProfileProperty());
 
@@ -45,4 +46,4 @@ public final class Stage10Test extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-}
+}*/
