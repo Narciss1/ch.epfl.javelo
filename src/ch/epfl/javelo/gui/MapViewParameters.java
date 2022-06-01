@@ -5,7 +5,7 @@ import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.geometry.Point2D;
 
 /**
- * Represents the parameters of the map background for the graphic interface
+ * Represents the ch.epfl.javelo.parameters of the map background for the graphic interface
  * @author Hamane Aya (345565)
  * @author Sadgal Lina (342075)
  */

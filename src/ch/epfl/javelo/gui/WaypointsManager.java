@@ -12,6 +12,8 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
+import ch.epfl.javelo.parameters.Language;
+
 import java.util.function.Consumer;
 
 /**
@@ -26,6 +28,8 @@ public final class WaypointsManager {
     private final ObjectProperty<MapViewParameters> mapProperty;
     private final ObservableList<Waypoint> wayPoints;
     private final Consumer<String> errorConsumer;
+    private final ObjectProperty<String> errorMessage;
+
 
     /**
      * Length of the side of a square centred on the mouse pointer
@@ -45,10 +49,11 @@ public final class WaypointsManager {
      */
     private final static String ERROR_MESSAGE = "Aucune route à proximité !";
 
+
     /**
      * Constructor
      * @param graph a graph of the road network,
-     * @param mapProperty a JavaFX property containing the parameters of the displayed map
+     * @param mapProperty a JavaFX property containing the ch.epfl.javelo.parameters of the displayed map
      * @param wayPoints an observable list of all the waypoints
      * @param errorConsumer an object to report errors
      */
@@ -58,6 +63,8 @@ public final class WaypointsManager {
         this.mapProperty = mapProperty;
         this.wayPoints = wayPoints;
         this.errorConsumer = errorConsumer;
+        errorMessage = new SimpleObjectProperty<>(Language.FRENCH.getRouteMessage());
+
         pane = new Pane();
         pane.setPickOnBounds(false);
         addListeners();
@@ -81,7 +88,7 @@ public final class WaypointsManager {
         PointCh pointCh = pointWebMercator.toPointCh();
 
         if (! (pointCh != null && graph.nodeClosestTo(pointCh, SQUARE_RADIUS) != -1)) {
-            errorConsumer.accept(ERROR_MESSAGE);
+            errorConsumer.accept(errorMessage.get());
         } else {
             wayPoints.add(new Waypoint(pointCh, graph.nodeClosestTo(pointCh, SQUARE_RADIUS)));
         }
@@ -194,11 +201,15 @@ public final class WaypointsManager {
                                     SQUARE_RADIUS)));
                 } else {
                     relocateSVGPaths();
-                    errorConsumer.accept(ERROR_MESSAGE);
+                    errorConsumer.accept(errorMessage.get());
                 }
             } else {
                 wayPoints.remove(wayPoint);
             }
         });
+    }
+
+    public void changeLanguage(Language language) {
+        errorMessage.set(language.getRouteMessage());
     }
 }

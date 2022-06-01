@@ -9,6 +9,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
+import ch.epfl.javelo.parameters.Language;
 
 import java.nio.file.Path;
 
@@ -29,7 +30,7 @@ public final class SwitchBackgroundManager {
     private final TilePane tilePane;
 
 
-    private final static String LABEL_TEXT = "Fond de carte";
+    private final static String DEFAULT_LABEL_TEXT = "Fond de carte";
     private final static String OPEN_STREET_MAP = "OpenStreetMap";
     private final static String OPEN_STREET_MAP_SERVER = "tile.openstreetmap.org";
     //Je trouve ce nom moche hhh. et malheureusement j'ai pas eu la version modifiée.
@@ -41,7 +42,7 @@ public final class SwitchBackgroundManager {
         this.annotatedMapManager = annotatedMapManager;
         this.cacheBasePath = cacheBasePath;
 
-        label = new Label(LABEL_TEXT);
+        label = new Label(DEFAULT_LABEL_TEXT);
         osmButton = new RadioButton(OPEN_STREET_MAP);
         osmButton.setSelected(true);
         cyclosmButton = new RadioButton(CYCLO_OSM);
@@ -90,6 +91,10 @@ public final class SwitchBackgroundManager {
                 () -> pane.getWidth() - tilePane.getWidth(),
                 pane.widthProperty(), tilePane.widthProperty()
         ));
+    }
+
+    public void changeLanguage(Language language){
+        label.setText(language.getBackgroundMessage());
     }
 
 }
