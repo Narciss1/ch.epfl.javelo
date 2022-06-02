@@ -63,7 +63,18 @@ public final class ElevationProfileManager {
      * Distance in pixel subtracted to the position of the elevation
      */
     private final static int ELEVATION_LEFT_SHIFT = -2;
-
+    /**
+     * Value of spacing between elements of stats pane
+     */
+    private final static int STATS_PANE_SPACING = 5;
+    /**
+     * Value of gap between the element of the speed pane
+     */
+    private final static int SPEED_PANE_GAP = 1;
+    /**
+     * Maximum width of the children of the speed pane
+     */
+    private final static int MAX_WIDTH_SPEED_PANE_CHILDREN = 100;
 
     /**
      * Number of minutes per hour
@@ -114,7 +125,7 @@ public final class ElevationProfileManager {
     /**
      * Label corresponding to the average speed
      */
-    private final static String LABEL_SPEED = " Vitesse moyenne";
+    private final static String LABEL_SPEED = " Vitesse moyenne :";
     /**
      * Default value for the average speed that appears on the pane containing the elevation profile
      */
@@ -181,7 +192,7 @@ public final class ElevationProfileManager {
                         + "     Montée : %.0f m"
                         + "     Descente : %.0f m"
                         + "     Altitude : de %.0f m à %.0f m"
-                        + "     Durée moyenne : %.0f min" ,
+                        + "     Durée : %.0f min" ,
                 elevationProfile().length() * METER_KILOMETER_RATIO,
                 elevationProfile().totalAscent(),
                 elevationProfile().totalDescent(),
@@ -386,13 +397,21 @@ public final class ElevationProfileManager {
         routeStatistics.setId("profile_data");
 
         speedLabel = new Label(LABEL_SPEED);
+        speedLabel.setMaxWidth(MAX_WIDTH_SPEED_PANE_CHILDREN);
         averageSpeed = new TextField(DEFAULT_AVERAGE_SPEED_STRING);
+        averageSpeed.setMaxWidth(MAX_WIDTH_SPEED_PANE_CHILDREN);
         averageSpeed.setAlignment(Pos.BASELINE_CENTER);
 
-        pane = new Pane(profile, line, grid, texts);
         speedPane = new TilePane(speedLabel, averageSpeed);
-        speedPane.setOrientation(Orientation.HORIZONTAL);
-        borderPane = new BorderPane(pane, null, speedPane, routeStatistics, null);
+        speedPane.setHgap(SPEED_PANE_GAP);
+        speedPane.setOrientation(Orientation.VERTICAL);
+
+        HBox statsPane = new HBox(routeStatistics, speedPane);
+        statsPane.setAlignment(Pos.CENTER);
+        statsPane.setSpacing(STATS_PANE_SPACING);
+
+        pane = new Pane(profile, line, grid, texts);
+        borderPane = new BorderPane(pane, null, null, statsPane, null);
         borderPane.getStylesheets().add("elevation_profile.css");
     }
 
@@ -434,7 +453,7 @@ public final class ElevationProfileManager {
      * Binds the rectangle containing the elevation profile and the pane
      */
     private void rectangleBinding() {
-        rectangleProperty.bind(Bindings.createObjectBinding((() ->new Rectangle2D(
+        rectangleProperty.bind(Bindings.createObjectBinding((() -> new Rectangle2D(
                     FRAME_AND_PANE_GAP.getLeft(),
                     FRAME_AND_PANE_GAP.getTop(),
                     Math.max(pane.getWidth() - FRAME_AND_PANE_GAP.getRight() -
