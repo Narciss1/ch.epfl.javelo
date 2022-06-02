@@ -13,7 +13,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
 import ch.epfl.javelo.parameters.Language;
-
 import java.util.function.Consumer;
 
 /**

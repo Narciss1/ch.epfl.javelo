@@ -148,6 +148,7 @@ public final class ElevationProfileManager {
      * be displayed or null in case no profile is to be displayed
      * @param highlightedPositionProperty a read-only property containing the position along
      * the profile to be highlighted or NaN in case no position is to be highlighted
+     * @param errorConsumer an "error consumer" to report an error
      */
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile>
                                            elevationProfileProperty,

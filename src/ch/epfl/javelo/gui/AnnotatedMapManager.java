@@ -11,7 +11,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import ch.epfl.javelo.parameters.Language;
-
 import java.util.function.Consumer;
 
 /**
@@ -132,7 +131,6 @@ public final class AnnotatedMapManager {
     public void setTileManager(TileManager tileManager) {
         baseMapManager.setTileManager(tileManager);
     }
-
 
     public void changeLanguage(Language language) {
         waypointsManager.changeLanguage(language);

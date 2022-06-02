@@ -5,7 +5,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import ch.epfl.javelo.Cache;
 import ch.epfl.javelo.Preconditions;
 import javafx.scene.image.Image;

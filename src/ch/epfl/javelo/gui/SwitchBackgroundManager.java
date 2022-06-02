@@ -88,7 +88,6 @@ public final class SwitchBackgroundManager {
     public void changeLanguage(Language language){
         label.setText(language.getBackgroundMessage());
     }
-
 }
 
 

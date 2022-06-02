@@ -1,7 +1,6 @@
 package ch.epfl.javelo.projection;
 
 import ch.epfl.javelo.Math2;
-
 import static ch.epfl.javelo.Preconditions.checkArgument;
 import static ch.epfl.javelo.projection.SwissBounds.containsEN;
 

@@ -2,9 +2,7 @@ package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.Preconditions;
-
 import java.util.Arrays;
-
 import static java.lang.Float.isNaN;
 import static java.util.Arrays.fill;
 
@@ -94,5 +92,4 @@ public final class ElevationProfileComputer {
             nanCounter = 0;
         }
     }
-
 }

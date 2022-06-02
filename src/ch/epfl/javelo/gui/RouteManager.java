@@ -17,7 +17,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.StrokeLineJoin;
 import java.util.*;
-
 import static java.lang.Double.isNaN;
 
 /**

@@ -74,5 +74,4 @@ public final class ErrorManager {
         sequentialTransition.playFromStart();
         java.awt.Toolkit.getDefaultToolkit().beep();
     }
-
 }

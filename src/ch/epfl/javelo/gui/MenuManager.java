@@ -5,7 +5,6 @@ import ch.epfl.javelo.routing.GpxGenerator;
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.*;
 import javafx.scene.shape.SVGPath;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
